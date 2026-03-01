@@ -17,6 +17,7 @@ zh:
   wiki_approval_link_release: 已发布版本
   wiki_approval_workflow:
     status:
+      draft_in_progress: "草稿进行中"
       draft: "草稿"
       pending: "审批中"
       rejected: "已拒绝"
@@ -45,4 +46,6 @@ zh:
   wiki_approval_notifications_typ: "%{author} 更新了 %{typ}。"
   my_wiki_drafts: "我的Wiki草稿"
   wiki_approval_queue: "Wiki审批队列"
+  button_wiki_approval_content_draft: "保存草稿" 
+  button_wiki_approval_content_draft_prev: "加载上一版本"
   

@@ -10,13 +10,14 @@ This plugin adds an approval workflow to the wiki, allowing teams to review, app
 
 ## 🧠 How it works
 
-This plugin does **not** replace Redmine's wiki versioning.
+This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 
-- Every edit is saved as a normal Redmine wiki version
-- Drafts and unapproved changes remain private
-- Only **approved versions** are displayed as the public wiki page
-- Viewers are automatically redirected to the latest approved version
-- Permission 'View wiki history' should be enabled for the redirection
+- **Smart Drafting**: Save your progress as a draft without creating a new Redmine wiki version. This keeps the history clean while you work.
+- **Normal Versioning**: Once a change is finalized (or submitted), it is saved as a standard Redmine wiki version.
+- **Privacy**: Drafts and unapproved changes remain private/hidden from regular viewers.
+- **Approval Logic**: Only approved versions are displayed as the public wiki page.
+- **Seamless Navigation**: Viewers are automatically redirected to the latest approved version.
+- **Prerequisite**: Permission 'View wiki history' should be enabled for the redirection.
 
 ## 🌟 Features
 
@@ -79,7 +80,10 @@ Enable the Module "Wiki approval" per project
 2. Navigate to **Project Settings → Wiki approval**
    - enable the modul per project
 3. Available options:
+   - Settings 
      - Wiki comment required 
+     - Wiki Content Drafts enabled
+   - Approval workflow
      - Wiki draft enabled
      - Wiki approval enabled
        - Approval required
@@ -91,51 +95,51 @@ Enable the Module "Wiki approval" per project
   <table>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ProjectSettings.png" width="175px" />
+        <img src="./docs/screenshots/ProjectSettings.png" width="230px" />
         <br>
         <sub><b>Project Settings</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/EditPage.png" width="175px" />
+        <img src="./docs/screenshots/EditPage.png" width="230px" />
         <br>
         <sub><b>Page Edit</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Draft.png" width="175px" />
+        <img src="./docs/screenshots/Draft.png" width="230px" />
         <br>
         <sub><b>Draft created</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/StartApproval.png" width="175px" />
+        <img src="./docs/screenshots/StartApproval.png" width="230px" />
         <br>
         <sub><b>Start approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/InApproval.png" width="175px" />
+        <img src="./docs/screenshots/InApproval.png" width="230px" />
         <br>
         <sub><b>in Approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/GrantApproval.png" width="175px" />
+        <img src="./docs/screenshots/GrantApproval.png" width="230px" />
         <br>
         <sub><b>Grant Approval</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ApprovedStep1.png" width="175px" />
+        <img src="./docs/screenshots/ApprovedStep1.png" width="230px" />
         <br>
         <sub><b>Approved step 1</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Released.png" width="175px" />
+        <img src="./docs/screenshots/Released.png" width="230px" />
         <br>
         <sub><b>Released, all steps are approved</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/MyPage.png" width="175px" />
+        <img src="./docs/screenshots/MyPage.png" width="230px" />
         <br>
         <sub><b>My page</b></sub>
       </td>

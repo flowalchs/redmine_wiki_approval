@@ -4,11 +4,15 @@
                 "status >= ? AND status <= ? AND author_id = ?", 
                 WikiApprovalWorkflow.statuses[:draft], 
                 WikiApprovalWorkflow.statuses[:rejected], 
-                User.current.id
-)
+                User.current.id)
+
+    draft_entries = WikiApprovalDraft.where(author_id: User.current.id)
+    all_entries = (drafts.to_a + draft_entries.to_a).sort_by { |e|
+      [e.wiki_page.project.name.downcase, e.wiki_page.title.downcase]
+    }
 %>
-<h3><%= l(:my_wiki_drafts) %> (<%= drafts.count %>) </h3>
-<% if drafts.any? %>
+<h3><%= l(:my_wiki_drafts) %> (<%= all_entries.count %>) </h3>
+<% if all_entries.any? %>
   <table class="list">
     <thead>
       <tr>
@@ -22,19 +26,22 @@
       </tr>
     </thead>
     <tbody>
-      <% drafts.each do |approval| %>
+      <% all_entries.each do |entry| %>
+        <% 
+          if entry.status == :draft_in_progress
+            link = edit_project_wiki_page_path(entry.wiki_page.project, entry.wiki_page.title)
+          else
+            link = project_wiki_page_path(entry.wiki_page.project.identifier, entry.wiki_page.title, :version => entry.wiki_version_id)
+          end
+        %>
         <tr class="<%= cycle('odd', 'even') %>">
-          <td><%= link_to approval.wiki_page.project, 
-                          project_path(approval.wiki_page.project.identifier) %></td>
-          <td><%= link_to approval.wiki_page.title, 
-                          project_wiki_page_path(approval.wiki_page.project.identifier, approval.wiki_page.title, :version => approval.wiki_version_id) %></td>
-          <td><%= l("wiki_approval_workflow.status.#{approval.status}") %></td>
-          <td><%= approval.note %></td>
-          <td><%= format_time(approval.created_at) %></td>
-          <td><%= format_time(approval.updated_at) %></td>
-          <td class="buttons">
-            <%= link_to l(:button_view), { :controller => 'wiki', :action => 'show', :project_id => approval.wiki_page.project.identifier, :id => approval.wiki_page.title, :version => approval.wiki_version_id }, :class => 'icon icon-view' %>
-          </td>
+          <td><%= link_to entry.wiki_page.project, project_path(entry.wiki_page.project.identifier) %></td>
+          <td><%= link_to entry.wiki_page.title, link %></td>
+          <td><%= l("wiki_approval_workflow.status.#{entry.status}") %></td>
+          <td><%= entry.note %></td>
+          <td><%= format_time(entry.created_at) %></td>
+          <td><%= format_time(entry.updated_at) %></td>
+          <td class="buttons"><%= link_to l(:button_view), link, :class => 'icon icon-view' %></td>
         </tr>
       <% end %>
     </tbody>

@@ -18,6 +18,7 @@ fr:
   wiki_approval_link_release: Version publiée
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Brouillon en cours"
       draft: "Brouillon"
       pending: "En approbation"
       rejected: "Rejeté"
@@ -46,4 +47,6 @@ fr:
   wiki_approval_notifications_typ: "%{typ} a été mis à jour par %{author}."
   my_wiki_drafts: "Mes brouillons wiki"
   wiki_approval_queue: "File d'attente d'approbation wiki"
+  button_wiki_approval_content_draft: "Enregistrer le brouillon" 
+  button_wiki_approval_content_draft_prev: "Charger la version précédente"
   

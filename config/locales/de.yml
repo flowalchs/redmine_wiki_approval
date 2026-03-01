@@ -8,6 +8,7 @@ de:
   permission_wiki_draft_create: Entwurf erstellen
   label_wiki_approval_settings_projects: 'je Projekt konfigurierbar'
   label_wiki_approval_settings_comment: Wiki-Kommentar erforderlich
+  label_wiki_approval_settings_content_draft: Wiki‑Inhaltsentwürfe aktivieren
   label_wiki_approval_settings_required: Freigabe erforderlich
   label_wiki_approval_settings_version: Freigabe-Workflow für die nächste Version
   label_wiki_approval_settings_draft_enabled: Wiki-Entwurf aktiviert
@@ -17,6 +18,7 @@ de:
   wiki_approval_link_release: Veröffentliche Version
   wiki_approval_workflow:
     status:
+      draft_in_progress: Entwurf in Bearbeitung
       draft: Entwurf
       pending: In Freigabe
       rejected: Abgelehnt
@@ -45,3 +47,6 @@ de:
   wiki_approval_notifications_typ: "%{typ} wurde von %{author} aktualisiert."
   my_wiki_drafts: Meine Wiki-Entwürfe
   wiki_approval_queue: Wiki Freigabe-Queue
+  button_wiki_approval_content_draft: Zwischenspeichern
+  button_wiki_approval_content_draft_prev: Letzte Version laden
+

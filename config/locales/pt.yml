@@ -18,6 +18,7 @@ pt:
   wiki_approval_link_release: Versão publicada
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Rascunho em curso"
       draft: "Rascunho"
       pending: "Em aprovação"
       rejected: "Rejeitado"
@@ -46,4 +47,6 @@ pt:
   wiki_approval_notifications_typ: "%{typ} foi atualizado por %{author}."
   my_wiki_drafts: "Os meus rascunhos de wiki"
   wiki_approval_queue: "Fila de aprovação de wiki"
+  button_wiki_approval_content_draft: "Guardar rascunho" 
+  button_wiki_approval_content_draft_prev: "Carregar versão anterior"
   

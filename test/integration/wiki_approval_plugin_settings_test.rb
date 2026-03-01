@@ -17,6 +17,7 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_select 'select[name="settings[wiki_approval_settings_enabled]"]'
     assert_select 'select[name="settings[wiki_approval_settings_required]"]'
     assert_select 'select[name="settings[wiki_approval_settings_version]"]'
+    assert_select 'select[name="settings[wiki_approval_settings_content_draft]"]'
 
     # all available options (Yes, No, Projects)
     assert_select 'option[value="true"]'
@@ -32,7 +33,8 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
              wiki_approval_settings_draft_enabled: 'false',
              wiki_approval_settings_enabled: 'project',
              wiki_approval_settings_required: 'true',
-             wiki_approval_settings_version: 'false'
+             wiki_approval_settings_version: 'false',
+             wiki_approval_settings_content_draft: 'project'
            }
          }
 
@@ -46,6 +48,7 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_equal 'project', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled]
     assert_equal 'true', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required]
     assert_equal 'false', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version]
+    assert_equal 'project', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft]
   end
 
   def test_project_plugin_settings

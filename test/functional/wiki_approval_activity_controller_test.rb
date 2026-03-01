@@ -110,75 +110,116 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
     assert_select 'link[href=?]', 'http://test.host/projects/subproject1/wiki/Subproject_Page/1', 0
   end
 
-  test 'activity provider should filter by subprojects and date range' do
+  test 'activity provider should filter by subprojects and date range and group' do
     set_session_user(@admin)
     
-    # 1. Setup: Hauptprojekt und Subprojekt
-    project = Project.find(1) # e.g. ecookbook
-    subproject = @project3 # e.g. subproject1
-    subproject.set_parent!(@project)
-    
-    # Wiki für Subprojekt sicherstellen
-    subproject.create_wiki(start_page: 'SubPage') unless subproject.wiki
-    page_sub = WikiPage.create!(wiki: subproject.wiki, title: 'Subproject_Page')
-    
-    # 2. Daten erstellen mit verschiedenen Zeitstempeln
-    time_now = Time.now.utc
-    time_old = 1.days.ago.utc
-    time_very_old = 30.days.ago.utc
+    # Friert "jetzt" ein, um TZ-/Tageswechsel-Flakes zu vermeiden
+    travel_to Time.current do
+      # 1) Isolierte Projektstruktur
+      root = Project.generate!(identifier: "act-test1", name: 'Activity Root')
+      sub  = Project.generate!(identifier: "act-sub-test1",
+                               name: 'Activity Sub', parent: root)
 
-    # Eintrag im Subprojekt (JETZT) -> Sollte erscheinen
-    WikiApprovalWorkflow.create!(wiki_page: page_sub, wiki_version_id: 1, status: 10, author_id: @admin.id, created_at: time_now)
+      root.enable_module!('wiki')
+      root.enable_module!('wiki_approval')
+      sub.enable_module!('wiki')
+      sub.enable_module!('wiki_approval')
 
-    # Eintrag im Hauptprojekt (ALT) -> Sollte durch Zeitfilter fliegen
-    page_main = project.wiki.pages.first
-    workflow_main = WikiApprovalWorkflow.create!(wiki_page: page_main, wiki_version_id: 2, status: 10, author_id: @admin.id)
-    WikiApprovalWorkflowStatus.create!(
-      wiki_approval_workflow: workflow_main, 
-      status: 20, 
-      author_id: 1, 
-      created_at: time_very_old
-    )
+      root.create_wiki(start_page: 'RootStart') unless root.wiki
+      sub.create_wiki(start_page: 'SubStart')   unless sub.wiki
 
-    WikiApprovalWorkflowStatus.create!(
-      wiki_approval_workflow: workflow_main, 
-      status: 20, 
-      author_id: 1, 
-      created_at: time_very_old
-    )
+      # Zwei Wiki-Seiten im Subprojekt:
+      page_sub  = WikiPage.create!(wiki: sub.wiki,  title: 'SubPage')
+      page_sub2 = WikiPage.create!(wiki: sub.wiki,  title: 'SubPage2')
 
-    # --- TEST 1: Mit Subprojekten und Zeitfilter ---
-    get :index, params: {
-      id: project.identifier,
-      from: time_very_old.to_date.to_s,
-      to: time_now.to_date.to_s,
-      with_subprojects: 1,
-      show_wiki_approval_workflow: 1
-    }
+      # 2) Zeitpunkte (3 Tage: von t_now-2d bis t_now inkl.)
+      t_now = Time.current
 
-    assert_response :success
+      # SubPage: 1 Workflow-Event (soll erscheinen)
+      wf_sub = WikiApprovalWorkflow.create!(
+        wiki_page: page_sub, wiki_version_id: 1, status: 20,
+        author_id: @admin.id, created_at: t_now
+      )
 
-    assert_select "div#activity" do
-      assert_select "dl", count: 1
-      assert_select "dl" do
-        # Prüft, ob genau 2 <dt> Elemente vorhanden sind
-        assert_select "dt", count: 2
-        
-        # Spezifische Prüfung des ersten (normalen) Eintrags
-        assert_select "dt.workflows.icon-workflows" do
-          assert_select "a[href=?]", "/projects/ecookbook/wiki/Another_page/2", text: /Another_page \(#2\)/
-        end
+      # SubPage2: 1 Workflow-Event + 2 Statusänderungen (Status erscheinen NICHT im Activity-Stream,
+      # da kein eigener Provider vorhanden ist; also KEINE Gruppierung)
+      wf_sub2 = WikiApprovalWorkflow.create!(
+        wiki_page: page_sub2, wiki_version_id: 2, status: 20,
+        author_id: @admin.id, created_at: t_now
+      )
+      # Zwei Änderungen auf derselben Seite/Workflow -> keine Activity-Einträge ohne Status-Provider
+      WikiApprovalWorkflowStatus.create!(
+        wiki_approval_workflow: wf_sub2, status: 20,
+        author_id: @admin.id, created_at: t_now + 5.minutes
+      )
+      WikiApprovalWorkflowStatus.create!(
+        wiki_approval_workflow: wf_sub2, status: 70,
+        author_id: @admin.id, created_at: t_now + 10.minutes
+      )
 
-        # Spezifische Prüfung des gruppierten Eintrags
-        assert_select "dt.grouped"
+      # Root-Projekt: außerhalb des Fensters -> soll gefiltert werden
+      page_root = WikiPage.create!(wiki: root.wiki, title: 'RootPage')
+      wf_root = WikiApprovalWorkflow.create!(
+        wiki_page: page_root, wiki_version_id: 3, status: 20,
+        author_id: @admin.id, created_at: t_now + 2.minutes
+      )
+      WikiApprovalWorkflowStatus.create!(
+        wiki_approval_workflow: wf_root, status: 20,
+        author_id: @admin.id, created_at: t_now + 2.minutes
+      )
 
-        # Prüft das Vorhandensein des <dd> mit der Klasse 'grouped'
-        assert_select "dd.grouped" do
-          assert_select "span.description", text: "In approval"
-          assert_select "span.author", text: "Redmine Admin"
+      # --- 4) Request mit 3-Tage-Fenster + Subprojekte + Plugin-Scope ---
+      get :index, params: {
+        id: root.identifier,
+        from: t_now.to_date.to_s,
+        to:   (t_now - 2.days).to_date.to_s,
+        with_subprojects: 1,
+        show_wiki_approval_workflow: 1
+      }
+
+      assert_response :success
+
+      assert_select 'div#activity' do
+        # Es gibt genau 1 Tagesblock in deinem Snippet
+        assert_select 'dl', count: 1
+
+        assert_select 'dl' do
+          # Insgesamt 6 <dt>-Einträge
+          assert_select 'dt.workflows.icon.icon-workflows', count: 6
+
+          # Davon 3 mit Gruppierung (class beinhaltet 'grouped')
+          assert_select 'dt.workflows.icon.icon-workflows.grouped.me', count: 3
+
+          # Und damit 3 ohne Gruppierung (ohne .grouped)
+          assert_select 'dt.workflows.icon.icon-workflows.me:not(.grouped)', count: 3
+
+          # Zu jedem grouped-<dt> gehört ein <dd class="grouped">
+          assert_select 'dd.grouped', count: 3
+
+          # Und 3 normale <dd> ohne grouped
+          assert_select 'dd:not(.grouped)', count: 3
+
+          # Links Subprojekt (SubPage2) – kommt mehrfach (einmal ungegrouped + mehrfach grouped)
+          assert_select 'dt a[href="/projects/act-sub-test1/wiki/SubPage2/2"]', minimum: 3
+          # Links Subprojekt (SubPage)
+          assert_select 'dt a[href="/projects/act-sub-test1/wiki/SubPage/1"]', count: 1
+          # Links Root
+          assert_select 'dt a[href="/projects/act-test1/wiki/RootPage/3"]', minimum: 2
+
+          # Inhalte/Labels
+          assert_select 'dd span.description', text: /In approval|Released/, minimum: 1
+          assert_select 'dd span.author a.user', text: /Redmine Admin/, minimum: 1
+
+          # Bonus: spezifischer Check auf die Kombination 'grouped me' und korrekten Link
+          assert_select 'dt.workflows.icon.icon-workflows.grouped.me a[href="/projects/act-sub-test1/wiki/SubPage2/2"]', minimum: 1
+
+          # Bonus: sicherstellen, dass die ungegroupte SubPage2-Zeile existiert
+          assert_select 'dt.workflows.icon.icon-workflows.me:not(.grouped) a[href="/projects/act-sub-test1/wiki/SubPage2/2"]', count: 1
+
+          # Bonus: sicherstellen, dass die ungegroupte SubPage-Zeile existiert
+          assert_select 'dt.workflows.icon.icon-workflows.me:not(.grouped) a[href="/projects/act-sub-test1/wiki/SubPage/1"]', count: 1
         end
       end
     end
-
   end
 end

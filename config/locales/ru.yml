@@ -18,6 +18,7 @@ ru:
   wiki_approval_link_release: Опубликованная версия
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Черновик в процессе"
       draft: "Черновик"
       pending: "На утверждении"
       rejected: "Отклонено"
@@ -46,4 +47,6 @@ ru:
   wiki_approval_notifications_typ: "%{typ} был обновлён пользователем %{author}."
   my_wiki_drafts: "Мои черновики вики"
   wiki_approval_queue: "Очередь утверждения вики"
+  button_wiki_approval_content_draft: "Сохранить черновик" 
+  button_wiki_approval_content_draft_prev: "Загрузить предыдущую версию"
   

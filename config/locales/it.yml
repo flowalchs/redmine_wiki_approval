@@ -18,6 +18,7 @@ it:
   wiki_approval_link_release: Versione pubblicata
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Bozza in corso"
       draft: "Bozza"
       pending: "In approvazione"
       rejected: "Rifiutato"
@@ -46,4 +47,6 @@ it:
   wiki_approval_notifications_typ: "%{typ} è stato aggiornato da %{author}."
   my_wiki_drafts: "Le mie bozze wiki"
   wiki_approval_queue: "Coda di approvazione wiki"
+  button_wiki_approval_content_draft: "Salva bozza" 
+  button_wiki_approval_content_draft_prev: "Carica versione precedente"
   
