@@ -17,6 +17,7 @@ ko:
   wiki_approval_link_release: 게시된 버전
   wiki_approval_workflow:
     status:
+      draft_in_progress: "초안 작성 중"
       draft: "초안"
       pending: "승인 중"
       rejected: "거부됨"
@@ -45,4 +46,6 @@ ko:
   wiki_approval_notifications_typ: "%{author}님이 %{typ}을(를) 업데이트했습니다."
   my_wiki_drafts: "내 위키 초안"
   wiki_approval_queue: "위키 승인 대기열"
+  button_wiki_approval_content_draft: "초안 저장" 
+  button_wiki_approval_content_draft_prev: "이전 버전 불러오기"
   

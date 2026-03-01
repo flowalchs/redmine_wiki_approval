@@ -70,6 +70,7 @@ module WikiApproval
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = 'project'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'project'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'true'
+        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
         @group = Group.first
       end
 
@@ -85,7 +86,6 @@ module WikiApproval
         Rails.cache.clear
         I18n.locale = :en
       end
-
     end
 
     class UnitCase < ActiveSupport::TestCase
@@ -101,7 +101,7 @@ module WikiApproval
 
       def teardown
         super
-        teardown_method!  
+        teardown_method!
       end
     end
 
@@ -118,7 +118,7 @@ module WikiApproval
 
       def teardown
         super
-        teardown_method!         
+        teardown_method!
       end
     end
 
@@ -135,7 +135,7 @@ module WikiApproval
 
       def teardown
         super
-        teardown_method!  
+        teardown_method!
       end
     end
 
@@ -152,7 +152,7 @@ module WikiApproval
 
       def teardown
         super
-        teardown_method!  
+        teardown_method!
       end
     end
   end

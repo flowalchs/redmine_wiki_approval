@@ -18,6 +18,7 @@ pl:
   wiki_approval_link_release: Opublikowana wersja
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Szkic w trakcie edycji"
       draft: "Wersja robocza"
       pending: "W trakcie zatwierdzania"
       rejected: "Odrzucono"
@@ -46,4 +47,6 @@ pl:
   wiki_approval_notifications_typ: "%{typ} został zaktualizowany przez %{author}."
   my_wiki_drafts: "Moje wersje robocze wiki"
   wiki_approval_queue: "Kolejka zatwierdzania wiki"
+  button_wiki_approval_content_draft: "Zapisz szkic" 
+  button_wiki_approval_content_draft_prev: "Wczytaj poprzednią wersję"
   

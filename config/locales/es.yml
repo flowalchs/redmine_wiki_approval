@@ -17,6 +17,7 @@ es:
   wiki_approval_link_release: Versión publicada
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Borrador en progreso"
       draft: "Borrador"
       pending: "En aprobación"
       rejected: "Rechazado"
@@ -45,4 +46,6 @@ es:
   wiki_approval_notifications_typ: "%{typ} fue actualizado por %{author}."
   my_wiki_drafts: "Mis borradores de wiki"
   wiki_approval_queue: "Cola de aprobación de wiki"
+  button_wiki_approval_content_draft: "Guardar borrador" 
+  button_wiki_approval_content_draft_prev: "Cargar versión anterior"
   

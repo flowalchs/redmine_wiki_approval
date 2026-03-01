@@ -8,6 +8,7 @@ en:
   permission_wiki_draft_create: Create draft
   label_wiki_approval_settings_projects: 'Configurable per project'
   label_wiki_approval_settings_comment: Wiki comment required
+  label_wiki_approval_settings_content_draft: Wiki Content Drafts enabled
   label_wiki_approval_settings_required: Approval required
   label_wiki_approval_settings_version: Approval workflow for next version
   label_wiki_approval_settings_draft_enabled: Wiki draft enabled
@@ -17,6 +18,7 @@ en:
   wiki_approval_link_release: Published version
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Draft in progress"
       draft: "Draft"
       pending: "In approval"
       rejected: "Rejected"
@@ -45,3 +47,5 @@ en:
   wiki_approval_notifications_typ: "%{typ} was updated by %{author}."
   my_wiki_drafts: My wiki drafts
   wiki_approval_queue: Wiki approval queue
+  button_wiki_approval_content_draft: Save draft
+  button_wiki_approval_content_draft_prev: Load previous version

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class WikiApprovalSetting < ApplicationRecord 
+class WikiApprovalSetting < ApplicationRecord
   self.table_name = 'wiki_approval_settings'
   belongs_to :project
   before_save :sync_data_hash_to_json
@@ -90,10 +90,21 @@ class WikiApprovalSetting < ApplicationRecord
     data_hash[:wiki_approval_version] = ActiveModel::Type::Boolean.new.cast(value)
   end
 
+  def wiki_content_draft
+    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] == WikiApprovalSettingsHelper::PROJECT
+      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_content_draft])
+    else
+      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft])
+    end
+  end
+
+  def wiki_content_draft=(value)
+    data_hash[:wiki_content_draft] = ActiveModel::Type::Boolean.new.cast(value)
+  end
+
   private
 
   def sync_data_hash_to_json
     self.json_data = @data_hash.to_json if @data_hash
   end
-
 end

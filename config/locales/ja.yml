@@ -17,6 +17,7 @@ ja:
   wiki_approval_link_release: 公開済みバージョン
   wiki_approval_workflow:
     status:
+      draft_in_progress: "下書き作業中"
       draft: "下書き"
       pending: "承認中"
       rejected: "却下"
@@ -45,4 +46,6 @@ ja:
   wiki_approval_notifications_typ: "%{author} により %{typ} が更新されました。"
   my_wiki_drafts: "自分のWiki下書き"
   wiki_approval_queue: "Wiki承認待ちキュー"
+  button_wiki_approval_content_draft: "下書きを保存" 
+  button_wiki_approval_content_draft_prev: "前のバージョンを読み込む"
   

@@ -15,11 +15,9 @@ class MyPageTest < WikiApproval::Test::ControllerCase
       'right' => ['wiki_approval_queue']
     }
     @jsmith.pref.save!
-
   end
 
   def test_wiki_approval_blocks_select_on_my_page
-
     get :index
     assert_response :success
 
@@ -31,7 +29,6 @@ class MyPageTest < WikiApproval::Test::ControllerCase
 
     # 1. Prüfe, ob der Haupt-Container des Blocks existiert
     assert_select "div#block-my_wiki_drafts.mypage-box" do
-      
       # 2. Prüfe die Überschrift inklusive der Anzahl (1)
       assert_select "h3", text: /My wiki drafts \(1\)/
 
@@ -48,14 +45,14 @@ class MyPageTest < WikiApproval::Test::ControllerCase
         assert_select "tbody tr.odd" do
           # Projekt-Link
           assert_select "td a[href='/projects/ecookbook']", text: "eCookbook"
-          
+
           # Wiki-Seiten-Link mit Versionsparameter
           assert_select "td a[href='/projects/ecookbook/wiki/Page_with_sections?version=3']", text: "Page_with_sections"
-          
+
           # Status und Kommentar
           assert_select "td", text: "In approval"
           assert_select "td", text: "in pending"
-          
+
           # Den "View"-Button am Ende der Zeile
           assert_select "td.buttons a.icon-view", text: "View"
         end
@@ -64,7 +61,6 @@ class MyPageTest < WikiApproval::Test::ControllerCase
 
     # 1. Haupt-Container für die Queue finden
     assert_select "div#block-wiki_approval_queue.mypage-box" do
-      
       # 2. Überschrift mit der (0) prüfen
       assert_select "h3", text: /Wiki approval queue \(0\)/
 
@@ -78,11 +74,9 @@ class MyPageTest < WikiApproval::Test::ControllerCase
       # 5. Prüfen, ob der Löschen-Link trotzdem vorhanden ist
       assert_select "a[href='/my/remove_block?block=wiki_approval_queue']"
     end
-
   end
 
-  def test_my_page_more_drafts 
-
+  def test_my_page_more_drafts
     @page = WikiPage.find_by(title: 'CookBook_documentation')
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
@@ -109,26 +103,26 @@ class MyPageTest < WikiApproval::Test::ControllerCase
         # Header-Prüfung
         assert_select "thead tr th", text: "Project"
         assert_select "thead tr th", text: "Wiki page"
-        
-        # 3. Den ersten Eintrag prüfen (Klasse 'odd')
-        assert_select "tbody tr.odd" do
+
+        # 3. Den ersten Eintrag prüfen (Klasse 'even')
+        assert_select "tbody tr.even" do
           assert_select "td a", text: "eCookbook"
           assert_select "td a", text: "Page_with_sections"
           assert_select "td", text: "In approval"
           assert_select "td", text: "in pending"
-          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/Page_with_sections/3']"
+          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/Page_with_sections?version=3']"
         end
 
-        # 4. Den zweiten Eintrag prüfen (Klasse 'even')
-        assert_select "tbody tr.even" do
+        # 4. Den zweiten Eintrag prüfen (Klasse 'odd')
+        assert_select "tbody tr.odd" do
           assert_select "td a", text: "eCookbook"
           assert_select "td a", text: "CookBook_documentation"
           assert_select "td", text: "In approval"
           # Hier ist das Kommentar-Feld im HTML leer
-          assert_select "td", text: "" 
-          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/CookBook_documentation/3']"
+          assert_select "td", text: ""
+          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/CookBook_documentation?version=3']"
         end
-        
+
         # 5. Anzahl der Zeilen im Body verifizieren
         assert_select "tbody tr", count: 2
       end
@@ -138,11 +132,9 @@ class MyPageTest < WikiApproval::Test::ControllerCase
       # 2. Überschrift mit der (0) prüfen
       assert_select "h3", text: /Wiki approval queue \(0\)/
     end
-
   end
 
   def test_my_page_more_queue
-
     @page = WikiPage.find_by(title: 'CookBook_documentation')
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
@@ -183,11 +175,11 @@ class MyPageTest < WikiApproval::Test::ControllerCase
           # Projekt und Wiki-Seite
           assert_select "td a[href='/projects/ecookbook']", text: "eCookbook"
           assert_select "td a[href='/projects/ecookbook/wiki/CookBook_documentation?version=3']", text: "CookBook_documentation"
-          
+
           # Workflow-Details
           assert_select "td", text: "Dave Lopper" # Workflow starter
           assert_select "td", text: "1"           # Aktueller Step
-          
+
           # Den View-Button am Ende
           assert_select "td.buttons a.icon-view", text: "View"
         end
@@ -196,12 +188,9 @@ class MyPageTest < WikiApproval::Test::ControllerCase
         assert_select "tbody tr", count: 1
       end
     end
-
   end
 
-
   def test_my_page_queue_group
-
     @page = WikiPage.find_by(title: 'CookBook_documentation')
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
@@ -223,7 +212,6 @@ class MyPageTest < WikiApproval::Test::ControllerCase
 
     # 1. Den Block in der rechten Spalte suchen
     assert_select "#list-right #block-wiki_approval_queue" do
-      
       # 2. Titel und Counter (1) prüfen
       assert_select "h3", text: /Wiki approval queue \(1\)/
 
@@ -241,17 +229,92 @@ class MyPageTest < WikiApproval::Test::ControllerCase
           # Projekt & Wiki-Link
           assert_select "td a[href='/projects/ecookbook']", text: "eCookbook"
           assert_select "td a[href*='CookBook_documentation?version=3']", text: "CookBook_documentation"
-          
+
           # Workflow-spezifische Daten
           assert_select "td", text: "Dave Lopper" # Starter
           assert_select "td", text: "1"           # Aktueller Schritt
-          
+
           # Action Button
           assert_select "td.buttons a.icon-view", text: "View"
         end
       end
     end
-
   end
 
+  def test_my_page_more_drafts_in_progress
+    @page = WikiPage.find_by(title: 'CookBook_documentation')
+    @page.content ||= WikiContent.create!(page: @page, text: 'test')
+
+    approval = WikiApprovalWorkflow.create!(
+      wiki_page_id: @page.id,
+      wiki_version_id: @page.content.version,
+      status: :pending,
+      author_id: @jsmith.id
+    )
+    step = approval.approval_steps.for_principal(@dlopper).find_or_initialize_by(step: 1)
+    step.status = :pending
+    step.save!
+
+    WikiApprovalDraft.create!(
+      wiki_page_id: @page.id,
+      author_id: @jsmith.id,
+      text: "newText"
+    )
+
+    get :index
+    assert_response :success
+
+    # Den Hauptblock für die Entwürfe ansteuern
+    assert_select "div#block-my_wiki_drafts" do
+      # 1. Die Überschrift mit der korrekten Anzahl (3) prüfen
+      assert_select "h3", text: /My wiki drafts \(3\)/
+
+      # 2. Die Tabellenstruktur validieren
+      assert_select "table.list" do
+        # Header-Prüfung
+        assert_select "thead tr th", text: "Project"
+        assert_select "thead tr th", text: "Wiki page"
+        assert_select "thead tr th", text: "Status"
+        assert_select "thead tr th", text: "Comment"
+        assert_select "thead tr th", text: "Created"
+        assert_select "thead tr th", text: "Updated"
+
+        # 3. Erste Zeile (odd)
+        assert_select "tbody tr.odd:nth-of-type(1)" do
+          assert_select "td a", text: "eCookbook"
+          assert_select "td a", text: "CookBook_documentation"
+          assert_select "td", text: "In approval"
+          assert_select "td", text: ""
+          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/CookBook_documentation?version=3']"
+        end
+
+        # 4. Zweite Zeile (even)
+        assert_select "tbody tr.even" do
+          assert_select "td a", text: "eCookbook"
+          assert_select "td a", text: "CookBook_documentation"
+          assert_select "td", text: "Draft in progress"
+          assert_select "td", text: ""
+          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/CookBook_documentation/edit']"
+        end
+
+        # 5. Dritte Zeile (odd)
+        assert_select "tbody tr.odd:nth-of-type(2)" do
+          assert_select "td a", text: "eCookbook"
+          assert_select "td a", text: "Page_with_sections"
+          assert_select "td", text: "In approval"
+          assert_select "td", text: "in pending"
+          assert_select "td.buttons a.icon-view[href='/projects/ecookbook/wiki/Page_with_sections?version=3']"
+        end
+
+        # 6. Anzahl der Zeilen im Body verifizieren
+        assert_select "tbody tr", count: 3
+      end
+    end
+
+    # 7. Haupt-Container für die Queue finden
+    assert_select "div#block-wiki_approval_queue.mypage-box" do
+      # 8. Überschrift mit der (0) prüfen
+      assert_select "h3", text: /Wiki approval queue \(0\)/
+    end
+  end
 end

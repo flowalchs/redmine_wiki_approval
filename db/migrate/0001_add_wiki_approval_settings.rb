@@ -3,11 +3,10 @@
 class AddWikiApprovalSettings < ActiveRecord::Migration[5.2]
   def self.up
     create_table :wiki_approval_settings do |t|
-      t.references :project, null: false
+      t.references :project, null: false, index: { name: 'index_wiki_approval_settings_project' }
       t.text :json_data
       t.timestamps null: false
     end
-    add_index :wiki_approval_settings, :project_id, name: 'index_wiki_approval_settings_project'
   end
 
   def self.down

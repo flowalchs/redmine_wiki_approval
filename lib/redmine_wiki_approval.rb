@@ -3,7 +3,7 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.9.1'
+  VERSION = '0.10.0'
 
   include RedminePluginKit::PluginBase
 
@@ -74,6 +74,15 @@ module RedmineWikiApproval
 
       user = User.current.logged? ? User.current : User.anonymous
       user.allowed_to?(:wiki_draft_view, project) || user.allowed_to?(:wiki_approval_grant, project)
+    end
+
+    def content_draft?(project, setting = nil)
+      return false unless project
+      return false if setting.nil? && !is_enabled?(project)
+
+      setting ||= WikiApprovalSetting.find_or_create(project.id)
+      user = User.current.logged? ? User.current : User.anonymous
+      return user.allowed_to?(:wiki_draft_create, project) && setting.wiki_content_draft
     end
 
     private
