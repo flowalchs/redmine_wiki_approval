@@ -13,8 +13,4 @@ class WikiApprovalDraft < ApplicationRecord
   def note
     nil
   end
-
-  def wiki_version_id
-    self.wiki_page.version
-  end
 end

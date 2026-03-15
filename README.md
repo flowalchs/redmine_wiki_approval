@@ -95,51 +95,51 @@ Enable the Module "Wiki approval" per project
   <table>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ProjectSettings.png" width="217px" />
+        <img src="./docs/screenshots/ProjectSettings.png" width="230px" />
         <br>
         <sub><b>Project Settings</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/EditPage.png" width="217px" />
+        <img src="./docs/screenshots/EditPage.png" width="230px" />
         <br>
         <sub><b>Page Edit</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Draft.png" width="217px" />
+        <img src="./docs/screenshots/Draft.png" width="230px" />
         <br>
         <sub><b>Draft created</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/StartApproval.png" width="217px" />
+        <img src="./docs/screenshots/StartApproval.png" width="230px" />
         <br>
         <sub><b>Start approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/InApproval.png" width="217px" />
+        <img src="./docs/screenshots/InApproval.png" width="230px" />
         <br>
         <sub><b>in Approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/GrantApproval.png" width="217px" />
+        <img src="./docs/screenshots/GrantApproval.png" width="230px" />
         <br>
         <sub><b>Grant Approval</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ApprovedStep1.png" width="217px" />
+        <img src="./docs/screenshots/ApprovedStep1.png" width="230px" />
         <br>
         <sub><b>Approved step 1</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Released.png" width="217px" />
+        <img src="./docs/screenshots/Released.png" width="230px" />
         <br>
         <sub><b>Released, all steps are approved</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/MyPage.png" width="217px" />
+        <img src="./docs/screenshots/MyPage.png" width="230px" />
         <br>
         <sub><b>My page</b></sub>
       </td>
