@@ -18,17 +18,17 @@ module RedmineWikiApproval
 
             # when accessing the current wiki page
             if controller.params[:version].nil? && page&.version
-              version = WikiApprovalWorkflow.latest_public_version(page.id).first
+              version_nr = WikiApprovalWorkflow.latest_public_version_nr(page)
 
               # Redirect only if the last public versions differ
-              if version && version.wiki_version_id != page.version
+              if version_nr.present? && version_nr != page.version
 
                 context[:controller].redirect_to(
                   controller: 'wiki',
                   action: 'show',
                   project_id: context[:controller].params[:project_id],
                   id: page.title,
-                  version: version.wiki_version_id
+                  version: version_nr
                 )
                 return
 

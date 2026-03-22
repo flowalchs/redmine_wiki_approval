@@ -3,7 +3,7 @@ if @wiki_approval_data && RedmineWikiApproval.draft_create?(@project, @wiki_appr
 
     # disabled, approval_required or approval_version_required
     disabled = @wiki_approval_data[:setting].wiki_approval_required || 
-               (@wiki_approval_data[:setting].wiki_approval_version && @wiki_approval_data[:latest_public_approval]&.released?)
+               (@wiki_approval_data[:setting].wiki_approval_version && WikiApprovalWorkflow.latest_public_version_status(@page.id, :released))
 
     # default, same as disabled OR current in pending/rejected approval
     default = disabled ||

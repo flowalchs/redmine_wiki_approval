@@ -41,11 +41,41 @@ class WikiApprovalWorkflow < ApplicationRecord
   scope :for_wiki, ->(page_id, version_id) {
     where(wiki_page_id: page_id, wiki_version_id: version_id)
   }
-  scope :latest_public_version, ->(page_id) {
-    where(wiki_page_id: page_id, status: [statuses[:published], statuses[:released]])
+
+  def self.latest_public_version_status(page_id, specific_status = nil)
+    target_statuses = if specific_status
+                        statuses[specific_status]
+                      else
+                        [statuses[:published], statuses[:released]]
+                      end
+
+    where(wiki_page_id: page_id, status: target_statuses)
       .order(id: :desc)
-      .limit(1)
-  }
+      .first
+  end
+
+  def self.latest_public_version_nr(page)
+    record = where(wiki_page_id: page.id, status: [statuses[:published], statuses[:released]])
+            .order(id: :desc)
+            .first
+
+    if record
+      version_nr = record.wiki_version_id
+    else
+      # find version without any approvalWorkflow when current is a draft
+      version = WikiApprovalWorkflow.where(wiki_page_id: page.id, status: "draft")
+                                  .order(wiki_version_id: :desc)
+                                  .first
+      if version
+        content = WikiContentVersion.where(wiki_content_id: page.content.id)
+                            .where("version < ?", version.wiki_version_id)
+                            .order(version: :desc)
+                            .first
+        version_nr = content.version if content
+      end
+    end
+    version_nr
+  end
 
   def steps_grouped_with_default
     grouped = approval_steps.group_by(&:step)

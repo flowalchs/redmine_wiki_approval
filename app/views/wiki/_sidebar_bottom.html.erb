@@ -69,7 +69,7 @@
     </div>
   <% end %>
 
-  <% if @wiki_approval_data[:latest_public_approval] && @wiki_approval_data[:latest_public_approval].wiki_version_id == @wiki_approval_data[:view_version_id] %>
+  <% if @wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id] %>
     
     <% content_for :header_tags do %>
       <script>

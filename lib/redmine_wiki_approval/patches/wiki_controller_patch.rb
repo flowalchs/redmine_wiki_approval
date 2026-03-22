@@ -35,12 +35,12 @@ module RedmineWikiApproval
 
           # @page must be there
           approval = @page ? WikiApprovalWorkflow.for_wiki(@page.id, view_version.to_i).first : nil
-          latest_public = @page ? WikiApprovalWorkflow.latest_public_version(@page.id).first : nil
+          latest_public = @page ? WikiApprovalWorkflow.latest_public_version_nr(@page) : nil
 
           @wiki_approval_data = {
             view_version_id: view_version&.to_i,
             approval: approval,
-            latest_public_approval: latest_public,
+            latest_public_version: latest_public,
             setting: setting,
             step_approval: WikiApprovalWorkflowSteps.first_pending_step_for(approval, User.current, @project, params[:step_id])
           }

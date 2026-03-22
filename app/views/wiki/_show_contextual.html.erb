@@ -1,17 +1,13 @@
 
 <% 
 if @wiki_approval_data && RedmineWikiApproval.approval_or_draft_enabled?(@project, @wiki_approval_data&.dig(:setting))
-
-    if @wiki_approval_data[:approval] && 
-        ((@wiki_approval_data[:latest_public_approval] && @wiki_approval_data[:latest_public_approval].wiki_version_id == @wiki_approval_data[:view_version_id]) ||
+    if ((@wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id]) ||
         (@page.version == @wiki_approval_data[:view_version_id]))
     -%>
-
-        <% if @page.version == @wiki_approval_data[:view_version_id] && @wiki_approval_data[:latest_public_approval] && @wiki_approval_data[:latest_public_approval].wiki_version_id < @page.version && User.current.allowed_to?(:view_wiki_edits, @project) %>
+        <% if @page.version == @wiki_approval_data[:view_version_id] && @wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] < @page.version && User.current.allowed_to?(:view_wiki_edits, @project) %>
             <%= link_to rma_icon('wiki-page', l(:wiki_approval_link_release), legacy_text_only: true), 
-                        { controller: 'wiki', action: 'show', project_id: @project.identifier, id: @page.title, version: @wiki_approval_data[:latest_public_approval].wiki_version_id }, 
-                        { title: "Autor #{@wiki_approval_data[:approval].author.name} · vor etwa #{time_ago_in_words(@wiki_approval_data[:approval].created_at)}", 
-                        class: 'icon icon-workflows' } %> 
+                        { controller: 'wiki', action: 'show', project_id: @project.identifier, id: @page.title, version: @wiki_approval_data[:latest_public_version] }, 
+                        { class: 'icon icon-workflows' } %> 
             
         <% end %>
         <% if @wiki_approval_data[:view_version_id] < @page.version %>
@@ -20,13 +16,11 @@ if @wiki_approval_data && RedmineWikiApproval.approval_or_draft_enabled?(@projec
         <% if @wiki_approval_data[:view_version_id] < @page.version && RedmineWikiApproval.view_draft?(@project, @wiki_approval_data&.dig(:setting)) %>
             <%= link_to rma_icon('wiki-page', l(:wiki_approval_link_draft), legacy_text_only: true), 
                         { controller: 'wiki', action: 'show', id: @page.title, version: @page.version }, 
-                        { title: "Autor #{@wiki_approval_data[:approval].author.name} · vor etwa #{time_ago_in_words(@wiki_approval_data[:approval].created_at)}", 
-                        class: 'icon icon-workflows' } %>
-            
+                        { class: 'icon icon-workflows' } %>
         <% end %>
-
-        <span class="badge <%= wiki_approval_badge(@wiki_approval_data[:approval].status) %>" style="bottom: 0px"><%= l("wiki_approval_workflow.status.#{@wiki_approval_data[:approval].status}") %></span>
-
+        <% if @wiki_approval_data[:approval] %>
+            <span class="badge <%= wiki_approval_badge(@wiki_approval_data[:approval].status) %>" style="bottom: 0px"><%= l("wiki_approval_workflow.status.#{@wiki_approval_data[:approval].status}") %></span>
+        <% end %>
     <% end %>
 
 <% end %>
