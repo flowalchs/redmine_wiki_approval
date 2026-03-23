@@ -59,7 +59,10 @@ class WikiApprovalMailer < Mailer
           acc << u
         end
 
-      when 'only_owner', 'only_assigned', 'only_my_events'
+      when 'none'
+        next
+
+      else
         acc << u if watcher_user_ids.include?(u.id) ||
           approval_principal_ids.include?(u.id) ||
           current_author_id == u.id
@@ -102,7 +105,6 @@ class WikiApprovalMailer < Mailer
   end
 
   def wiki_approval(user, approval, status, wiki_page, actor, type)
-
     ver_num = approval.wiki_version_id
     project = wiki_page.project
     last_public = WikiApprovalWorkflow.latest_public_from_version(approval.wiki_page_id, approval.wiki_version_id)
