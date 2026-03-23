@@ -369,4 +369,35 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
 
     assert_response :success
   end
+
+  test "should update wiki page to puplished cancel other approvers" do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'false'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'false'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
+
+    @page = WikiPage.find_by(id: 11)
+
+    # update page, with same content
+    put :update, params: {
+      project_id: @project.id,
+      id: @page.title,
+      content: {
+        text: @page.content.text,
+        comments: '',
+        version: @page.content.version
+      },
+      status_disabled: 'true',
+      status: 'published'
+    }
+
+    assert_response :redirect
+
+    # published status in db
+    approval = WikiApprovalWorkflow.for_wiki(@page.id, @page.content.version).first
+    assert_equal 'published', approval.status
+
+    approval.approval_steps.each do |step|
+      assert_equal 'canceled', step.status
+    end
+  end
 end

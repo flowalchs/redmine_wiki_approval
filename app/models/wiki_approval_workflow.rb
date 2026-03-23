@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class WikiApprovalWorkflow < ApplicationRecord 
+class WikiApprovalWorkflow < ApplicationRecord
   self.table_name = 'wiki_approval_workflows'
   attr_accessor :_status_changed_in_txn
 
@@ -14,7 +14,7 @@ class WikiApprovalWorkflow < ApplicationRecord
   after_create :cancel_old_approvals
 
   after_update :mark_status_changed
-  after_commit :create_statuses_on_status_change
+  after_commit :on_status_change
 
   if ActiveRecord::VERSION::MAJOR >= 7
     # Rails 7.x und 8.x → positional arguments
@@ -27,7 +27,7 @@ class WikiApprovalWorkflow < ApplicationRecord
       released: 70,
     }
   else
-    enum status: {
+    enum status: { # rubocop:disable Rails/EnumSyntax
       canceled: 5,
       draft: 10,
       pending: 20,
@@ -97,7 +97,6 @@ class WikiApprovalWorkflow < ApplicationRecord
   end
 
   def self.latest_public_from_version(page_id, from_version)
-
     record = where(
       wiki_page_id: page_id,
       status: [statuses[:published], statuses[:released]]
@@ -108,7 +107,6 @@ class WikiApprovalWorkflow < ApplicationRecord
     .first
 
     record&.wiki_version_id || 1
-
   end
 
   def cancel_old_approvals
@@ -139,7 +137,7 @@ class WikiApprovalWorkflow < ApplicationRecord
     self._status_changed_in_txn ||= saved_change_to_status?
   end
 
-  def create_statuses_on_status_change
+  def on_status_change
     return unless self._status_changed_in_txn || saved_change_to_status?
 
     WikiApprovalWorkflowStatus.create!(
@@ -147,6 +145,14 @@ class WikiApprovalWorkflow < ApplicationRecord
       status: self.class.statuses[status]
     )
 
+    # Steps cancel when status to published
+    if published?
+      approval_steps
+        .where(status: [WikiApprovalWorkflowSteps.statuses[:unstarted], WikiApprovalWorkflowSteps.statuses[:pending]])
+        .update_all(
+          status: WikiApprovalWorkflowSteps.statuses[:canceled],
+          updated_at: Time.current
+        )
+    end
   end
-
 end
