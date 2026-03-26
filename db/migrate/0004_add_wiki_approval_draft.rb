@@ -3,7 +3,7 @@
 class AddWikiApprovalDraft < ActiveRecord::Migration[5.2]
   def self.up
     create_table :wiki_approval_draft do |t|
-      t.integer :wiki_page_id, null: false, index: { name: 'idx_wad_page_id', unique: true }
+      t.integer :page_id, null: false, index: { name: 'idx_wad_page_id', unique: true }
       t.integer :author_id, null: false, index: { name: 'idx_wad_author_id' }
       t.text :text
       t.timestamps null: false
@@ -11,7 +11,7 @@ class AddWikiApprovalDraft < ActiveRecord::Migration[5.2]
     add_foreign_key(
       :wiki_approval_draft,
       :wiki_pages,
-      column: :wiki_page_id
+      column: :page_id
     )
   end
 

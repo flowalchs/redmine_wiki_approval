@@ -20,7 +20,7 @@ class WikiApprovalMailer < Mailer
 
     # Approval Principals in Steps, groups to userids
     approval_principal_ids = approval.approval_steps
-      .where.not(status: WikiApprovalWorkflowSteps.statuses[:unstarted])
+      .where.not(step_status: WikiApprovalWorkflowSteps.step_statuses[:unstarted])
       .each_with_object([]) do |step, acc|
         principal = step.principal
         case principal
@@ -81,7 +81,7 @@ class WikiApprovalMailer < Mailer
     return unless Setting.notified_events.include?('wiki_approval_notifications')
 
     approval_principal_ids = approval.approval_steps
-      .where(status: WikiApprovalWorkflowSteps.statuses[:pending])
+      .where(step_status: WikiApprovalWorkflowSteps.step_statuses[:pending])
       .each_with_object([]) do |step, acc|
         principal = step.principal
         case principal
@@ -105,13 +105,13 @@ class WikiApprovalMailer < Mailer
   end
 
   def wiki_approval(user, approval, status, wiki_page, actor, type)
-    ver_num = approval.wiki_version_id
+    ver_num = approval.version
     project = wiki_page.project
-    last_public = WikiApprovalWorkflow.latest_public_from_version(approval.wiki_page_id, approval.wiki_version_id)
+    last_public = WikiApprovalWorkflow.latest_public_from_version(approval.page_id, approval.version)
 
     redmine_headers 'Project' => project,
                     'Wiki-Page-Id' => wiki_page.id,
-                    'Wiki-Version' => approval.wiki_version_id,
+                    'Wiki-Version' => approval.version,
                     'Approval-State'=> status
 
     subject = "[#{project.name} - #{wiki_page.title}] (#{I18n.t("wiki_approval_workflow.status.#{status}", default: status)}) " \

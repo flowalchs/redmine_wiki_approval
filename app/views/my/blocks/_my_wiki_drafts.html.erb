@@ -31,7 +31,7 @@
           if entry.status == :draft_in_progress
             link = edit_project_wiki_page_path(entry.wiki_page.project, entry.wiki_page.title)
           else
-            link = project_wiki_page_path(entry.wiki_page.project.identifier, entry.wiki_page.title, :version => entry.wiki_version_id)
+            link = project_wiki_page_path(entry.wiki_page.project.identifier, entry.wiki_page.title, :version => entry.version)
           end
         %>
         <tr class="<%= cycle('odd', 'even') %>">

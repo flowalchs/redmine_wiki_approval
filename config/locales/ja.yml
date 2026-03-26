@@ -25,7 +25,7 @@ ja:
       released: "リリース済み"
       canceled: "キャンセル"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "キャンセル"
       unstarted: "未開始"
       pending: "承認中"

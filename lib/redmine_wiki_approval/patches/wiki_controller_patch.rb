@@ -63,8 +63,8 @@ module RedmineWikiApproval
           version = params[:version].present? ? params[:version].to_i : @page.version
 
           approval = WikiApprovalWorkflow.find_or_initialize_by(
-            wiki_page_id: @page.id,
-            wiki_version_id: version
+            page_id: @page.id,
+            version: version
           )
 
           approval.status = params[:status]
@@ -95,7 +95,7 @@ module RedmineWikiApproval
           # return unless section parameter
           return if params[:section].blank?
 
-          draft = WikiApprovalDraft.find_by(wiki_page_id: @page.id)
+          draft = WikiApprovalDraft.find_by(page_id: @page.id)
           return unless draft
 
           base_text = draft.text

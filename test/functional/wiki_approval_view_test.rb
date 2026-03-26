@@ -67,8 +67,8 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     content.save!
 
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :draft,
       author_id: User.current.id
     )
@@ -91,8 +91,8 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     content.save!
 
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :rejected,
       author_id: User.current.id
     )
@@ -111,7 +111,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
 
   test 'wiki delete page also approval' do
     # any workflows?
-    approvals = WikiApprovalWorkflow.where(wiki_page_id: @page.id)
+    approvals = WikiApprovalWorkflow.where(page_id: @page.id)
     assert approvals.any?
     approvals.each do |workflow|
       assert_not_equal 0, workflow.approval_steps.count
@@ -131,7 +131,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
 
   test 'wiki delete content version also approval' do
     # any workflows?
-    approvals = WikiApprovalWorkflow.where(wiki_page_id: @page.id, wiki_version_id: @page.content.version)
+    approvals = WikiApprovalWorkflow.where(page_id: @page.id, version: @page.content.version)
     assert approvals.any?
     approvals.each do |workflow|
       assert_not_equal 0, workflow.approval_steps.count
@@ -159,8 +159,8 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     @page.content.save!
 
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :draft,
       author_id: User.current.id
     )

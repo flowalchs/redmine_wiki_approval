@@ -6,10 +6,10 @@ module RedmineWikiApproval
       extend ActiveSupport::Concern
 
       included do
-        has_many :wiki_approval_workflows, 
+        has_many :wiki_approval_workflows,
                 class_name: 'WikiApprovalWorkflow',
-                foreign_key: :wiki_version_id, # Column in our Table
-                primary_key: :version,         # Column in Redmine where is the versionNr
+                foreign_key: :version, # Column in our Table
+                primary_key: :version, # Column in Redmine where is the versionNr
                 dependent: :destroy
       end
     end

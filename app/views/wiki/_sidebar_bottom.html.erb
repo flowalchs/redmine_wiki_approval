@@ -46,12 +46,12 @@
                         @wiki_approval_data[:step_approval] == step &&
                         @wiki_approval_data[:step_approval].id == step.id &&
                         User.current.allowed_to?(:wiki_approval_grant, @project) %>
-                    <%= link_to l("wiki_approval_workflow_steps.status.#{step.status}"),
+                    <%= link_to l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
                                 wiki_approval_grant_path(@project, @page.title, @page.content.version, @wiki_approval_data[:step_approval].id),
                                 remote: true %>
                   <% else %>
                     <%= content_tag :span,
-                        l("wiki_approval_workflow_steps.status.#{step.status}"),
+                        l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
                         title: "#{l(:label_wiki_approval_step)} #{step.step} | #{l(:label_ago)} #{time_ago_in_words(step.updated_at)}" %>
                   <% end %>
                 </div>

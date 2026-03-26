@@ -43,8 +43,8 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
     @page = WikiPage.create!(wiki: subproject.wiki, title: 'Subproject Page')
     content = WikiContent.create!(page: @page, text: 'content', author_id: 1, updated_on: Time.now)
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: content.version,
+      page_id: @page.id,
+      version: content.version,
       status: :draft,
       author_id: @user.id
     )
@@ -77,8 +77,8 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
     @page = WikiPage.create!(wiki: subproject.wiki, title: 'Subproject Page')
     content = WikiContent.create!(page: @page, text: 'content', author_id: 1, updated_on: Time.now)
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: content.version,
+      page_id: @page.id,
+      version: content.version,
       status: :draft,
       author_id: @user.id
     )
@@ -112,7 +112,7 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
 
   test 'activity provider should filter by subprojects and date range and group' do
     set_session_user(@admin)
-    
+
     # Friert "jetzt" ein, um TZ-/Tageswechsel-Flakes zu vermeiden
     travel_to Time.current do
       # 1) Isolierte Projektstruktur
@@ -137,14 +137,14 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
 
       # SubPage: 1 Workflow-Event (soll erscheinen)
       wf_sub = WikiApprovalWorkflow.create!(
-        wiki_page: page_sub, wiki_version_id: 1, status: 20,
+        wiki_page: page_sub, version: 1, status: 20,
         author_id: @admin.id, created_at: t_now
       )
 
       # SubPage2: 1 Workflow-Event + 2 Statusänderungen (Status erscheinen NICHT im Activity-Stream,
       # da kein eigener Provider vorhanden ist; also KEINE Gruppierung)
       wf_sub2 = WikiApprovalWorkflow.create!(
-        wiki_page: page_sub2, wiki_version_id: 2, status: 20,
+        wiki_page: page_sub2, version: 2, status: 20,
         author_id: @admin.id, created_at: t_now
       )
       # Zwei Änderungen auf derselben Seite/Workflow -> keine Activity-Einträge ohne Status-Provider
@@ -160,7 +160,7 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
       # Root-Projekt: außerhalb des Fensters -> soll gefiltert werden
       page_root = WikiPage.create!(wiki: root.wiki, title: 'RootPage')
       wf_root = WikiApprovalWorkflow.create!(
-        wiki_page: page_root, wiki_version_id: 3, status: 20,
+        wiki_page: page_root, version: 3, status: 20,
         author_id: @admin.id, created_at: t_now + 2.minutes
       )
       WikiApprovalWorkflowStatus.create!(

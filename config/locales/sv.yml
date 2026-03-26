@@ -26,7 +26,7 @@ sv:
       released: "Utgiven"
       canceled: "Avbruten"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Avbruten"
       unstarted: "Planerad"
       pending: "Under godkännande"

@@ -26,7 +26,7 @@ pl:
       released: "Wydano"
       canceled: "Anulowano"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Anulowano"
       unstarted: "Zaplanowano"
       pending: "W trakcie zatwierdzania"

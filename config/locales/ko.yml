@@ -25,7 +25,7 @@ ko:
       released: "릴리스됨"
       canceled: "취소됨"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "취소됨"
       unstarted: "계획됨"
       pending: "승인 중"

@@ -10,11 +10,11 @@ module RedmineWikiApproval
 
         has_many :wiki_approval_workflows,
                 class_name: 'WikiApprovalWorkflow',
-                foreign_key: :wiki_page_id,
+                foreign_key: :page_id,
                 dependent: :destroy
         has_many :wiki_approval_draft,
                 class_name: 'WikiApprovalDraft',
-                foreign_key: :wiki_page_id,
+                foreign_key: :page_id,
                 dependent: :destroy
         after_save :delete_draft_after_publish
       end
@@ -26,7 +26,7 @@ module RedmineWikiApproval
           if Thread.current[:wiki_is_draft]
 
             latest_content = content.versions.find_by_version(content.version)
-            draft = WikiApprovalDraft.find_or_initialize_by(wiki_page_id: content.page.id)
+            draft = WikiApprovalDraft.find_or_initialize_by(page_id: content.page.id)
 
             # if text is same then last version, delete draft
             if latest_content && latest_content.text == content.text && draft.persisted?
@@ -54,7 +54,7 @@ module RedmineWikiApproval
         def content_for_version(version=nil)
           # overwrite from wiki controller show edit
           if Thread.current[:wiki_edit_context]
-            draft = WikiApprovalDraft.find_by(wiki_page_id: id)
+            draft = WikiApprovalDraft.find_by(page_id: id)
             # get draft if available, return it as a content
             if draft
               content = WikiContent.new(page: self)
@@ -71,7 +71,7 @@ module RedmineWikiApproval
         end
 
         def delete_draft_after_publish
-          WikiApprovalDraft.where(wiki_page_id: id).delete_all
+          WikiApprovalDraft.where(page_id: id).delete_all
         end
       end
     end

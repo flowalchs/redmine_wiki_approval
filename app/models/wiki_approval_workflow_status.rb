@@ -21,7 +21,7 @@ class WikiApprovalWorkflowStatus < ApplicationRecord
     }
 
   acts_as_event \
-    title: ->(o) { "Wiki-#{I18n.t(:label_wiki_approval_workflow, default: 'Approval workflow')}: #{o.wiki_approval_workflow&.wiki_page&.title} (##{o.wiki_approval_workflow&.wiki_version_id})" },
+    title: ->(o) { "Wiki-#{I18n.t(:label_wiki_approval_workflow, default: 'Approval workflow')}: #{o.wiki_approval_workflow&.wiki_page&.title} (##{o.wiki_approval_workflow&.version})" },
     type: 'workflows', # svg icon
     author:      :author,
     description: ->(o) { I18n.t("wiki_approval_workflow.status.#{WikiApprovalWorkflow.statuses.invert[o.status]}", default: o.status) },
@@ -32,7 +32,7 @@ class WikiApprovalWorkflowStatus < ApplicationRecord
         action:      'show',
         project_id:  o.wiki_approval_workflow&.wiki_page&.wiki&.project,
         id:          o.wiki_approval_workflow&.wiki_page&.title,
-        version:     o.wiki_approval_workflow&.wiki_version_id
+        version:     o.wiki_approval_workflow&.version
       }.compact
     end
 
@@ -41,7 +41,7 @@ class WikiApprovalWorkflowStatus < ApplicationRecord
   end
 
   def event_group
-    "wiki_page:#{wiki_approval_workflow&.wiki_page_id}"
+    "wiki_page:#{wiki_approval_workflow&.page_id}"
   end
 
   def send_status_change_mail

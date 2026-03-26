@@ -27,8 +27,8 @@ class WikiApprovalApiController < ApplicationController
       end
 
       workflow = WikiApprovalWorkflow.find_or_initialize_by(
-        wiki_page_id: @page.id,
-        wiki_version_id: content.version
+        page_id: @page.id,
+        version: content.version
       )
       workflow.status = :draft
       workflow.author_id ||= User.current.id
@@ -61,7 +61,7 @@ class WikiApprovalApiController < ApplicationController
         render json: {
           status: 'released',
           wiki_page: @page.title,
-          version: workflow.wiki_version_id
+          version: workflow.version
         }, status: :ok
       end
     end
@@ -95,7 +95,7 @@ class WikiApprovalApiController < ApplicationController
             principal_id: principal.id,
             principal_type: principal.class.name
           )
-          step.status = :unstarted
+          step.step_status = :unstarted
           step.step_type = step_type
           step.save!
           created_steps += 1
@@ -107,8 +107,8 @@ class WikiApprovalApiController < ApplicationController
         raise ActiveRecord::Rollback
       end
 
-      workflow.approval_steps.where(step: 1, status: :unstarted).find_each do |s|
-        s.update!(status: :pending)
+      workflow.approval_steps.where(step: 1, step_status: :unstarted).find_each do |s|
+        s.update!(step_status: :pending)
       end
 
       workflow.update!(status: :pending, author_id: User.current.id)
@@ -132,11 +132,11 @@ class WikiApprovalApiController < ApplicationController
         render json: {
           status: 'pending',
           wiki_page: @page.title,
-          version: workflow.wiki_version_id,
-          steps: workflow.approval_steps.order(:step, :id).map { |s|
+          version: workflow.version,
+          steps: workflow.approval_steps.order(:step, :id).map do |s|
             { step: s.step, step_type: s.step_type, principal_id: s.principal_id,
               principal_type: s.principal_type, status: s.status }
-          }
+          end
         }, status: :ok
       end
     end
@@ -152,6 +152,7 @@ class WikiApprovalApiController < ApplicationController
     @project.memberships.includes(:principal, :roles).each do |m|
       if (u = m.user)
         next if u.admin?
+
         has_permission = m.roles.any? { |r| Array(r.permissions).include?(:wiki_approval_grant) }
         users << { id: u.id, name: u.name, type: 'User' } if has_permission
       end
@@ -183,17 +184,17 @@ class WikiApprovalApiController < ApplicationController
     respond_to do |format|
       format.api do
         render json: {
-          pending: workflows.map { |w|
+          pending: workflows.map do |w|
             {
               wiki_page: w.wiki_page.title,
-              version: w.wiki_version_id,
+              version: w.version,
               author_id: w.author_id,
               created_at: w.created_at,
-              steps: w.approval_steps.map { |s|
+              steps: w.approval_steps.map do |s|
                 { principal_id: s.principal_id, principal_type: s.principal_type, status: s.status }
-              }
+              end
             }
-          }
+          end
         }, status: :ok
       end
     end
@@ -208,13 +209,13 @@ class WikiApprovalApiController < ApplicationController
     pages = wiki.pages.includes(:content)
 
     latest_ids = WikiApprovalWorkflow
-                   .where(wiki_page_id: pages.select(:id))
-                   .group(:wiki_page_id)
+                   .where(page_id: pages.select(:id))
+                   .group(:page_id)
                    .maximum(:id)
 
     latest_workflows = WikiApprovalWorkflow
                          .where(id: latest_ids.values)
-                         .index_by(&:wiki_page_id)
+                         .index_by(&:page_id)
 
     result = pages.map do |page|
       wf = latest_workflows[page.id]
@@ -233,8 +234,8 @@ class WikiApprovalApiController < ApplicationController
   # GET /projects/:project_id/wiki_approval_api/:title/status.json
   # Workflow status for a single page
   def status
-    workflows = WikiApprovalWorkflow.where(wiki_page_id: @page.id)
-                  .order(wiki_version_id: :desc)
+    workflows = WikiApprovalWorkflow.where(page_id: @page.id)
+                  .order(version: :desc)
                   .limit(5)
                   .includes(:approval_steps)
 
@@ -242,14 +243,14 @@ class WikiApprovalApiController < ApplicationController
       format.api do
         render json: {
           wiki_page: @page.title,
-          workflows: workflows.map { |w|
+          workflows: workflows.map do |w|
             {
-              version: w.wiki_version_id,
+              version: w.version,
               status: w.status,
               author_id: w.author_id,
               created_at: w.created_at,
               updated_at: w.updated_at,
-              steps: w.approval_steps.map { |s|
+              steps: w.approval_steps.map do |s|
                 {
                   step: s.step,
                   principal_id: s.principal_id,
@@ -257,9 +258,9 @@ class WikiApprovalApiController < ApplicationController
                   status: s.status,
                   note: s.note
                 }
-              }
+              end
             }
-          }
+          end
         }, status: :ok
       end
     end
@@ -279,28 +280,28 @@ class WikiApprovalApiController < ApplicationController
              .where(status: :pending)
 
     steps = if group_ids.any?
-      t = WikiApprovalWorkflowSteps.arel_table
-      base.where(
-        t[:principal_id].eq(User.current.id).and(t[:principal_type].eq('User'))
-          .or(t[:principal_id].in(group_ids).and(t[:principal_type].eq('Group')))
-      ).includes(approval: :wiki_page).limit(50)
-    else
-      base.where(principal_id: User.current.id, principal_type: 'User')
-          .includes(approval: :wiki_page).limit(50)
-    end
+              t = WikiApprovalWorkflowSteps.arel_table
+              base.where(
+                t[:principal_id].eq(User.current.id).and(t[:principal_type].eq('User'))
+                  .or(t[:principal_id].in(group_ids).and(t[:principal_type].eq('Group')))
+              ).includes(approval: :wiki_page).limit(50)
+            else
+              base.where(principal_id: User.current.id, principal_type: 'User')
+                  .includes(approval: :wiki_page).limit(50)
+            end
 
     respond_to do |format|
       format.api do
         render json: {
-          tasks: steps.map { |s|
+          tasks: steps.map do |s|
             {
               wiki_page: s.approval.wiki_page.title,
-              version: s.approval.wiki_version_id,
+              version: s.approval.version,
               step: s.step,
               step_id: s.id,
               workflow_status: s.approval.status
             }
-          }
+          end
         }, status: :ok
       end
     end
@@ -345,8 +346,8 @@ class WikiApprovalApiController < ApplicationController
   end
 
   def find_current_draft_workflow
-    WikiApprovalWorkflow.where(wiki_page_id: @page.id, status: :draft)
-                        .order(wiki_version_id: :desc)
+    WikiApprovalWorkflow.where(page_id: @page.id, status: :draft)
+                        .order(version: :desc)
                         .first
   end
 

@@ -33,8 +33,8 @@
       <% steps.each do |s| %>
         <li>
           <%= h s.principal&.name %>
-          <% if s.status.present? %>
-            <small>(<%= h I18n.t("wiki_approval_workflow_steps.status.#{s.status}", default: s.status) %>)</small>
+          <% if s.step_status.present? %>
+            <small>(<%= h I18n.t("wiki_approval_workflow_steps.step_status.#{s.step_status}", default: s.step_status) %>)</small>
           <% end %>
           <% if s.note.present? %>
               <br /><%= s.note %>

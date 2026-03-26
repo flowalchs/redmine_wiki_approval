@@ -81,13 +81,13 @@ class MyPageTest < WikiApproval::Test::ControllerCase
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
     approval = WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :pending,
       author_id: @jsmith.id
     )
     step = approval.approval_steps.for_principal(@dlopper).find_or_initialize_by(step: 1)
-    step.status = :pending
+    step.step_status = :pending
     step.save!
 
     get :index
@@ -139,13 +139,13 @@ class MyPageTest < WikiApproval::Test::ControllerCase
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
     approval = WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :pending,
       author_id: @dlopper.id
     )
     step = approval.approval_steps.for_principal(@jsmith).find_or_initialize_by(step: 1)
-    step.status = :pending
+    step.step_status = :pending
     step.save!
 
     get :index
@@ -198,13 +198,13 @@ class MyPageTest < WikiApproval::Test::ControllerCase
     Member.create!(project: @project, principal: @group, roles: [@developer_role])
 
     approval = WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :pending,
       author_id: @dlopper.id
     )
     step = approval.approval_steps.for_principal(@group).find_or_initialize_by(step: 1)
-    step.status = :pending
+    step.step_status = :pending
     step.save!
 
     get :index
@@ -246,17 +246,17 @@ class MyPageTest < WikiApproval::Test::ControllerCase
     @page.content ||= WikiContent.create!(page: @page, text: 'test')
 
     approval = WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :pending,
       author_id: @jsmith.id
     )
     step = approval.approval_steps.for_principal(@dlopper).find_or_initialize_by(step: 1)
-    step.status = :pending
+    step.step_status = :pending
     step.save!
 
     WikiApprovalDraft.create!(
-      wiki_page_id: @page.id,
+      page_id: @page.id,
       author_id: @jsmith.id,
       text: "newText"
     )

@@ -397,7 +397,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     assert_equal 'published', approval.status
 
     approval.approval_steps.each do |step|
-      assert_equal 'canceled', step.status
+      assert_equal 'canceled', step.step_status
     end
   end
 end

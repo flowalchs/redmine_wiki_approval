@@ -25,7 +25,7 @@ nb:
       released: "Utgitt"
       canceled: "Avbrutt"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Avbrutt"
       unstarted: "Planlagt"
       pending: "Til godkjenning"

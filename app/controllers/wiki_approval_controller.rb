@@ -12,8 +12,8 @@ class WikiApprovalController < ApplicationController
   def start_approval
     # just if no approval is in the db
     @wiki_approval_data[:approval] ||= WikiApprovalWorkflow.find_or_initialize_by(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :pending,
       author_id: User.current.id
     )
@@ -74,21 +74,20 @@ class WikiApprovalController < ApplicationController
           step_record = approval.approval_steps.for_principal(principal_object).find_or_initialize_by(step: step_nr)
 
           # Only set status to :unstarted if current status !approved
-          step_record.status = :unstarted if step_record.status.nil? || !step_record.status_approved?
+          step_record.step_status = :unstarted if step_record.step_status.nil? || !step_record.step_status_approved?
           step_record.step_type = params[:steps_typ][step_nr] || 'or'
-          
+
           # save if it changed anything
           if step_record.changed?
             step_record.save!
 
-            # if it was a new record or changed record, in pending, then send a mail for this step          
-            if latest_notifiable_step == nil && 
-               approval_was_already_pending && 
-               (step_record.saved_changes.key?('id') || (step_record.saved_change_to_attribute?('status') && step_record.status == 'pending'))
-                latest_notifiable_step = step_nr
+            # if it was a new record or changed record, in pending, then send a mail for this step
+            if latest_notifiable_step.nil? &&
+               approval_was_already_pending &&
+               (step_record.saved_changes.key?('id') || (step_record.saved_change_to_attribute?('step_status') && step_record.step_status == 'pending'))
+              latest_notifiable_step = step_nr
             end
           end
-
         end
       end
 
@@ -115,7 +114,7 @@ class WikiApprovalController < ApplicationController
         return
       end
 
-      @step.update({status: params[:status], note: params[:note], principal: User.current}.compact)
+      @step.update({step_status: params[:status], note: params[:note], principal: User.current}.compact)
       redirect_to project_wiki_page_path(@project.identifier, @page.title, :version => @page.content.version)
     else
       respond_to do |format|
@@ -149,7 +148,7 @@ class WikiApprovalController < ApplicationController
 
       @step.update({note: params[:note], principal: principal_object}.compact)
 
-      #notify users from the step
+      # notify users from the step
       WikiApprovalMailer.deliver_wiki_approval_step(@step.approval, @step.approval.wiki_page, User.current, @step.step)
 
       redirect_to project_wiki_page_path(@project.identifier, @page.title, :version => @page.content.version)
@@ -201,6 +200,7 @@ class WikiApprovalController < ApplicationController
       # users
       if (u = m.user)
         next if u.admin? || u.id == autor_id
+
         users << u if u.allowed_to?(:wiki_approval_grant, project)
       end
 
@@ -229,6 +229,7 @@ class WikiApprovalController < ApplicationController
         user_id = (u["principal_id"] || u[:principal_id]).to_i
         next if user_id.zero?
         return true if seen.include?(user_id)
+
         seen.add(user_id)
       end
     end
