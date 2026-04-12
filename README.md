@@ -3,7 +3,7 @@
 [![build](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml/badge.svg)](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml)
 [![Last release](https://img.shields.io/github/v/release/FloWalchs/redmine_wiki_approval?label=latest%20release&logo=github&style=flat-square)](https://github.com/FloWalchs/redmine_wiki_approval/releases/latest)
 [![Rate at redmine.org](http://img.shields.io/badge/rate%20at-redmine.org-blue.svg?style=flat-square)](https://www.redmine.org/plugins/redmine_wiki_approval)
-![Redmine](https://img.shields.io/badge/redmine->=4.1-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0&link=https%3A%2F%2Fwww.redmine.org)
+![Redmine](https://img.shields.io/badge/redmine->=4.2-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0&link=https%3A%2F%2Fwww.redmine.org)
 [![codecov](https://codecov.io/gh/FloWalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/FloWalchs/redmine_wiki_approval)
 [![API Docs](https://img.shields.io/badge/API_Docs-Online-blue?style=flat-square&logo=swagger)](https://flowalchs.github.io/redmine_wiki_approval/)
 
@@ -59,8 +59,8 @@ The plugin supports 14+ languages, including English, German, Japanese, French, 
 
 ## 📋 Requirements
 
-- **Redmine**: 4.1 or higher
-- **Ruby**: 2.6 or higher
+- **Redmine**: 4.2 or higher
+- **Ruby**: 2.7 or higher
 - **Rails**: Compatible with Redmine's Rails version
 
 ## 🚀 Installation

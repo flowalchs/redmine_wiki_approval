@@ -15,13 +15,7 @@ jobs:
         redmine: ['6.1-stable', 'master']
         db: ['postgres', 'mysql']
         include:
-          # Redmine 4.2 mit Ruby 2.6/2.7
-          - redmine: '4.2-stable'
-            ruby: '2.6'
-            db: 'postgres'
-          - redmine: '4.2-stable'
-            ruby: '2.6'
-            db: 'mysql'
+          # Redmine 4.2 mit Ruby 2.7
           - redmine: '4.2-stable'
             ruby: '2.7'
             db: 'postgres'
