@@ -8,9 +8,9 @@ module RedmineWikiApproval
       def view_layouts_base_html_head(context)
         if context[:controller].is_a?(WikiController) &&
            context[:controller].action_name == 'show' &&
-           RedmineWikiApproval.is_enabled?(context[:project])
+           RedmineWikiApproval::Settings.is_enabled?(context[:project])
 
-          if RedmineWikiApproval.is_allowed_to_show_last_version?(context[:project]) &&
+          if RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(context[:project]) &&
              !from_update?(context[:controller])
 
             controller = context[:controller]
@@ -39,7 +39,7 @@ module RedmineWikiApproval
             # If the current page is in draft or approval status and there are no rights to view the draft, then this is not authorized.
             version = controller.params[:version]&.to_i || page&.version
             if version &&
-              RedmineWikiApproval.view_draft?(context[:project]) == false &&
+              RedmineWikiApproval::Settings.view_draft?(context[:project]) == false &&
               (WikiApprovalWorkflow.for_wiki(page.id, version).first&.status_before_type_cast&.< WikiApprovalWorkflow.statuses[:published])
               raise ::Unauthorized
             end

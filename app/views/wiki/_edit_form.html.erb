@@ -1,36 +1,20 @@
 <%    
-if @wiki_approval_data && RedmineWikiApproval.draft_create?(@project, @wiki_approval_data[:setting])
-
-    # disabled, approval_required or approval_version_required
-    disabled = @wiki_approval_data[:setting].wiki_approval_required || 
-               (@wiki_approval_data[:setting].wiki_approval_version && WikiApprovalWorkflow.latest_public_version_status(@page.id, :released))
-
-    # default, same as disabled OR current in pending/rejected approval
-    default = disabled ||
-              (@wiki_approval_data[:approval] && @wiki_approval_data[:approval].status.in?(%w[pending rejected draft]))
-
-    status_hidden = disabled ? "draft" : "published"
-
-    if @wiki_approval_data[:setting].wiki_draft_enabled == false && 
-       @wiki_approval_data[:setting].wiki_approval_enabled && 
-       @wiki_approval_data[:setting].wiki_approval_required == false &&
-       @wiki_approval_data[:setting].wiki_approval_version == false
-        disabled = true
-        default = false
-        status_hidden = "published"
-    end
-
+if @wiki_approval_data && RedmineWikiApproval::Settings.draft_create?(@project, @wiki_approval_data[:setting])
+    ui_fields = RedmineWikiApproval::WikiApproval.wiki_approval_ui_status_draft(
+                    page: @page,
+                    approval: @wiki_approval_data[:approval],
+                    setting: @wiki_approval_data[:setting]
+                )
 -%>
     <p id="wiki_approval_draft_form">
         <label><%= l("wiki_approval_workflow.status.draft") %></label>
-        <%= hidden_field_tag 'status_disabled', disabled %>
-        <%= hidden_field_tag 'status', status_hidden %>
-        <%= check_box_tag 'status', "draft", default, disabled: disabled %>
+        <%= hidden_field_tag 'status', ui_fields[:status] %>
+        <%= check_box_tag 'status', "draft", ui_fields[:checked], disabled: ui_fields[:approval_required] %>
     </p>
 
 <% end 
 
-if RedmineWikiApproval.wiki_comment_required?(@project, @wiki_approval_data&.dig(:setting)) %>
+if RedmineWikiApproval::Settings.wiki_comment_required?(@project, @wiki_approval_data&.dig(:setting)) %>
 
     <script>
         // for the required *

@@ -151,7 +151,7 @@ jobs:
         run: bundle exec rake redmine:plugins:migrate NAME=redmine_wiki_approval VERSION=0
         
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true

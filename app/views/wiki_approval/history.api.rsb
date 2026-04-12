@@ -1,0 +1,7 @@
+api.array :wiki_approval_workflows, api_meta(:total_count => @workflow_count, :offset => @workflow_pages.offset, :limit => @workflow_pages.per_page) do
+    @workflows.each do |workflow|
+        api.item do
+            render_workflow_fields(api, workflow)
+        end
+    end
+end

@@ -8,7 +8,7 @@
     condition_values = principals.flat_map { |p| [p.class.name, p.id] }
 
     # status = 20 AND (type='group' and id=1 or type='user' and id=2)
-    pending_steps = WikiApprovalWorkflowSteps.where(step_status: :pending)
+    pending_steps = WikiApprovalWorkflowStep.where(step_status: :pending)
                                              .where(condition_sql, *condition_values)
 %>
 <h3><%= l(:wiki_approval_queue) %> (<%= pending_steps.count %>) </h3>

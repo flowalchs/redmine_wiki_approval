@@ -15,13 +15,12 @@ module RedmineWikiApproval
         private
 
         def validate_approval_comment_required
-          if comments.blank? && RedmineWikiApproval.wiki_comment_required?(self.project || self.wiki&.project)
+          if comments.blank? && RedmineWikiApproval::Settings.wiki_comment_required?(self.project || self.wiki&.project)
             # error comment required
             errors.add(:comments, :blank)
           end
         end
       end
-
     end
   end
 end

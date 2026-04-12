@@ -1,7 +1,7 @@
 <% 
   return if @wiki_approval_data.nil?
 
-  if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval.approval_enabled?(@project, @wiki_approval_data[:setting])
+  if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
 -%>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
     <div id="approval">
@@ -47,7 +47,7 @@
                         @wiki_approval_data[:step_approval].id == step.id &&
                         User.current.allowed_to?(:wiki_approval_grant, @project) %>
                     <%= link_to l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
-                                wiki_approval_grant_path(@project, @page.title, @page.content.version, @wiki_approval_data[:step_approval].id),
+                                wiki_approval_grant_path(@project, @page.title),
                                 remote: true %>
                   <% else %>
                     <%= content_tag :span,

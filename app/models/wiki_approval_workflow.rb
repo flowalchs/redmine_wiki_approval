@@ -8,13 +8,18 @@ class WikiApprovalWorkflow < ApplicationRecord
   belongs_to :wiki_version, class_name: 'WikiContent::Version'
   belongs_to :author, class_name: 'User'
 
-  has_many :approval_steps, class_name: 'WikiApprovalWorkflowSteps', dependent: :destroy, inverse_of: :approval
+  has_many :approval_steps, class_name: 'WikiApprovalWorkflowStep', dependent: :destroy, inverse_of: :approval
   has_many :approval_statuses, class_name: 'WikiApprovalWorkflowStatus', dependent: :destroy
-  validates :status, presence: true
-  before_save :assign_revision_if_needed
-  after_create :cancel_old_approvals
 
+  validates :status, presence: true
+  before_validation :set_current_page_id_if_latest, on: :create
+
+  before_save :assign_revision_if_needed
+  before_save :ensure_only_one_current_per_page
+
+  after_create :cancel_old_approvals
   after_update :mark_status_changed
+  after_destroy :handover_current_marker
   after_commit :on_status_change
 
   if ActiveRecord::VERSION::MAJOR >= 7
@@ -42,6 +47,15 @@ class WikiApprovalWorkflow < ApplicationRecord
   scope :for_wiki, ->(page_id, version_id) {
     where(page_id: page_id, version: version_id)
   }
+
+  def latest_public_version
+    page_id = wiki_page&.id
+    return nil if page_id.nil?
+
+    self.class.where(page_id: page_id, status: [self.class.statuses[:published], self.class.statuses[:released]])
+      .order(id: :desc)
+      .first
+  end
 
   def self.latest_public_version_status(page_id, specific_status = nil)
     target_statuses = if specific_status
@@ -78,25 +92,6 @@ class WikiApprovalWorkflow < ApplicationRecord
     version_nr
   end
 
-  def steps_grouped_with_default
-    grouped = approval_steps.group_by(&:step)
-
-    # 2. steps from last released-version
-    if grouped.blank?
-      grouped = WikiApprovalWorkflow
-                  .where(page_id: page_id, status: :released)
-                  .order(version: :desc)
-                  .first
-                  &.approval_steps
-                  &.group_by(&:step) || {}
-    end
-
-    # when step 1 is not there, default value
-    grouped[1] ||= [approval_steps.build(step: 1, step_type: :or)]
-
-    grouped
-  end
-
   def self.latest_public_from_version(page_id, from_version)
     record = where(
       page_id: page_id,
@@ -108,6 +103,31 @@ class WikiApprovalWorkflow < ApplicationRecord
     .first
 
     record&.version || 1
+  end
+
+  def self.save_for_draft(page:, user:, status:, wiki_approval_data:)
+    return :invalid_page if page.nil? || page.errors.any? || !page.persisted?
+    return :invalid_status unless %w[draft published].include?(status)
+
+    approval_required = RedmineWikiApproval::WikiApproval.wiki_approval_ui_status_draft(
+      page: page,
+      approval: wiki_approval_data[:approval],
+      setting: wiki_approval_data[:setting]
+    )
+    return :approval_required if approval_required[:approval_required] && approval_required[:status] != status
+
+    approval = find_or_initialize_by(
+      page_id: page.id,
+      version: page.version
+    )
+
+    return :already_released if approval.released?
+
+    approval.status     = status
+    approval.author_id ||= user.id
+    approval.save!
+
+    approval
   end
 
   def cancel_old_approvals
@@ -126,9 +146,9 @@ class WikiApprovalWorkflow < ApplicationRecord
                           .update_all(status: WikiApprovalWorkflow.statuses[:canceled])
 
       # Steps canceln
-      WikiApprovalWorkflowSteps.where(wiki_approval_workflow_id: old_ids)
-                        .where(step_status: WikiApprovalWorkflowSteps.step_statuses[:pending])
-                        .update_all(step_status: WikiApprovalWorkflowSteps.step_statuses[:canceled],
+      WikiApprovalWorkflowStep.where(wiki_approval_workflow_id: old_ids)
+                        .where(step_status: WikiApprovalWorkflowStep.step_statuses[:pending])
+                        .update_all(step_status: WikiApprovalWorkflowStep.step_statuses[:canceled],
                                     updated_at: Time.current)
     end
   end
@@ -149,9 +169,9 @@ class WikiApprovalWorkflow < ApplicationRecord
     # Steps cancel when status to published
     if published?
       approval_steps
-        .where(step_status: [WikiApprovalWorkflowSteps.step_statuses[:unstarted], WikiApprovalWorkflowSteps.step_statuses[:pending]])
+        .where(step_status: [WikiApprovalWorkflowStep.step_statuses[:unstarted], WikiApprovalWorkflowStep.step_statuses[:pending]])
         .update_all(
-          step_status: WikiApprovalWorkflowSteps.step_statuses[:canceled],
+          step_status: WikiApprovalWorkflowStep.step_statuses[:canceled],
           updated_at: Time.current
         )
     end
@@ -180,5 +200,33 @@ class WikiApprovalWorkflow < ApplicationRecord
       .maximum(:revision)
 
     (last_rev || 0) + 1
+  end
+
+  def ensure_only_one_current_per_page
+    if current_page_id.present?
+      WikiApprovalWorkflow
+        .where(page_id: page_id)
+        .where.not(id: id)
+        .where.not(current_page_id: nil)
+        .update_all(current_page_id: nil)
+    end
+  end
+
+  def set_current_page_id_if_latest
+    latest_version = WikiApprovalWorkflow.where(page_id: page_id).maximum(:version) || 0
+    if version.to_i >= latest_version
+      self.current_page_id = self.page_id
+    end
+  end
+
+  def handover_current_marker
+    if current_page_id.present?
+      # find new current_page_id, when it was destroyed
+      next_leader = WikiApprovalWorkflow
+                      .where(page_id: page_id)
+                      .order(version: :desc)
+                      .first
+      next_leader.update_columns(current_page_id: page_id) if next_leader
+    end
   end
 end

@@ -5,6 +5,7 @@
 [![Rate at redmine.org](http://img.shields.io/badge/rate%20at-redmine.org-blue.svg?style=flat-square)](https://www.redmine.org/plugins/redmine_wiki_approval)
 ![Redmine](https://img.shields.io/badge/redmine->=4.1-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0&link=https%3A%2F%2Fwww.redmine.org)
 [![codecov](https://codecov.io/gh/FloWalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/FloWalchs/redmine_wiki_approval)
+[![API Docs](https://img.shields.io/badge/API_Docs-Online-blue?style=flat-square&logo=swagger)](https://flowalchs.github.io/redmine_wiki_approval/)
 
 This plugin adds an approval workflow to the wiki, allowing teams to review, approve, and control changes before they are published. It supports drafts, multi‑step approval processes, role‑based permissions, and status tracking to ensure content quality and traceability in collaborative documentation.
 
@@ -25,6 +26,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 - **Multi-Step Approval Workflow** – Configurable approval steps before publishing
 - **Approval Activity View** – Track approval status by redmine activity feed
 - **Role-Based Permissions** – Control who can draft, approve, or publish
+- **REST API & OpenAPI Support** – Fully automate workflows with a modern REST API, including an interactive [OpenAPI Documentation](https://flowalchs.github.io/redmine_wiki_approval/)
 - **Email Notifications** – Notifications for status and step changes
 - **Per‑Project or Global Settings** – Configure behavior globally or individually per project, such as enabling approval requirements, drafts, or mandatory comments.
 - **Mandatory Save Comment** – Requires users to enter a comment when saving Wiki content (configurable on/off)
@@ -95,51 +97,51 @@ Enable the Module "Wiki approval" per project
   <table>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ProjectSettings.png" width="230px" />
+        <img src="./docs/screenshots/ProjectSettings.png" width="250px" />
         <br>
         <sub><b>Project Settings</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/EditPage.png" width="230px" />
+        <img src="./docs/screenshots/EditPage.png" width="250px" />
         <br>
         <sub><b>Page Edit</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Draft.png" width="230px" />
+        <img src="./docs/screenshots/Draft.png" width="250px" />
         <br>
         <sub><b>Draft created</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/StartApproval.png" width="230px" />
+        <img src="./docs/screenshots/StartApproval.png" width="250px" />
         <br>
         <sub><b>Start approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/InApproval.png" width="230px" />
+        <img src="./docs/screenshots/InApproval.png" width="250px" />
         <br>
         <sub><b>in Approval</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/GrantApproval.png" width="230px" />
+        <img src="./docs/screenshots/GrantApproval.png" width="250px" />
         <br>
         <sub><b>Grant Approval</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./docs/screenshots/ApprovedStep1.png" width="230px" />
+        <img src="./docs/screenshots/ApprovedStep1.png" width="250px" />
         <br>
         <sub><b>Approved step 1</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/Released.png" width="230px" />
+        <img src="./docs/screenshots/Released.png" width="250px" />
         <br>
         <sub><b>Released, all steps are approved</b></sub>
       </td>
       <td align="center">
-        <img src="./docs/screenshots/MyPage.png" width="230px" />
+        <img src="./docs/screenshots/MyPage.png" width="250px" />
         <br>
         <sub><b>My page</b></sub>
       </td>

@@ -8,6 +8,7 @@ one:
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>
   revision: 1
+  current_page_id: null
 
 two:
   id: 2
@@ -19,3 +20,4 @@ two:
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>
   revision: null
+  current_page_id: 11

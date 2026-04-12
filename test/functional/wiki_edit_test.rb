@@ -374,6 +374,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'false'
 
     @page = WikiPage.find_by(id: 11)
 
@@ -386,7 +387,6 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
         comments: '',
         version: @page.content.version
       },
-      status_disabled: 'true',
       status: 'published'
     }
 

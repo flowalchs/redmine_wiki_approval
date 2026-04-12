@@ -1,5 +1,5 @@
-<h2><%= "#{@page.pretty_title} - #{l(:label_revision)} #{@page.content.version}" %></h2>
-<%= form_with url: wiki_approval_start_path(@project.id, @page.title, @page.content.version), method: :post do |f| %>
+<h2><%= "#{@page.pretty_title} - #{l(:label_revision)} #{@content.version}" %></h2>
+<%= form_with url: wiki_approval_start_path(@project.id, @page.title), method: :put do |f| %>
   <div class="box tabular">
     <h3><%= l(:permission_wiki_approval_start) %></h3>
     <p>
@@ -7,17 +7,19 @@
     <%= f.text_field :note, placeholder: l(:field_comments), value: @note, class: 'input-large', style: 'width: 400px;' %>
     </p>
     <div id="steps-container">
-      <% @steps_grouped.keys.sort.each do |step_nr| %>
+      <% grouped = @steps.group_by(&:step) %>
+      <% grouped.keys.sort.each do |step_nr| %>
         <div class="step" data-step="<%= step_nr %>">
           <p>
           <label><%= l(:label_wiki_approval_step) + " #{step_nr}" %></label>
-            <% @steps_grouped[step_nr].each_with_index do |step, index| %>
+            <% grouped[step_nr].each_with_index do |step, index| %>
                 <%= select_tag "steps[#{step_nr}][][principal_id]",
                       principals_options_for_select(@approval_user_options, step.principal_id&.to_s),
                       include_blank: true,
-                      class: 'user-select' %>
+                      class: 'user-select' %>     
+                <%= "<p>".html_safe if index > 0 %>
                 <% if index == 0 %> 
-                  <%= select_tag "steps_typ[#{step_nr}]",
+                  <%= select_tag "steps[#{step_nr}][][step_typ]",
                     options_for_select([[l(:wiki_approval_or), 'or'], [l(:wiki_approval_and), 'and']], selected: step.step_type),
                     class: "step-typ" %>
                   <span class="add-user" data-step="<%= step_nr %>">
@@ -27,7 +29,6 @@
             <% end %>
           </p>
         </div>
-        
       <% end %>
     </div>
     <div>
@@ -101,7 +102,7 @@
             ${originalSelect.innerHTML}
           </select>
 
-          <select name="steps_typ[${stepCount}]" id="step-typ-${stepCount}" class="step-typ">
+          <select name="steps[${stepCount}][][step_typ]" id="step-typ-${stepCount}" class="step-typ">
             <option value="or">${wiki_approval_or}</option>
             <option value="and">${wiki_approval_and}</option>
           </select>

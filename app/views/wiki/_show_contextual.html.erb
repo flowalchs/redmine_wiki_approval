@@ -1,6 +1,6 @@
 
 <% 
-if @wiki_approval_data && RedmineWikiApproval.approval_or_draft_enabled?(@project, @wiki_approval_data&.dig(:setting))
+if @wiki_approval_data && RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, @wiki_approval_data&.dig(:setting))
     if ((@wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id]) ||
         (@page.version == @wiki_approval_data[:view_version_id]))
     -%>
@@ -13,7 +13,7 @@ if @wiki_approval_data && RedmineWikiApproval.approval_or_draft_enabled?(@projec
         <% if @wiki_approval_data[:view_version_id] < @page.version %>
             <%= watcher_link(@page, User.current) %>
         <% end %>
-        <% if @wiki_approval_data[:view_version_id] < @page.version && RedmineWikiApproval.view_draft?(@project, @wiki_approval_data&.dig(:setting)) %>
+        <% if @wiki_approval_data[:view_version_id] < @page.version && RedmineWikiApproval::Settings.view_draft?(@project, @wiki_approval_data&.dig(:setting)) %>
             <%= link_to rma_icon('wiki-page', l(:wiki_approval_link_draft), legacy_text_only: true), 
                         { controller: 'wiki', action: 'show', id: @page.title, version: @page.version }, 
                         { class: 'icon icon-workflows' } %>

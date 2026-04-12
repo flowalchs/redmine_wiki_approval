@@ -13,24 +13,23 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
   end
 
   test "should render start_approval form on GET with permission" do
-    get :start_approval, params: { project_id: @project.id, title: @page.title, version: @page.content.version }
+    get :status, params: { project_id: @project.id, title: @page.title }
     assert_response :success
     assert_match 'Start approval', @response.body
   end
 
   test "should return 403 on GET without permission" do
     Member.where(user_id: @user.id, project_id: @project.id).destroy_all
-    get :start_approval, params: { project_id: @project.id, title: @page.title, version: @page.content.version }
+    get :status, params: { project_id: @project.id, title: @page.title }
     assert_response :forbidden
   end
 
   test "should create approval on POST" do
-    post :start_approval, params: {
+    post :start, params: {
       project_id: @project.id,
       title: @page.title,
       version: @page.content.version,
-      steps: { "1" => [{ "principal_id" => @user.id.to_s }] },
-      steps_typ: { "1" => "or" },
+      steps: { "1" => [{ "principal_id" => @user.id.to_s, "step_typ" => "or" }] },
       note: "Approval started"
     }
     assert_response :redirect
@@ -41,15 +40,13 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
   end
 
   test "should reject approval if duplicate users" do
-    post :start_approval, params: {
+    post :start, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
       steps: {
-        "1" => [{ "principal_id" => @user.id.to_s }],
-        "2" => [{ "principal_id" => @user.id.to_s }]
-      },
-      steps_typ: { "1" => "or", "2" => "or" }
+        "1" => [{ "principal_id" => @user.id.to_s, "step_typ" => "or" }],
+        "2" => [{ "principal_id" => @user.id.to_s, "step_typ" => "or" }]
+      }
     }
     assert_response :success
     assert flash[:error].present?
@@ -66,13 +63,13 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step.step_status = :pending
     step.save!
 
-    post :grant_approval, params: {
+    put :grant, params: {
       project_id: @project.id,
       title: @page.title,
       version: @page.content.version,
       step_id: step.id,
       note: "Looks good",
-      status: "approved"
+      step_status: "approved"
     }
 
     assert_response :redirect
@@ -88,17 +85,21 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
       page_id: @page.id,
       version: @page.content.version,
       status: :draft,
-      author_id: @user.id
+      author_id: @dlopper.id
     )
     step = approval.approval_steps.for_principal(@user).find_or_initialize_by(step: 1)
     step.step_status = :pending
     step.save!
 
-    post :forward_approval, params: {
+    Member.create!(
+      project: @project,
+      principal: @group,
+      roles: [@developer_role]
+    )
+
+    put :forward, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step.id,
       note: "forward to group",
       principal_id: @group.id
     }
@@ -112,6 +113,27 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_equal 'pending', approval.status
   end
 
+  test "should not forward approval not found" do
+    approval = WikiApprovalWorkflow.create!(
+      page_id: @page.id,
+      version: @page.content.version,
+      status: :draft,
+      author_id: @user.id
+    )
+    step = approval.approval_steps.for_principal(@user).find_or_initialize_by(step: 1)
+    step.step_status = :pending
+    step.save!
+
+    put :forward, params: {
+      project_id: @project.id,
+      title: @page.title,
+      note: "forward to group",
+      principal_id: @group.id
+    }
+
+    assert_response :not_found
+  end
+
   test "should reject forward no comment" do
     approval = WikiApprovalWorkflow.create!(
       page_id: @page.id,
@@ -123,17 +145,15 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step.step_status = :pending
     step.save!
 
-    post :forward_approval, params: {
+    put :forward, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step.id,
       note: "",
       principal_id: @group.id
     }
 
-    assert_response :redirect
-    assert_includes flash[:error], I18n.t(:wiki_approval_unable_note)
+    assert_response :unprocessable_entity
+    assert_match I18n.t(:wiki_approval_unable_note), @response.body
     step.reload
     assert_equal 'pending', step.step_status
     assert_equal 'User', step.principal_type
@@ -146,7 +166,7 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
       page_id: @page.id,
       version: @page.content.version,
       status: :draft,
-      author_id: @user.id
+      author_id: @rhill.id
     )
     step1 = approval.approval_steps.for_principal(@user).find_or_initialize_by(step: 1)
     step1.step_status = :pending
@@ -156,17 +176,15 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step2.step_status = :unstarted
     step2.save!
 
-    post :forward_approval, params: {
+    put :forward, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step1.id,
       note: "reject dubilcate",
       principal_id: @dlopper.id
     }
 
-    assert_response :redirect
-    assert_includes flash[:error], I18n.t(:wiki_approval_unable_start_user)
+    assert_response :unprocessable_entity
+    assert_match I18n.t(:wiki_approval_unable_start_user), @response.body
     step1.reload
     assert_equal 'pending', step1.step_status
     assert_equal @user.id, step1.principal_id
@@ -175,21 +193,19 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
   end
 
   test "should approval multiple steps or and" do
-    post :start_approval, params: {
+    post :start, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
       steps: {
         "1" => [
-          { "principal_id" => @user.id.to_s },
-          { "principal_id" => @group.id.to_s }
+          { "principal_id" => @user.id.to_s, "step_typ" => "or" },
+          { "principal_id" => @group.id.to_s, "step_typ" => "or" }
         ],
         "2" => [
-          { "principal_id" => @dlopper.id.to_s },
-          { "principal_id" => @rhill.id.to_s }
+          { "principal_id" => @dlopper.id.to_s, "step_typ" => "and" },
+          { "principal_id" => @rhill.id.to_s, "step_typ" => "and" }
         ]
       },
-      steps_typ: { "1" => "or", "2" => "and" },
       note: "multiple steps"
     }
     assert_response :redirect
@@ -201,13 +217,11 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_equal 'unstarted', approval.approval_steps[2].step_status
 
     # approved first step
-    post :grant_approval, params: {
+    put :grant, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: approval.approval_steps[0].id,
       note: "Looks good",
-      status: "approved"
+      step_status: "approved"
     }
     assert_response :redirect
     approval.reload
@@ -256,13 +270,11 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step.step_status = :pending
     step.save!
 
-    post :grant_approval, params: {
+    put :grant, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step.id,
       note: "Looks bad",
-      status: "rejected"
+      step_status: "rejected"
     }
 
     assert_response :redirect
@@ -278,23 +290,21 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
       page_id: @page.id,
       version: @page.content.version,
       status: :pending,
-      author_id: @user.id
+      author_id: @dlopper.id
     )
     step = approval.approval_steps.for_principal(@user).find_or_initialize_by(step: 1)
     step.step_status = :pending
     step.save!
 
-    post :grant_approval, params: {
+    put :grant, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step.id,
       note: "",
-      status: "rejected"
+      step_status: "rejected"
     }
 
-    assert_response :redirect
-    assert_includes flash[:error], I18n.t(:wiki_approval_unable_note)
+    assert_response :unprocessable_entity
+    assert_match I18n.t(:wiki_approval_unable_note), @response.body
     step.reload
     assert_equal 'pending', step.step_status
     approval.reload
@@ -315,12 +325,10 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     content.reload
     @page.reload
 
-    post :start_approval, params: {
+    post :start, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      steps: { "1" => [{ "principal_id" => @user.id.to_s }] },
-      steps_typ: { "1" => "or" },
+      steps: { "1" => [{ "principal_id" => @user.id.to_s, "step_typ" => "or" }] },
       note: "Approval started"
     }
     assert_response :redirect
@@ -334,16 +342,15 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     approval = WikiApprovalWorkflow.find_by(page_id: @page.id, version:  @page.content.version)
     approval.status = :released
     approval.save!
-    post :start_approval, params: {
+    post :start, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      steps: { "1" => [{ "principal_id" => @user.id.to_s }] },
-      steps_typ: { "1" => "or" },
+      steps: { "1" => [{ "principal_id" => @user.id.to_s, "step_typ" => "or"}] },
       note: "redirect"
     }
-    assert_response :redirect
-    assert_includes flash[:error], I18n.t(:wiki_approval_unable_start_status, :status => I18n.t("wiki_approval_workflow.status.released"))
+    assert_response :unprocessable_entity
+    approval.reload
+    assert_equal :released, approval.status.to_sym
   end
 
   test "should forward format js template" do
@@ -357,11 +364,9 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step1.step_status = :pending
     step1.save!
 
-    get :forward_approval, params: {
+    get :forward, params: {
       project_id: @project.id,
-      title: @page.title,
-      version: @page.content.version,
-      step_id: step1.id
+      title: @page.title
     }, xhr: true
 
     assert_response :success
@@ -385,11 +390,9 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step1.step_status = :pending
     step1.save!
 
-    get :grant_approval, params: {
+    get :grant, params: {
       project_id: @project.id,
-      title: @page.title,
-      version: @page.content.version,
-      step_id: step1.id
+      title: @page.title
     }, xhr: true
 
     assert_response :success
@@ -398,7 +401,7 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
   end
 
   test "should return 404 no page" do
-    get :start_approval, params: { project_id: @project.id, title: 'not found', version: @page.content.version }
+    get :status, params: { project_id: @project.id, title: 'not found' }
     assert_response :not_found
   end
 
@@ -417,11 +420,9 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step1.step_status = :pending
     step1.save!
 
-    get :forward_approval, params: {
+    get :forward, params: {
       project_id: @project.id,
-      title: @page.title,
-      version: @page.content.version,
-      step_id: step1.id
+      title: @page.title
     }, xhr: true
 
     assert_response :success
@@ -452,13 +453,11 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     step2.step_type = 1
     step2.save!
 
-    post :grant_approval, params: {
+    put :grant, params: {
       project_id: @project.id,
       title: @page.title,
-      version: @page.content.version,
-      step_id: step2.id,
       note: "Looks bad",
-      status: "rejected"
+      step_status: "rejected"
     }
 
     assert_response :redirect
@@ -469,5 +468,27 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_equal 'canceled', step.step_status
     approval.reload
     assert_equal 'rejected', approval.status
+  end
+
+  test "index" do
+    get :index
+
+    assert_response :success
+    assert_select "table.list tbody tr" do
+      assert_select "td", text: "eCookbook"
+      assert_select "td", text: "Page_with_sections"
+      # Optional: Prüfen, ob der Status 'pending' in dieser Zeile steht
+      assert_select "td", text: "pending"
+    end
+    assert_select "span.pagination span.items", text: "(1-12/12)"
+  end
+
+  test "index_project" do
+    get :index, params: {project_id: @project.id}
+
+    assert_response :success
+    assert_select "table.list tbody tr", count: 8
+    assert_select "span.items", text: "(1-8/8)"
+    assert_select "table.list thead th a[href*='/projects/1/wiki_approval']"
   end
 end

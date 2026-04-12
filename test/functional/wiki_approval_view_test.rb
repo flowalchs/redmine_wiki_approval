@@ -35,7 +35,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     # open badge
     assert_select 'div#content div.contextual span.badge.badge-status-open'
     # workflow approval icon
-    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections/3"]'
+    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections"]'
     # sidebar
     assert_select '#sidebar #approval', minimum: 1
     # no workflow grant icon
@@ -49,14 +49,14 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
     assert_response :success
     # workflow grant icon
-    assert_select 'div#content div.contextual a.icon.icon-approval[href*="wiki_approval/Page_with_sections/3/grant/2"]'
+    assert_select 'div#content div.contextual a.icon.icon-approval[href*="wiki_approval/Page_with_sections/grant"]'
     # workflow forward icon
-    assert_select 'div#content div.contextual a.icon.icon-forward[href*="wiki_approval/Page_with_sections/3/forward/2"]'
+    assert_select 'div#content div.contextual a.icon.icon-forward[href*="wiki_approval/Page_with_sections/forward"]'
   end
 
   test 'wiki page Unauthorized pending version no permission draft view' do
     set_session_user(@dlopper)
-    RedmineWikiApproval.stubs(:view_draft?).with(@project).returns(false)
+    RedmineWikiApproval::Settings.stubs(:view_draft?).with(@project).returns(false)
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
     assert_response :forbidden
   end

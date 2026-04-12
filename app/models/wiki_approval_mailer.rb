@@ -20,7 +20,7 @@ class WikiApprovalMailer < Mailer
 
     # Approval Principals in Steps, groups to userids
     approval_principal_ids = approval.approval_steps
-      .where.not(step_status: WikiApprovalWorkflowSteps.step_statuses[:unstarted])
+      .where.not(step_status: WikiApprovalWorkflowStep.step_statuses[:unstarted])
       .each_with_object([]) do |step, acc|
         principal = step.principal
         case principal
@@ -81,7 +81,7 @@ class WikiApprovalMailer < Mailer
     return unless Setting.notified_events.include?('wiki_approval_notifications')
 
     approval_principal_ids = approval.approval_steps
-      .where(step_status: WikiApprovalWorkflowSteps.step_statuses[:pending])
+      .where(step_status: WikiApprovalWorkflowStep.step_statuses[:pending])
       .each_with_object([]) do |step, acc|
         principal = step.principal
         case principal
