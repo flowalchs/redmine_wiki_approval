@@ -5,18 +5,19 @@ ja:
   permission_wiki_approval_grant: Grant approval
   permission_wiki_approval_forward: Forward approval
   permission_wiki_draft_view: View draft
-  permission_wiki_draft_create: Create draft
+  permission_wiki_approval_publish: Wikiの下書きを公開
   label_wiki_approval_settings_projects: プロジェクトごとに設定可能
   label_wiki_approval_settings_comment: Wikiコメントが必須
   label_wiki_approval_settings_required: 承認が必要
   label_wiki_approval_settings_version: 次のバージョンの承認ワークフロー
-  label_wiki_approval_settings_draft_enabled: Wikiの下書きが有効
+  label_wiki_approval_settings_draft_enabled: Wikiの下書き/公開機能を有効にする
   label_wiki_approval_settings_enabled: Wiki承認が有効
   text_wiki_approval_settings_version: '承認ワークフローを開始すると、このページの今後のバージョンで承認が必須になります。'
   wiki_approval_link_draft: 下書きを表示
   wiki_approval_link_release: 公開済みバージョン
   wiki_approval_workflow:
     status:
+      draft_in_progress: "下書き作業中"
       draft: "下書き"
       pending: "承認中"
       rejected: "却下"
@@ -24,7 +25,7 @@ ja:
       released: "リリース済み"
       canceled: "キャンセル"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "キャンセル"
       unstarted: "未開始"
       pending: "承認中"
@@ -45,4 +46,6 @@ ja:
   wiki_approval_notifications_typ: "%{author} により %{typ} が更新されました。"
   my_wiki_drafts: "自分のWiki下書き"
   wiki_approval_queue: "Wiki承認待ちキュー"
+  button_wiki_approval_content_draft: "下書きを保存" 
+  button_wiki_approval_content_draft_prev: "前のバージョンを読み込む"
   

@@ -10,17 +10,19 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        after_action :wiki_approval_save, only: [:update]
         append_before_action :set_wiki_approval_data, only: [:show, :edit, :update]
+        append_before_action :mark_edit_context, only: [:edit]
+        append_before_action :apply_content_draft_update, only: [:update]
+        append_before_action :apply_workflow_draft_update, only: [:update]
       end
 
       module InstanceOverwriteMethods
         def set_wiki_approval_data
-          return unless @project && RedmineWikiApproval.is_enabled?(@project)
+          return unless @project && RedmineWikiApproval::Settings.is_enabled?(@project)
 
-          # draft or approval must be enabled in project or plugin
+          # draft, approval or contentDraft must be enabled in project or plugin
           setting = WikiApprovalSetting.find_or_create(@project.id)
-          return unless RedmineWikiApproval.approval_or_draft_enabled?(@project, setting)
+          return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, setting) || RedmineWikiApproval::Settings.content_draft?(@project, setting)
 
           # @page nil from :update controller comment_required
           if @page.nil? && @wiki.present?
@@ -30,43 +32,70 @@ module RedmineWikiApproval
 
           # @page or param
           view_version = params[:version] || @page&.version
-          
+
           # @page must be there
           approval = @page ? WikiApprovalWorkflow.for_wiki(@page.id, view_version.to_i).first : nil
-          latest_public = @page ? WikiApprovalWorkflow.latest_public_version(@page.id).first : nil
+          latest_public = @page ? WikiApprovalWorkflow.latest_public_version_nr(@page) : nil
 
           @wiki_approval_data = {
             view_version_id: view_version&.to_i,
             approval: approval,
-            latest_public_approval: latest_public,
+            latest_public_version: latest_public,
             setting: setting,
-            step_approval: WikiApprovalWorkflowSteps.first_pending_step_for(approval, User.current, @project, params[:step_id])
+            step_approval: WikiApprovalWorkflowStep.first_pending_step_for(approval, User.current)
           }
         end
 
-        def wiki_approval_save
-          return if @page.nil? || @page.errors.any?
-          return unless @page.persisted?
+        def mark_edit_context
+          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
 
-          # check params
-          status = params[:status]
-          return true unless status
+          # parameter version is set, at rollback to prev version
+          Thread.current[:wiki_edit_context] = params[:version].blank?
+        end
 
-          status_disabled = params[:status_disabled]
-          return true unless status_disabled
+        def apply_content_draft_update
+          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
 
-          return unless User.current.allowed_to?(:wiki_draft_create, @project)
+          @page = @wiki.find_or_new_page(params[:id])
+          return unless @page.id # content drafts not on a new page
 
-          version = params[:version].present? ? params[:version].to_i : @page.version
+          # Thread parameter, is available later in the page model patch
+          Thread.current[:wiki_is_draft] = params[:draft].present?
+          Thread.current[:wiki_attachments] = params[:attachments] || (params[:wiki_page] && params[:wiki_page][:uploads])
 
-          approval = WikiApprovalWorkflow.find_or_initialize_by(
-            wiki_page_id: @page.id,
-            wiki_version_id: version
-          )
+          # not the best place, but before rendering, couldn't find a better spot
+          flash.now[:notice] = l(:notice_successful_update) if Thread.current[:wiki_is_draft].present?
 
-          approval.status = params[:status]
-          approval.author_id ||= User.current.id
-          approval.save!
+          # return unless section parameter
+          return if params[:section].blank?
+
+          draft = WikiApprovalDraft.find_by(page_id: @page.id)
+          return unless draft
+
+          base_text = draft.text
+
+          # do section
+          base_text = Redmine::WikiFormatting.formatter
+            .new(base_text)
+            .update_section(params[:section].to_i, params[:content][:text], params[:section_hash])
+
+          # result in params vor normal update controller
+          params[:content][:text] = base_text
+
+          # Section-Parameter delete, all sections are append
+          params.delete(:section)
+          params.delete(:section_hash)
+        end
+
+        def apply_workflow_draft_update
+          return unless @wiki_approval_data # project not anaibled
+          return if params[:draft].present? # content draft
+          return if @page.errors.any? # error before, no comment
+          return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, @wiki_approval_data[:setting]) # no workflow/draft enabled
+
+          # Fallback: Default to "draft" status if params[:status] is blank or missing (e.g., via API)
+          Thread.current[:workflow_is_draft] = params[:status].presence || "draft"
+          Thread.current[:wiki_approval_data] = @wiki_approval_data
         end
       end
     end

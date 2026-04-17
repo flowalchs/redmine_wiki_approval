@@ -30,6 +30,13 @@ class ProjectSettingsViewTest < WikiApproval::Test::ControllerCase
       assert_select 'input#approval_enabled_box[type=checkbox][checked=checked]', 1
       # Hidden-Fallback
       assert_select 'input#wiki_approval_enabled[type=hidden][name=wiki_approval_enabled][value="0"]', 1
+
+      # hidden wiki_draft_enabled
+      assert_select 'input#wiki_draft_enabled[type=checkbox][name=wiki_draft_enabled]', 0
+      # hidden approval_enabled
+      assert_select 'input#wiki_comment_required[type=checkbox][name=wiki_comment_required]', 0
+      # hidden wiki_content_draft
+      assert_select 'input#wiki_content_draft[type=checkbox][name=wiki_content_draft]', 0
     end
   end
 
@@ -40,6 +47,7 @@ class ProjectSettingsViewTest < WikiApproval::Test::ControllerCase
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'false'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
 
     get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
     assert_response :success
@@ -55,10 +63,14 @@ class ProjectSettingsViewTest < WikiApproval::Test::ControllerCase
       # Hidden-Fallback
       assert_select 'input#wiki_draft_enabled[type=hidden][name=wiki_draft_enabled][value="0"]', 1
 
-      # wiki_draft_enabled checked
+      # wiki_comment_required checked
       assert_select 'input#wiki_comment_required[type=checkbox][checked=checked]', 1
       # Hidden-Fallback
       assert_select 'input#wiki_comment_required[type=hidden][name=wiki_comment_required][value="0"]', 1
+
+      # wiki_content_draft
+      assert_select 'input#wiki_content_draft[type=checkbox][checked=checked]', 1
+      assert_select 'input#wiki_content_draft[type=hidden][name=wiki_content_draft][value="0"]', 1
     end
   end
 end

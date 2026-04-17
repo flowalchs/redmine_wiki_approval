@@ -35,7 +35,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     # open badge
     assert_select 'div#content div.contextual span.badge.badge-status-open'
     # workflow approval icon
-    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections/3"]'
+    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections"]'
     # sidebar
     assert_select '#sidebar #approval', minimum: 1
     # no workflow grant icon
@@ -49,26 +49,26 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
     assert_response :success
     # workflow grant icon
-    assert_select 'div#content div.contextual a.icon.icon-approval[href*="wiki_approval/Page_with_sections/3/grant/2"]'
+    assert_select 'div#content div.contextual a.icon.icon-approval[href*="wiki_approval/Page_with_sections/grant"]'
     # workflow forward icon
-    assert_select 'div#content div.contextual a.icon.icon-forward[href*="wiki_approval/Page_with_sections/3/forward/2"]'
+    assert_select 'div#content div.contextual a.icon.icon-forward[href*="wiki_approval/Page_with_sections/forward"]'
   end
 
   test 'wiki page Unauthorized pending version no permission draft view' do
     set_session_user(@dlopper)
-    RedmineWikiApproval.stubs(:view_draft?).with(@project).returns(false)
+    RedmineWikiApproval::Settings.stubs(:view_draft?).with(@project).returns(false)
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
-    assert_response :forbidden  
+    assert_response :forbidden
   end
 
   test 'wiki page show draft version and badge' do
     content = @page.content
     content.text = "New Version"
-    content.save! 
-    
+    content.save!
+
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :draft,
       author_id: User.current.id
     )
@@ -88,11 +88,11 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
   test 'wiki page show reject version and badge' do
     content = @page.content
     content.text = "New Version"
-    content.save! 
-    
+    content.save!
+
     WikiApprovalWorkflow.create!(
-      wiki_page_id: @page.id,
-      wiki_version_id: @page.content.version,
+      page_id: @page.id,
+      version: @page.content.version,
       status: :rejected,
       author_id: User.current.id
     )
@@ -107,12 +107,11 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
 
     # open badge
     assert_select 'div#content div.contextual span.badge.badge-private'
-  end 
+  end
 
   test 'wiki delete page also approval' do
-
     # any workflows?
-    approvals = WikiApprovalWorkflow.where(wiki_page_id: @page.id)
+    approvals = WikiApprovalWorkflow.where(page_id: @page.id)
     assert approvals.any?
     approvals.each do |workflow|
       assert_not_equal 0, workflow.approval_steps.count
@@ -128,13 +127,11 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
       assert_equal 0, workflow.approval_steps.count
       assert_equal 0, workflow.approval_statuses.count
     end
-
-  end 
+  end
 
   test 'wiki delete content version also approval' do
-
     # any workflows?
-    approvals = WikiApprovalWorkflow.where(wiki_page_id: @page.id, wiki_version_id: @page.content.version)
+    approvals = WikiApprovalWorkflow.where(page_id: @page.id, version: @page.content.version)
     assert approvals.any?
     approvals.each do |workflow|
       assert_not_equal 0, workflow.approval_steps.count
@@ -150,6 +147,44 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
       assert_equal 0, workflow.approval_steps.count
       assert_equal 0, workflow.approval_statuses.count
     end
+  end
 
-  end 
+  test 'wiki page show redirect to version withoud approval' do
+    @page = WikiPage.find(1)
+    @page.content.attributes = {
+      text: "New Version without approval in any version befor",
+      comments: "Added via test",
+      author_id: 1
+    }
+    @page.content.save!
+
+    WikiApprovalWorkflow.create!(
+      page_id: @page.id,
+      version: @page.content.version,
+      status: :draft,
+      author_id: User.current.id
+    )
+
+    get :show, params: { project_id: @project.id, id: @page.title }
+    assert_response :redirect
+    assert_redirected_to "/projects/1/wiki/CookBook_documentation/3"
+
+    # respons.body from version 3 test, after redirect rsponse.body is from original version
+    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    assert_response :success
+
+    # link to view draft
+    assert_select "a.icon-workflows[href='/projects/1/wiki/CookBook_documentation/4']" do |links|
+      assert_match /View draft/, links.first.text
+    end
+
+    # no badge
+    assert_select 'div#content div.contextual span.badge', false
+    # sidebar no approval
+    assert_select '#sidebar #approval', count: 0
+    # no workflow grant icon
+    assert_select 'div#content div.contextual a.icon.icon-approval', count: 0
+    # no workflow forward icon
+    assert_select 'div#content div.contextual a.icon.icon-forward', count: 0
+  end
 end

@@ -8,8 +8,8 @@
     condition_values = principals.flat_map { |p| [p.class.name, p.id] }
 
     # status = 20 AND (type='group' and id=1 or type='user' and id=2)
-    pending_steps = WikiApprovalWorkflowSteps.where(status: :pending)
-                                            .where(condition_sql, *condition_values)
+    pending_steps = WikiApprovalWorkflowStep.where(step_status: :pending)
+                                             .where(condition_sql, *condition_values)
 %>
 <h3><%= l(:wiki_approval_queue) %> (<%= pending_steps.count %>) </h3>
 <% if pending_steps.any? %>
@@ -32,14 +32,14 @@
           <td><%= link_to step.approval.wiki_page.project, 
                           project_path(step.approval.wiki_page.project.identifier) %></td>
           <td><%= link_to step.approval.wiki_page.title, 
-                          project_wiki_page_path(step.approval.wiki_page.project.identifier, step.approval.wiki_page.title, :version => step.approval.wiki_version_id) %></td>
+                          project_wiki_page_path(step.approval.wiki_page.project.identifier, step.approval.wiki_page.title, :version => step.approval.version) %></td>
           <td><%= step.approval.author %></td>
           <td><%= step.approval.note %></td>
           <td><%= step.step %></td>
           <td><%= format_time(step.approval.created_at) %></td>
           <td><%= format_time(step.updated_at) %></td>
           <td class="buttons">
-            <%= link_to l(:button_view), { :controller => 'wiki', :action => 'show', :project_id => step.approval.wiki_page.project.identifier, :id => step.approval.wiki_page.title, :version => step.approval.wiki_version_id }, :class => 'icon icon-view' %>
+            <%= link_to l(:button_view), { :controller => 'wiki', :action => 'show', :project_id => step.approval.wiki_page.project.identifier, :id => step.approval.wiki_page.title, :version => step.approval.version }, :class => 'icon icon-view' %>
           </td>
         </tr>
       <% end %>

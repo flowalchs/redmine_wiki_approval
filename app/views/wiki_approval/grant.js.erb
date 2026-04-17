@@ -5,7 +5,7 @@ $('#ajax-modal').html
     '<h3 class="title"><%= j l(:label_wiki_approval_settings_enabled) %></h3>' +
   '</div>' +
   '<div class="modal-body">' +
-    '<%= j render partial: "workflow/grant_dialog", locals: { step: @step } %>' +
+    '<%= j render partial: "grant_dialog", locals: { step: @step } %>' +
   '</div>'
 );
 showModal('ajax-modal');

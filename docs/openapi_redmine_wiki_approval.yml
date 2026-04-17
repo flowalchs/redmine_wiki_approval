@@ -1,0 +1,997 @@
+openapi: 3.0.0
+info:
+  title: Redmine Wiki Approval API
+  description: >
+    API for managing multi-step approval workflows for Redmine Wiki pages. 
+    Allows starting approvals, granting/rejecting steps, and tracking history.
+  version: 1.0.1
+  contact:
+      name: FloWalchs
+      url: https://github.com/FloWalchs/redmine_wiki_approval
+  license:
+      name: MIT License
+      url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: "{protocol}://{domain}"
+    description: Your Redmine instance
+    variables:
+      protocol:
+        enum:
+          - https
+          - http
+        default: https
+      domain:
+        default: redmine.example.com
+        description: Redmine Development Server
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Redmine-API-Key
+      description: Your personal Redmine API key found in your account settings.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: API key passed as a URL parameter.
+  schemas:
+  
+    WikiApprovalStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/WikiApprovalWorkflow'
+        - type: object
+          properties:
+            wiki_page:
+              $ref: '#/components/schemas/WikiPage'
+  
+    WikiApprovalHistoryResponse:
+      type: object
+      properties:
+        wiki_approval_workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/WikiApprovalWorkflow'
+          description: "A list of all past and current workflow revisions for this page."
+        total_count:
+          type: integer
+          description: "Total number of workflows found."
+        offset:
+          type: integer
+          description: "Starting point for the current page of results."
+        limit:
+          type: integer
+          description: "Number of items per page."
+      
+    # Final response for the list
+    WikiPageApprovalListResponse:
+      type: object
+      properties:
+        wiki_pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/WikiPageWithWorkflow'
+        total_count:
+          type: integer
+        offset: 
+          type: integer
+        limit:
+          type: integer
+      
+    WikiApprovalPermissionResponse:
+      type: object
+      required: [id, name, type, permissions]
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: "newGroupTwo"
+        type:
+          type: string
+          enum: [User, Group]
+          example: "Group"
+        permissions:
+          type: array
+          items:
+            type: string
+          example: 
+            - "wiki_approval_grant"
+            - "wiki_draft_view"
+      
+    WikiPage:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 30
+        wiki_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "NewWikiTest"
+        created_on:
+          type: string
+          format: date-time
+          example: "2026-03-23T20:32:16Z"
+        protected:
+          type: boolean
+          example: false
+        parent_id:
+          type: integer
+          nullable: true
+          example: null
+
+    # Single step in the workflow
+    WikiApprovalWorkflowStep:
+      type: object
+      properties:
+        id:
+          type: integer
+        step:
+          type: integer
+          description: "Sequence number of the step"
+        step_type:
+          type: string
+          enum: [or, and]
+        step_status:
+          type: string
+          enum: [pending, approved, canceled, rejected]
+        principal:
+          $ref: '#/components/schemas/Principal'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          
+    # The main object
+    WikiApprovalWorkflow:
+      type: object
+      properties:
+        id:
+          type: integer
+        version:
+          type: integer
+        revision:
+          type: integer
+        author:
+          type: object
+          properties:
+            id:
+              type: integer
+            name: 
+              type: string
+        status:
+          type: string
+          enum: [canceled, draft, pending, rejected, published, released]
+        note:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        wiki_approval_workflow_steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WikiApprovalWorkflowStep'
+
+    ProjectMinimal:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "new Project" }
+        identifier: { type: string, example: "new-project" }
+
+    # Extended page for the list
+    WikiPageWithWorkflow:
+      allOf:
+        - $ref: '#/components/schemas/WikiPage' # Copies all fields from WikiPage
+        - type: object
+          properties:
+            # Attach the project here
+            project:
+              $ref: '#/components/schemas/ProjectMinimal'
+            # Attach the workflow here (name must match the JSON!)
+            wiki_approval_workflow:
+              $ref: '#/components/schemas/WikiApprovalWorkflow'
+
+    # Helper schema for Users/Groups (Principal)
+    Principal:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [User, Group]
+      example:
+        id: 11
+        name: "user four"
+        type: "User"
+            
+    ApprovalStepInput:
+      type: object
+      properties:
+        step:
+          type: integer
+          description: "The sequence or order number of the approval step (e.g., 1, 2, 3...)."
+          example: 1
+        step_type:
+          type: string
+          enum: [or, and]
+          description: "The logic applied to this step: 'or' means one person must approve, 'and' means all assigned persons must approve."
+          example: "or"
+        principal_id:
+          type: integer
+          description: "The unique ID of the User or Group assigned to this approval step."
+          example: 11
+
+    ApprovalStartRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          description: "An optional comment or initialization note to explain the purpose of this approval process."
+          example: "new wiki content and a note"
+        steps:
+          type: array
+          description: "A list of workflow steps and their assigned approvers."
+          items:
+            $ref: '#/components/schemas/ApprovalStepInput'
+            
+    SearchFilter:
+      type: object
+      description: "Standard Redmine Query Filter Object"
+      properties:
+        set_filter:
+          type: integer
+          enum: [1]
+          example: 1
+        # f: List of active filter fields
+        f:
+          type: array
+          items:
+            type: string
+            enum: 
+              - project_id
+              - subproject_id
+              - title
+              - status
+              - author_id
+              - step_status
+              - principal_id
+          example: ["subproject_id", "status", "author_id", "title"]
+        
+        # op: Operators for each field
+        op:
+          type: object
+          properties:
+            project_id: { type: string, example: "=" }
+            subproject_id: { type: string, example: "!*" } # !* means "none"
+            status: { type: string, example: "=" }
+            author_id: { type: string, example: "!=" }
+            title: { type: string, example: "~" } # ~ means "contains"
+            step_status: { type: string, example: "=" }
+            principal_id: { type: string, example: "=" }
+          additionalProperties:
+            type: string
+          example:
+            subproject_id: "!*"
+            status: "="
+            author_id: "!"
+            title: "~"
+
+        # v: Actual values as arrays
+        v:
+          type: object
+          properties:
+            project_id: 
+              type: array
+              items: { type: string }
+            status: 
+              type: array
+              items: { type: string }
+              example: ["draft", "pending"]
+            author_id: 
+              type: array
+              items: { type: string }
+              example: ["me"]
+            title: 
+              type: array
+              items: { type: string }
+              example: ["wik"]
+            step_status:
+              type: array
+              items: { type: string }
+            principal_id:
+              type: array
+              items: { type: string }
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            status: ["draft", "pending"]
+            author_id: ["me"]
+            title: ["Travel Expenses"]
+
+security:
+  - basicAuth: []
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
+
+tags:
+  - name: "Wiki Approval"
+    description: "Operations related to the wiki page approval lifecycle (start, grant, history, forward)."
+  - name: "Wiki List index"
+    description: "List Wiki pages with the current approval workflow" 
+  - name: "Wiki Controller"
+    description: "Redmine Core Wiki Controller"
+
+paths:
+  # Global or User-specific Index
+  /wiki_approval.json:
+    get:
+      summary: List Approvals (Simple Filters)
+      description: Use this for quick GET requests with basic filters.
+      operationId: wiki_approval_index_get
+      tags:
+        - "Wiki List index"
+      parameters:
+        # --- Project Filters ---
+        - name: project_id
+          in: query
+          description: Filter by a specific project ID (only available in global index).
+          style: form
+          explode: true 
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["1", "project_identifier"]
+
+        # --- Content Filters ---
+        - &param_title
+          name: title
+          in: query
+          description: Search in Wiki page titles (text filter).
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string
+
+        # --- Workflow Status Filters ---
+        - &param_status
+          name: status
+          in: query
+          description: Filter by overall workflow status (e.g., draft, pending, published).
+          required: false
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            nullable: false
+            items:
+              type: string
+              enum: [canceled, draft, pending, rejected, published, released]
+          examples:
+            all_active:
+              summary: "All active workflows"
+              value: [pending, draft, rejected]
+            finalized:
+              summary: "Only published content"
+              value: [published, released]
+      
+        - &param_author
+          name: author_id
+          in: query
+          description: "Filter by the user who started the approval. Supports multiple values."
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string # String because of 'me'
+            example: ["5", "me"]
+          
+        # --- Step Specific Filters ---
+        - &param_step_status
+          name: step_status
+          in: query
+          description: Filter by the status of the current approval step.
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [unstarted, pending, rejected, approved, canceled]
+          examples:
+            all_pending:
+              summary: "All pending steps"
+              value: [pending]
+              
+        - &param_principal_id
+          name: principal_id
+          in: query
+          description: >
+            Filter by the assigned approver (User or Group). 
+            **Special Logic:** If a User ID (or 'me') is provided, the result 
+            includes workflows assigned directly to that user AND workflows 
+            assigned to any groups the user belongs to.
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string # String because of 'me'
+            example: ["5", "me"]
+
+        # --- Pagination (Standard Redmine) ---
+        - &param_page
+          name: page
+          in: query
+          description: "The page number to retrieve. Used for paginating the results."
+          schema:
+            type: integer
+            default: 1
+            example: 1
+
+        - &param_per_page
+          name: per_page
+          in: query
+          description: "Number of items to return per page. Default and maximum values are defined in Redmine settings (Settings -> General)."
+          schema:
+            type: integer
+            default: 25
+            example: 50
+      responses:
+        '200':
+          description: "A list of workflows matching the filters."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiPageApprovalListResponse'
+                
+    post:
+      summary: Search Approvals (Complex JSON Filter)
+      description: >
+        Standard Redmine Query Filter for complex logic (operators, multiple values).
+        Use this if you need advanced filtering (e.g., OR logic, 'contains' search).
+      operationId: wiki_approval_index_post
+      tags:
+        - "Wiki List index"
+      requestBody:
+        description: JSON body containing the Redmine filter object.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFilter'
+            examples:
+              my_drafts:
+                summary: "My wiki drafts, current open workflow wiki pages where I was the author"
+                value:
+                  set_filter: 1
+                  f: ["status", "author_id"]
+                  op:
+                    status: "="
+                    author_id: "="
+                  v:
+                    status: ["draft","pending","rejected"]
+                    author_id: ["me"]
+              my_approval_queue:
+                summary: "My approval queue, all open workflows in step status pending for me or my groups"
+                value:
+                  set_filter: 1
+                  f: ["step_status", "principal_id"]
+                  op:
+                    step_status: "="
+                    principal_id: "="
+                  v:
+                    step_status: ["pending"]
+                    principal_id: ["me"]
+      responses:
+        '200':
+          description: A list of approval entries.
+
+  # Project-specific Index
+  /projects/{project_id}/wiki_approval.json:
+    get:
+      summary: List Project Approvals
+      description: >
+          Use this for quick GET requests with basic filters and project_id.
+      operationId: wiki_approval_project_index_get
+      tags:
+        - "Wiki List index"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: Filter by a specific project ID or project_identifier
+          schema:
+            type: string
+        - name: subproject_id
+          in: query
+          description: Filter by subproject IDs (only available on project index).
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["none", "1", "5"]
+        - *param_title
+        - *param_status
+        - *param_author
+        - *param_step_status
+        - *param_principal_id
+        - *param_page
+        - *param_per_page
+      responses:
+        '200':
+          description: A list of approval entries.
+    post:
+      summary: Search Approvals (Complex JSON Filter)
+      description: >
+        Standard Redmine Query Filter for complex logic (operators, multiple values).
+        Use this if you need advanced filtering (e.g., OR logic, 'contains' search).
+      operationId: wiki_approval_project_index_post
+      tags:
+        - "Wiki List index"
+      parameters:
+        # --- Project Filters ---
+        - name: project_id
+          in: path
+          required: true
+          description: Filter by a specific project ID or project_identifier
+          schema:
+            type: string
+      requestBody:
+        description: JSON body containing the Redmine filter object.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFilter'
+      responses:
+        '200':
+          description: List of approvals for the specific project.
+
+  # Wiki Page Status
+  /projects/{project_id}/wiki_approval/{title}/status.json:
+    get:
+      summary: Get Approval Status
+      description: "Retrieve the current approval state of a specific wiki page. permission required: wiki_draft_view"
+      operationId: wiki_approval_status
+      tags:
+        - "Wiki Approval"
+      parameters: &wiki_approval
+        - name: project_id
+          in: path
+          required: true
+          description: Filter by a specific project ID or project_identifier
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Full workflow details retrieved successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wiki_approval_workflow:
+                    $ref: '#/components/schemas/WikiApprovalStatusResponse'
+              # Example response for Swagger UI
+              example: &approval_status
+                wiki_approval_workflow:
+                  id: 66
+                  version: 20
+                  status: "pending"
+                  wiki_page:
+                    id: 30
+                    title: "NewWikiTest"
+                  wiki_approval_workflow_steps:
+                    - id: 54
+                      step: 1
+                      step_status: "approved"
+
+
+  # History
+  /projects/{project_id}/wiki_approval/{title}/history.json:
+    get:
+      summary: "Retrieve Workflow History"
+      description: >
+        Returns a complete audit log of all approval workflows associated with 
+        the specified wiki page. This includes past revisions, their final 
+        outcomes (released, rejected, canceled), and the associated notes 
+        and approval steps for each version. permission required: wiki_draft_view
+      operationId: wiki_approval_history
+      tags:
+        - "Wiki Approval"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: Filter by a specific project ID or project_identifier
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - *param_page
+        - *param_per_page
+      responses:
+        '200':
+          description: "A list of workflow revisions was successfully retrieved."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiApprovalHistoryResponse'
+              # Example showing an array of workflows
+              example:
+                wiki_approval_workflows:
+                  - id: 66
+                    version: 20
+                    status: "released"
+                    note: "Final version approved by tech lead"
+                    "wiki_approval_workflow_steps": [
+                      {
+                        "id": 54,
+                        "step": 1,
+                        "step_type": "or",
+                        "step_status": "approved"
+                      }
+                    ]
+                  - id: 45
+                    version: 19
+                    status: "rejected"
+                    note: "Missing documentation in section 4"
+        '403':
+          description: "Forbidden. No view permission"
+        '404':
+          description: "Not Found. The wiki page does not exist or has no approval history."
+
+  /projects/{project_id}/wiki_approval/permissions.json:
+    get:
+      summary: "List Project Actor Permissions"
+      description: >
+        Returns a list of all actors (Users and Groups) who have plugin-specific 
+        permissions within the given project. This is useful for populating 
+        dropdowns or checking who is authorized to grant or start approvals. permission required: wiki_approval_settings
+      operationId: wiki_approval_permissions
+      tags:
+        - "Wiki Approval"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: "Project identifier (ID or identifier string)."
+          schema:
+            type: string
+          example: "new-project"
+        - name: permissions[]
+          in: query
+          required: false
+          description: "The specific permission key to check (e.g., 'wiki_approval_grant')."
+          style: form
+          explode: true 
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["wiki_approval_settings","wiki_approval_start","wiki_approval_grant","wiki_approval_forward","wiki_draft_view","wiki_approval_publish"]
+      responses:
+        '200':
+          description: "A list of actors and their associated permissions."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  actors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WikiApprovalPermissionResponse'
+        '403':
+          description: "Forbidden (User not logged in or no access to project)."
+
+  # Start Process
+  /projects/{project_id}/wiki_approval/{title}/start.json:
+    put:
+      summary: Start Approval Process
+      description: >
+        Initializes the approval workflow for a wiki page. 
+        This action sets the overall workflow status to 'pending' and creates or overwrites 
+        the associated workflow steps. 
+        It can also be used to 'restart' an existing process at any time with a 
+        new set of approvers (principals). permission required: wiki_approval_start
+      operationId: wiki_approval_start
+      tags:
+        - "Wiki Approval"
+      parameters: *wiki_approval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalStartRequest'
+            example: 
+              note: "new content note"
+              steps:
+                - step: 1
+                  step_type: "or"
+                  principal_id: 11
+                - step: 1
+                  step_type: "or"
+                  principal_id: 12
+                - step: 2
+                  step_type: "and"
+                  principal_id: 10
+                - step: 2
+                  step_type: "and"
+                  principal_id: 9
+      responses:
+        '200':
+          description: Approval process successfully initialized.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wiki_approval_workflow:
+                    $ref: '#/components/schemas/WikiApprovalStatusResponse'
+              # Example response for Swagger UI
+              example: *approval_status
+              
+  # Grant or Reject
+  /projects/{project_id}/wiki_approval/{title}/grant.json:
+    put:
+      summary: "Submit Approval Decision"
+      description: >
+        Submits a 'grant' or 'reject' decision for the current approval step. 
+        The system automatically identifies the relevant step based on the 
+        authenticated user's credentials. If the user is not assigned to the 
+        active step, the request will return an error. permission required: wiki_approval_grant
+      operationId: wiki_approval_grant
+      tags:
+        - "Wiki Approval"
+      parameters: *wiki_approval
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                step_status:
+                  type: string
+                  enum: [granted, rejected]
+                  default: granted
+                  description: "The decision for the current step. 'granted' allows the process to continue, 'rejected' stops it."
+                note:
+                  type: string
+                  description: "An optional comment. **Required** when step_status is 'rejected'."
+                  example: "Missing technical documentation in section 3."
+            # Using our previously defined example anchor or a new one
+            examples:
+              grant_rejected:
+                summary: "Rejected a approval step"
+                value:
+                  step_status: "rejected"
+                  note: "Rejected due to missing security clearance details."
+              grant_approved:
+                summary: "Approve a approval step"
+                value:
+                  step_status: "approved"
+                  
+      responses:
+        '200':
+          description: "Decision recorded successfully. Returns the updated workflow status."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiApprovalStatusResponse'
+              example: *approval_status
+        '403':
+          description: "Forbidden. The authenticated user is not assigned to the current active step."
+        '404':
+          description: "Page not found, or parameter status not found"
+        '422':
+          description: "Unprocessable Entity. The workflow is not in a state where it can be approved (e.g., already released or canceled)."
+
+  # Forward
+  /projects/{project_id}/wiki_approval/{title}/forward.json:
+    put:
+      summary: Forward Approval
+      description: > 
+        Reassign the current approval step to another user.
+        The system automatically identifies the relevant step based on the authenticated user's credentials. If the user is not assigned to the 
+        active step, the request will return an error. permission required: wiki_approval_forward
+      operationId: wiki_approval_forward
+      tags:
+        - "Wiki Approval"
+      parameters: *wiki_approval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - principal_id
+                - note
+              properties:
+                principal_id:
+                  type: integer
+                  description: "The ID of the new User or Group to whom the step is being forwarded."
+                  example: 15
+                note:
+                  type: string
+                  description: "The reason for forwarding the step (e.g., 'Out of office' or 'Technical expertise required')."
+                  example: "Forwarding to the technical lead for final review."
+      responses:
+        '200':
+          description: Approval successfully forwarded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiApprovalStatusResponse'
+              example: *approval_status
+              
+        '403':
+          description: "Forbidden. The authenticated user is not assigned to the current active step."
+        '404':
+          description: "Page not found, or principal_id not found"
+        '422':
+          description: "Unprocessable Entity. The workflow is not in a state where it can be approved, or duplicate users, or missing note parameter."
+
+  # Publish (Finalize)
+  /projects/{project_id}/wiki_approval/{title}/publish.json:
+    put:
+      summary: "Directly Publish Wiki Page"
+      description: >
+        Forces the immediate publication of the wiki page. This action finalizes 
+        the current workflow and sets the status to 'published' or 'released'. 
+        **Note:** Any existing or pending approval steps for this revision 
+        will be automatically canceled. permission required: wiki_approval_publish
+      operationId: wiki_approval_publish
+      tags:
+        - "Wiki Approval"
+      parameters: *wiki_approval
+      responses:
+        '200':
+          description: "Wiki page successfully published."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiApprovalStatusResponse'
+        '400':
+          description: "Bad Request. The workflow is in an invalid status for publication."
+        '403':
+          description: "Forbidden. Higher-level approval is required, the user lacks 'publish' permissions, or project-level approval is required"
+        '404':
+          description: "Not Found. The wiki page or workflow does not exist."
+        '409':
+          description: "Conflict. The page has already been released or published."
+        '422':
+          description: "Unprocessable Entity (Validation errors)."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    description: "List of validation error messages"
+                    items:
+                      type: string
+                    example: ["Comments cannot be blank", "Invalid Page", "Already released", "Invalid status", "Approval Required"]
+
+          
+  /projects/{project_id}/wiki/{title}.json:
+    put:
+      summary: "Update Wiki Page with Approval Status"
+      description: >
+        Updates a standard Redmine wiki page and allows setting an approval status 
+        if the Wiki Approval Plugin is enabled. permission required: edit_wiki_pages
+      operationId: wiki#update
+      tags:
+        - "Wiki Controller"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: "Project identifier (e.g., 'new-project')"
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          description: "The title of the wiki page (e.g., 'NewWiki14')"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wiki_page:
+                  type: object
+                  description: "Standard Redmine wiki page attributes"
+                  properties:
+                    text:
+                      type: string
+                      description: "The content of the wiki page."
+                    comments:
+                      type: string
+                      description: "Comment for this version/edit."
+                status:
+                  type: string
+                  description: "Plugin specific: The approval status for this version."
+                  enum: [draft, published]
+            examples:
+              update_example_draft:
+                summary: "Standard Update with Status Draft"
+                value:
+                  wiki_page:
+                    text: "New content…8899"
+                    comments: "New version"
+                  status: "draft"
+              update_example_published:
+                summary: "Standard Update with Status Published"
+                value:
+                  wiki_page:
+                    text: "New content…8899"
+                    comments: "New version"
+                  status: "published"
+      responses:
+        '204':
+          description: "Wiki page updated successfully."
+        '404':
+          description: "Project or Wiki page not found."
+        '422':
+          description: "Unprocessable Entity (Validation errors)."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    description: "List of validation error messages"
+                    items:
+                      type: string
+                    example: ["Comments cannot be blank", "Invalid Page", "Already released", "Invalid status", "Approval Required"]
+          

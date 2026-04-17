@@ -5,18 +5,19 @@ nb:
   permission_wiki_approval_grant: Gi godkjenning
   permission_wiki_approval_forward: Videresend godkjenning
   permission_wiki_draft_view: Vis utkast
-  permission_wiki_draft_create: Opprett utkast
+  permission_wiki_approval_publish: Publiser wiki-utkast
   label_wiki_approval_settings_projects: Kan konfigureres per prosjekt
   label_wiki_approval_settings_comment: Wiki‑kommentar kreves
   label_wiki_approval_settings_required: Godkjenning kreves
   label_wiki_approval_settings_version: Godkjenningsarbeidsflyt for neste versjon
-  label_wiki_approval_settings_draft_enabled: Wiki‑utkast aktivert
+  label_wiki_approval_settings_draft_enabled: Wiki-utkast/publisering aktivert
   label_wiki_approval_settings_enabled: Wiki‑godkjenning aktivert
   text_wiki_approval_settings_version: 'Etter at en godkjenningsarbeidsflyt er startet, vil den være påkrevd for fremtidige versjoner av denne siden.'
   wiki_approval_link_draft: Vis utkast
   wiki_approval_link_release: Publisert versjon
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Utkast under arbeid"
       draft: "Utkast"
       pending: "Til godkjenning"
       rejected: "Avvist"
@@ -24,7 +25,7 @@ nb:
       released: "Utgitt"
       canceled: "Avbrutt"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Avbrutt"
       unstarted: "Planlagt"
       pending: "Til godkjenning"
@@ -45,3 +46,6 @@ nb:
   wiki_approval_notifications_typ: "%{typ} ble oppdatert av %{author}."
   my_wiki_drafts: "Mine wiki-utkast"
   wiki_approval_queue: "Wiki godkjenningskø"
+  button_wiki_approval_content_draft: "Lagre utkast" 
+  button_wiki_approval_content_draft_prev: "Last inn forrige versjon"
+  

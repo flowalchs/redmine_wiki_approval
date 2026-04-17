@@ -1,0 +1,11 @@
+api.array :wiki_pages, api_meta(:total_count => @entry_count, :offset => @entry_pages.offset, :limit => @entry_pages.per_page) do
+  @records.each do |p|
+    api.page do
+        render_page_fields(api, p)
+        api.project(:id => p.wiki.project.id, :name => p.wiki.project.name, :identifier => p.wiki.project.identifier)
+        api.wiki_approval_workflow do
+            render_workflow_fields(api, p.current_wiki_aw)
+        end
+    end
+  end
+end

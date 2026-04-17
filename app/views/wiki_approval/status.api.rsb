@@ -1,0 +1,6 @@
+api.wiki_approval_workflow do
+    render_workflow_fields(api, @wiki_approval_data[:approval])
+    api.wiki_page do
+        render_page_fields(api, @page)
+    end
+end

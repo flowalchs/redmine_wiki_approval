@@ -1,0 +1,17 @@
+<%= form_with url: { controller: 'wiki_approval', action: 'grant', project_id: @project, page_id: @page.title, version: @page.content.version, step_id: @step.id },
+              method: :put,
+              remote: true do |f| %>
+  <div class="field">
+    <%= f.radio_button :step_status, 'approved' %>
+    <%= f.label :status_approved, l('wiki_approval_workflow_steps.step_status.approved') %>
+    <%= f.radio_button :step_status, 'rejected' %>
+    <%= f.label :status_rejected, l('wiki_approval_workflow_steps.step_status.rejected') %>
+  </div>
+  <div class="field">
+    <%= f.text_area :note, rows: 5, cols: 35, placeholder: l(:field_comments), value: @step.note %>
+  </div>
+  <div class="buttons">
+    <%= f.submit l(:button_save), class: 'button-positive' %>
+    <%= link_to l(:button_cancel), '#', class: 'button-cancel', onclick: 'hideModal(); return false;' %>
+  </div>
+<% end %>

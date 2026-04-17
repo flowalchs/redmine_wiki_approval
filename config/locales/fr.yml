@@ -6,18 +6,19 @@ fr:
   permission_wiki_approval_grant: Accorder l’approbation
   permission_wiki_approval_forward: Transférer l’approbation
   permission_wiki_draft_view: Voir le brouillon
-  permission_wiki_draft_create: Créer un brouillon
+  permission_wiki_approval_publish: Publier le brouillon de wiki
   label_wiki_approval_settings_projects: Configurable par projet
   label_wiki_approval_settings_comment: Commentaire du wiki requis
   label_wiki_approval_settings_required: Approbation requise
   label_wiki_approval_settings_version: Flux d’approbation pour la prochaine version
-  label_wiki_approval_settings_draft_enabled: Brouillon du wiki activé
+  label_wiki_approval_settings_draft_enabled: Brouillon/publication de wiki activé
   label_wiki_approval_settings_enabled: Approbation du wiki activée
   text_wiki_approval_settings_version: 'Après le démarrage d’un flux d’approbation, celui-ci sera requis pour les futures versions de cette page.'
   wiki_approval_link_draft: Voir le brouillon
   wiki_approval_link_release: Version publiée
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Brouillon en cours"
       draft: "Brouillon"
       pending: "En approbation"
       rejected: "Rejeté"
@@ -25,7 +26,7 @@ fr:
       released: "Diffusé"
       canceled: "Annulé"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Annulé"
       unstarted: "Planifié"
       pending: "En approbation"
@@ -46,4 +47,6 @@ fr:
   wiki_approval_notifications_typ: "%{typ} a été mis à jour par %{author}."
   my_wiki_drafts: "Mes brouillons wiki"
   wiki_approval_queue: "File d'attente d'approbation wiki"
+  button_wiki_approval_content_draft: "Enregistrer le brouillon" 
+  button_wiki_approval_content_draft_prev: "Charger la version précédente"
   

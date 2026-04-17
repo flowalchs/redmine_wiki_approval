@@ -1,7 +1,7 @@
 <% 
   return if @wiki_approval_data.nil?
 
-  if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval.approval_enabled?(@project, @wiki_approval_data[:setting])
+  if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
 -%>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
     <div id="approval">
@@ -46,12 +46,12 @@
                         @wiki_approval_data[:step_approval] == step &&
                         @wiki_approval_data[:step_approval].id == step.id &&
                         User.current.allowed_to?(:wiki_approval_grant, @project) %>
-                    <%= link_to l("wiki_approval_workflow_steps.status.#{step.status}"),
-                                wiki_approval_grant_path(@project, @page.title, @page.content.version, @wiki_approval_data[:step_approval].id),
+                    <%= link_to l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
+                                wiki_approval_grant_path(@project, @page.title),
                                 remote: true %>
                   <% else %>
                     <%= content_tag :span,
-                        l("wiki_approval_workflow_steps.status.#{step.status}"),
+                        l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
                         title: "#{l(:label_wiki_approval_step)} #{step.step} | #{l(:label_ago)} #{time_ago_in_words(step.updated_at)}" %>
                   <% end %>
                 </div>
@@ -69,7 +69,7 @@
     </div>
   <% end %>
 
-  <% if @wiki_approval_data[:latest_public_approval] && @wiki_approval_data[:latest_public_approval].wiki_version_id == @wiki_approval_data[:view_version_id] %>
+  <% if @wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id] %>
     
     <% content_for :header_tags do %>
       <script>

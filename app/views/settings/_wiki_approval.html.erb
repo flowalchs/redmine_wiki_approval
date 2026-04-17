@@ -5,6 +5,13 @@
           options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment]) %>
   </p>
   <p>
+    <%= content_tag :label, l(:label_wiki_approval_settings_content_draft) %>
+    <%= select_tag 'settings[wiki_approval_settings_content_draft]',
+          options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft]) %>
+  </p>
+</fieldset>
+<fieldset class="box tabular settings"><legend><%= l(:label_wiki_approval_workflow) %></legend>
+ <p>
     <%= content_tag :label, l(:label_wiki_approval_settings_draft_enabled) %>
     <%= select_tag 'settings[wiki_approval_settings_draft_enabled]',
           options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled]) %>
@@ -30,7 +37,6 @@
       <em class="info"><%= t(:text_wiki_approval_settings_version) %></em>
     </p>
   </div>
-  
 </fieldset>
 
 

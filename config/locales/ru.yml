@@ -6,18 +6,19 @@ ru:
   permission_wiki_approval_grant: Предоставить утверждение
   permission_wiki_approval_forward: Перенаправить утверждение
   permission_wiki_draft_view: Просмотреть черновик
-  permission_wiki_draft_create: Создать черновик
+  permission_wiki_approval_publish: Публикация черновика Wiki
   label_wiki_approval_settings_projects: Настраивается для каждого проекта
   label_wiki_approval_settings_comment: Требуется комментарий вики
   label_wiki_approval_settings_required: Требуется утверждение
   label_wiki_approval_settings_version: Процесс утверждения для следующей версии
-  label_wiki_approval_settings_draft_enabled: Черновик вики включён
+  label_wiki_approval_settings_draft_enabled: Черновики/публикация Wiki включены
   label_wiki_approval_settings_enabled: Утверждение вики включено
   text_wiki_approval_settings_version: 'После запуска процесса утверждения он будет требоваться для будущих версий этой страницы.'
   wiki_approval_link_draft: Просмотреть черновик
   wiki_approval_link_release: Опубликованная версия
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Черновик в процессе"
       draft: "Черновик"
       pending: "На утверждении"
       rejected: "Отклонено"
@@ -25,7 +26,7 @@ ru:
       released: "Выпущено"
       canceled: "Отменено"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Отменено"
       unstarted: "Запланировано"
       pending: "На утверждении"
@@ -46,4 +47,6 @@ ru:
   wiki_approval_notifications_typ: "%{typ} был обновлён пользователем %{author}."
   my_wiki_drafts: "Мои черновики вики"
   wiki_approval_queue: "Очередь утверждения вики"
+  button_wiki_approval_content_draft: "Сохранить черновик" 
+  button_wiki_approval_content_draft_prev: "Загрузить предыдущую версию"
   

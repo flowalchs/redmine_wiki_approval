@@ -19,6 +19,16 @@
         <%= check_box_tag 'wiki_comment_required', '1', @wiki_approval_setting.wiki_comment_required %>
       </p>
       <% end %>
+      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] == WikiApprovalSettingsHelper::PROJECT %>
+      <p>  
+        <label><%= l(:label_wiki_approval_settings_content_draft) %></label>
+        <%= hidden_field_tag 'wiki_content_draft', '0' %>
+        <%= check_box_tag 'wiki_content_draft', '1', @wiki_approval_setting.wiki_content_draft %>
+      </p>
+      <% end %>
+    </fieldset>
+    <fieldset class="box tabular settings">
+      <legend><%= l(:label_wiki_approval_workflow) %></legend>
       <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] == WikiApprovalSettingsHelper::PROJECT %>
       <p>
         <label><%= l(:label_wiki_approval_settings_draft_enabled) %></label>
@@ -50,7 +60,6 @@
       </p>
       <% end %>
       </div>
-      
     </fieldset>
     <%= submit_tag l(:button_update) %>
 <% end %>

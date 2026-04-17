@@ -15,12 +15,13 @@ Redmine::Plugin.register :redmine_wiki_approval do
            partial: 'settings/wiki_approval'
 
   project_module :wiki_approval do
-    permission :wiki_approval_settings, { :wiki_approval_settings => [:show, :update] }
-    permission :wiki_approval_start, { :wiki_approval => [:start_approval] }, require: :member
-    permission :wiki_approval_grant, { :wiki_approval => [:grant_approval] }, require: :member
-    permission :wiki_approval_forward, { :wiki_approval => [:forward_approval] }, require: :member
-    permission :wiki_draft_view, { :wiki_approval => [:view_draft] }, require: :member
-    permission :wiki_draft_create, { :wiki_approval => [:set_draft] }, require: :member
+    permission :wiki_approval_settings, { :wiki_approval_settings => [:update],
+                                          :wiki_approval => [:permissions] }, require: :member
+    permission :wiki_approval_start, { :wiki_approval => [:start] }, require: :member
+    permission :wiki_approval_grant, { :wiki_approval => [:grant] }, require: :member
+    permission :wiki_approval_forward, { :wiki_approval => [:forward] }, require: :member
+    permission :wiki_draft_view, { :wiki_approval => [:status, :history, :index] }, require: :member
+    permission :wiki_approval_publish, { :wiki_approval => [:publish] }, require: :member
   end
 
   menu :admin_menu,

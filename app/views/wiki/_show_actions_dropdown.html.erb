@@ -1,20 +1,34 @@
 <% if @wiki_approval_data %>
-    <% if !@wiki_approval_data[:approval]&.released? && RedmineWikiApproval.approval_start?(@project, @wiki_approval_data[:setting]) %>
+    <% if !@wiki_approval_data[:approval]&.released? && RedmineWikiApproval::Settings.approval_start?(@project, @wiki_approval_data[:setting]) %>
         <%= link_to(
             rma_icon('workflows', l(:label_wiki_approval_workflow), legacy_text_only: true),
-            wiki_approval_start_path(@project.id, @page.title, @page.content.version),
+            wiki_approval_status_path(@project.id, @page.title),
             :class => 'icon icon-workflows') %>
     <% end %>        
     <% if @wiki_approval_data[:step_approval] && User.current.allowed_to?(:wiki_approval_grant, @project) %>
         <%= link_to rma_icon('checked', l(:permission_wiki_approval_grant), legacy_text_only: true),
-                    wiki_approval_grant_path(@project, @page.title, @page.content.version, @wiki_approval_data[:step_approval].id),
+                    wiki_approval_grant_path(@project, @page.title),
                     remote: true,
                     class: 'icon icon-approval' %>
     <% end %>
     <% if @wiki_approval_data[:step_approval] && User.current.allowed_to?(:wiki_approval_forward, @project) %>
         <%= link_to rma_icon('move', l(:permission_wiki_approval_forward), legacy_text_only: true),
-                    wiki_approval_forward_path(@project, @page.title, @page.content.version, @wiki_approval_data[:step_approval].id),
+                    wiki_approval_forward_path(@project, @page.title),
                     remote: true,
                     class: 'icon icon-forward' %>
     <% end %>
+    <% if !@wiki_approval_data[:approval]&.released? && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_publish?(@project, @wiki_approval_data[:setting]) %>
+        <% approval_required = RedmineWikiApproval::WikiApproval.wiki_approval_ui_status_draft(
+                                    page: @page,
+                                    approval: @wiki_approval_data[:approval],
+                                    setting: @wiki_approval_data[:setting]
+                                ) %>
+        <% if !approval_required[:approval_required] %>
+            <%= link_to rma_icon('issue-closed', l(:permission_wiki_approval_publish), legacy_text_only: true),
+                        wiki_approval_publish_path(@project, @page.title),
+                        method: :put,
+                        class: 'icon icon-published' %>
+        <% end %>            
+    <% end %>
+    
 <% end %>

@@ -5,18 +5,19 @@ zh:
   permission_wiki_approval_grant: 授予审批
   permission_wiki_approval_forward: 转发审批
   permission_wiki_draft_view: 查看草稿
-  permission_wiki_draft_create: 新建草稿
+  permission_wiki_approval_publish: 发布Wiki草稿
   label_wiki_approval_settings_projects: 可按项目配置
   label_wiki_approval_settings_comment: 必须填写 Wiki 评论
   label_wiki_approval_settings_required: 需要审批
   label_wiki_approval_settings_version: 下一版本的审批工作流
-  label_wiki_approval_settings_draft_enabled: 启用 Wiki 草稿
+  label_wiki_approval_settings_draft_enabled: 启用Wiki草稿/发布功能
   label_wiki_approval_settings_enabled: 启用 Wiki 审批
   text_wiki_approval_settings_version: '在启动审批工作流后，此页面的后续版本将必须经过审批。'
   wiki_approval_link_draft: 查看草稿
   wiki_approval_link_release: 已发布版本
   wiki_approval_workflow:
     status:
+      draft_in_progress: "草稿进行中"
       draft: "草稿"
       pending: "审批中"
       rejected: "已拒绝"
@@ -24,7 +25,7 @@ zh:
       released: "已发布"
       canceled: "已取消"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "已取消"
       unstarted: "未开始"
       pending: "审批中"
@@ -45,4 +46,6 @@ zh:
   wiki_approval_notifications_typ: "%{author} 更新了 %{typ}。"
   my_wiki_drafts: "我的Wiki草稿"
   wiki_approval_queue: "Wiki审批队列"
+  button_wiki_approval_content_draft: "保存草稿" 
+  button_wiki_approval_content_draft_prev: "加载上一版本"
   

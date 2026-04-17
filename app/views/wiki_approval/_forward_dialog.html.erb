@@ -1,20 +1,14 @@
-<%= form_with url: { controller: 'wiki_approval', action: 'forward_approval', project_id: @project, page_id: @page.title, version: @page.content.version, step_id: @step.id },
-              method: :post,
+<%= form_with url: { controller: 'wiki_approval', action: 'forward', project_id: @project, page_id: @page.title, version: @page.content.version, step_id: @step.id },
+              method: :put,
               remote: true do |f| %>
-
-  <!-- Status Auswahl -->
   <div class="field">
     <%= select_tag "principal_id",
         principals_options_for_select(@approval_user_options, @step.principal_id&.to_s),
         class: 'user-select' %>
   </div>
-
-  <!-- Kommentar -->
   <div class="field">
     <%= f.text_area :note, rows: 5, cols: 35, placeholder: l(:field_comments), value: @step.note %>
   </div>
-
-
   <div class="buttons">
     <%= f.submit l(:button_save), class: 'button-positive' %>
     <%= link_to l(:button_cancel), '#', class: 'button-cancel', onclick: 'hideModal(); return false;' %>

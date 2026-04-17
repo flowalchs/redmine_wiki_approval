@@ -45,8 +45,8 @@ Note:
 
 <% steps.each do |s| %>
 - <%= s.principal&.name %>
-  <% if s.status.present? %>
-  Status: <%= I18n.t("wiki_approval_workflow_steps.status.#{s.status}", default: s.status) %>
+  <% if s.step_status.present? %>
+  Status: <%= I18n.t("wiki_approval_workflow_steps.step_status.#{s.step_status}", default: s.step_status) %>
   <% end %>
   <% if s.note.present? %>
   Note:

@@ -6,18 +6,19 @@ sv:
   permission_wiki_approval_grant: Bevilja godkännande
   permission_wiki_approval_forward: Vidarebefordra godkännande
   permission_wiki_draft_view: Visa utkast
-  permission_wiki_draft_create: Skapa utkast
+  permission_wiki_approval_publish: Publicera wiki-utkast
   label_wiki_approval_settings_projects: Konfigurerbar per projekt
   label_wiki_approval_settings_comment: Wiki‑kommentar krävs
   label_wiki_approval_settings_required: Godkännande krävs
   label_wiki_approval_settings_version: Godkännandeflöde för nästa version
-  label_wiki_approval_settings_draft_enabled: Wiki‑utkast aktiverat
+  label_wiki_approval_settings_draft_enabled: Wiki-utkast/publicering aktiverad
   label_wiki_approval_settings_enabled: Wiki‑godkännande aktiverat
   text_wiki_approval_settings_version: 'Efter att ett godkännandeflöde har startats kommer det att krävas för framtida versioner av denna sida.'
   wiki_approval_link_draft: Visa utkast
   wiki_approval_link_release: Publicerad version
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Utkast pågår"
       draft: "Utkast"
       pending: "Under godkännande"
       rejected: "Avvisad"
@@ -25,7 +26,7 @@ sv:
       released: "Utgiven"
       canceled: "Avbruten"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Avbruten"
       unstarted: "Planerad"
       pending: "Under godkännande"
@@ -46,4 +47,6 @@ sv:
   wiki_approval_notifications_typ: "%{typ} uppdaterades av %{author}."
   my_wiki_drafts: "Mina wikiutkast"
   wiki_approval_queue: "Godkännandekö för wiki"
+  button_wiki_approval_content_draft: "Spara utkast" 
+  button_wiki_approval_content_draft_prev: "Ladda tidigare version"
   

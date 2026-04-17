@@ -5,18 +5,19 @@ ko:
   permission_wiki_approval_grant: Grant approval
   permission_wiki_approval_forward: Forward approval
   permission_wiki_draft_view: View draft
-  permission_wiki_draft_create: Create draft
+  permission_wiki_approval_publish: 위키 초안 게시
   label_wiki_approval_settings_projects: 프로젝트별 설정 가능
   label_wiki_approval_settings_comment: 위키 댓글 필수
   label_wiki_approval_settings_required: 승인 필요
   label_wiki_approval_settings_version: 다음 버전을 위한 승인 워크플로
-  label_wiki_approval_settings_draft_enabled: 위키 초안 사용
+  label_wiki_approval_settings_draft_enabled: 위키 초안 작성/게시 활성화
   label_wiki_approval_settings_enabled: 위키 승인 사용
   text_wiki_approval_settings_version: '승인 워크플로를 시작하면 이 페이지의 이후 버전에는 승인이 필요합니다.'
   wiki_approval_link_draft: 초안 보기
   wiki_approval_link_release: 게시된 버전
   wiki_approval_workflow:
     status:
+      draft_in_progress: "초안 작성 중"
       draft: "초안"
       pending: "승인 중"
       rejected: "거부됨"
@@ -24,7 +25,7 @@ ko:
       released: "릴리스됨"
       canceled: "취소됨"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "취소됨"
       unstarted: "계획됨"
       pending: "승인 중"
@@ -45,4 +46,6 @@ ko:
   wiki_approval_notifications_typ: "%{author}님이 %{typ}을(를) 업데이트했습니다."
   my_wiki_drafts: "내 위키 초안"
   wiki_approval_queue: "위키 승인 대기열"
+  button_wiki_approval_content_draft: "초안 저장" 
+  button_wiki_approval_content_draft_prev: "이전 버전 불러오기"
   

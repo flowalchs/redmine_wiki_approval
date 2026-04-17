@@ -14,7 +14,8 @@ class WikiApprovalSettingsController < ApplicationController
           wiki_draft_enabled: params[:wiki_draft_enabled],
           wiki_approval_enabled: params[:wiki_approval_enabled],
           wiki_approval_required: params[:wiki_approval_required],
-          wiki_approval_version: params[:wiki_approval_version]
+          wiki_approval_version: params[:wiki_approval_version],
+          wiki_content_draft: params[:wiki_content_draft]
         )
       end
       flash[:notice] = l(:notice_successful_update)

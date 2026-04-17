@@ -4,7 +4,7 @@ one:
   step: 1
   principal_id: 1
   principal_type: User
-  status: 70
+  step_status: 70
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>
 
@@ -14,6 +14,6 @@ two:
   step: 1
   principal_id: 3
   principal_type: User
-  status: 20
+  step_status: 20
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>

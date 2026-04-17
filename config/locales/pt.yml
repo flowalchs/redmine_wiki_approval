@@ -6,18 +6,19 @@ pt:
   permission_wiki_approval_grant: Conceder aprovação
   permission_wiki_approval_forward: Reencaminhar aprovação
   permission_wiki_draft_view: Ver rascunho
-  permission_wiki_draft_create: Criar rascunho
+  permission_wiki_approval_publish: Publicar rascunho de wiki
   label_wiki_approval_settings_projects: Configurável por projeto
   label_wiki_approval_settings_comment: Comentário do wiki obrigatório
   label_wiki_approval_settings_required: Aprovação obrigatória
   label_wiki_approval_settings_version: Fluxo de aprovação para a próxima versão
-  label_wiki_approval_settings_draft_enabled: Rascunho do wiki ativado
+  label_wiki_approval_settings_draft_enabled: Rascunho/publicação de wiki ativado
   label_wiki_approval_settings_enabled: Aprovação do wiki ativada
   text_wiki_approval_settings_version: 'Após iniciar um fluxo de aprovação, este será obrigatório para versões futuras desta página.'
   wiki_approval_link_draft: Ver rascunho
   wiki_approval_link_release: Versão publicada
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Rascunho em curso"
       draft: "Rascunho"
       pending: "Em aprovação"
       rejected: "Rejeitado"
@@ -25,7 +26,7 @@ pt:
       released: "Disponibilizado"
       canceled: "Cancelado"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Cancelado"
       unstarted: "Planeado"
       pending: "Em aprovação"
@@ -46,4 +47,6 @@ pt:
   wiki_approval_notifications_typ: "%{typ} foi atualizado por %{author}."
   my_wiki_drafts: "Os meus rascunhos de wiki"
   wiki_approval_queue: "Fila de aprovação de wiki"
+  button_wiki_approval_content_draft: "Guardar rascunho" 
+  button_wiki_approval_content_draft_prev: "Carregar versão anterior"
   

@@ -6,18 +6,19 @@ it:
   permission_wiki_approval_grant: Concedere l’approvazione
   permission_wiki_approval_forward: Inoltrare l’approvazione
   permission_wiki_draft_view: Visualizzare la bozza
-  permission_wiki_draft_create: Creare una bozza
+  permission_wiki_approval_publish: Pubblicare bozza wiki
   label_wiki_approval_settings_projects: Configurabile per progetto
   label_wiki_approval_settings_comment: Commento del wiki obbligatorio
   label_wiki_approval_settings_required: Approvazione obbligatoria
   label_wiki_approval_settings_version: Flusso di approvazione per la versione successiva
-  label_wiki_approval_settings_draft_enabled: Bozza del wiki abilitata
+  label_wiki_approval_settings_draft_enabled: Bozza/pubblicazione wiki abilitata
   label_wiki_approval_settings_enabled: Approvazione del wiki abilitata
   text_wiki_approval_settings_version: 'Dopo l’avvio di un flusso di approvazione, questo sarà richiesto per le versioni future di questa pagina.'
   wiki_approval_link_draft: Visualizzare bozza
   wiki_approval_link_release: Versione pubblicata
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Bozza in corso"
       draft: "Bozza"
       pending: "In approvazione"
       rejected: "Rifiutato"
@@ -25,7 +26,7 @@ it:
       released: "Rilasciato"
       canceled: "Annullato"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Annullato"
       unstarted: "Pianificato"
       pending: "In approvazione"
@@ -46,4 +47,6 @@ it:
   wiki_approval_notifications_typ: "%{typ} è stato aggiornato da %{author}."
   my_wiki_drafts: "Le mie bozze wiki"
   wiki_approval_queue: "Coda di approvazione wiki"
+  button_wiki_approval_content_draft: "Salva bozza" 
+  button_wiki_approval_content_draft_prev: "Carica versione precedente"
   

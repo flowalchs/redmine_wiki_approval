@@ -6,18 +6,19 @@ pl:
   permission_wiki_approval_grant: Przyznaj zatwierdzenie
   permission_wiki_approval_forward: Przekaż zatwierdzenie
   permission_wiki_draft_view: Wyświetl wersję roboczą
-  permission_wiki_draft_create: Utwórz wersję roboczą
+  permission_wiki_approval_publish: Publikowanie szkicu wiki
   label_wiki_approval_settings_projects: Konfigurowalne dla projektu
   label_wiki_approval_settings_comment: Wymagany komentarz wiki
   label_wiki_approval_settings_required: Wymagane zatwierdzenie
   label_wiki_approval_settings_version: Przepływ zatwierdzania dla następnej wersji
-  label_wiki_approval_settings_draft_enabled: Wersja robocza wiki włączona
+  label_wiki_approval_settings_draft_enabled: Szkic/publikowanie wiki włączone
   label_wiki_approval_settings_enabled: Zatwierdzanie wiki włączone
   text_wiki_approval_settings_version: 'Po rozpoczęciu przepływu zatwierdzania będzie on wymagany dla przyszłych wersji tej strony.'
   wiki_approval_link_draft: Wyświetl wersję roboczą
   wiki_approval_link_release: Opublikowana wersja
   wiki_approval_workflow:
     status:
+      draft_in_progress: "Szkic w trakcie edycji"
       draft: "Wersja robocza"
       pending: "W trakcie zatwierdzania"
       rejected: "Odrzucono"
@@ -25,7 +26,7 @@ pl:
       released: "Wydano"
       canceled: "Anulowano"
   wiki_approval_workflow_steps:
-    status:
+    step_status:
       canceled: "Anulowano"
       unstarted: "Zaplanowano"
       pending: "W trakcie zatwierdzania"
@@ -46,4 +47,6 @@ pl:
   wiki_approval_notifications_typ: "%{typ} został zaktualizowany przez %{author}."
   my_wiki_drafts: "Moje wersje robocze wiki"
   wiki_approval_queue: "Kolejka zatwierdzania wiki"
+  button_wiki_approval_content_draft: "Zapisz szkic" 
+  button_wiki_approval_content_draft_prev: "Wczytaj poprzednią wersję"
   

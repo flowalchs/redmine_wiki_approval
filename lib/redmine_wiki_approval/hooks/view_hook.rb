@@ -8,9 +8,9 @@ module RedmineWikiApproval
       def view_layouts_base_html_head(context)
         if context[:controller].is_a?(WikiController) &&
            context[:controller].action_name == 'show' &&
-           RedmineWikiApproval.is_enabled?(context[:project])
+           RedmineWikiApproval::Settings.is_enabled?(context[:project])
 
-          if RedmineWikiApproval.is_allowed_to_show_last_version?(context[:project]) &&
+          if RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(context[:project]) &&
              !from_update?(context[:controller])
 
             controller = context[:controller]
@@ -18,17 +18,17 @@ module RedmineWikiApproval
 
             # when accessing the current wiki page
             if controller.params[:version].nil? && page&.version
-              version = WikiApprovalWorkflow.latest_public_version(page.id).first
+              version_nr = WikiApprovalWorkflow.latest_public_version_nr(page)
 
               # Redirect only if the last public versions differ
-              if version && version.wiki_version_id != page.version
+              if version_nr.present? && version_nr != page.version
 
                 context[:controller].redirect_to(
                   controller: 'wiki',
                   action: 'show',
                   project_id: context[:controller].params[:project_id],
                   id: page.title,
-                  version: version.wiki_version_id
+                  version: version_nr
                 )
                 return
 
@@ -39,7 +39,7 @@ module RedmineWikiApproval
             # If the current page is in draft or approval status and there are no rights to view the draft, then this is not authorized.
             version = controller.params[:version]&.to_i || page&.version
             if version &&
-              RedmineWikiApproval.view_draft?(context[:project]) == false &&
+              RedmineWikiApproval::Settings.view_draft?(context[:project]) == false &&
               (WikiApprovalWorkflow.for_wiki(page.id, version).first&.status_before_type_cast&.< WikiApprovalWorkflow.statuses[:published])
               raise ::Unauthorized
             end
