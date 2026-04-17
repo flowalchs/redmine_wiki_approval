@@ -33,9 +33,19 @@ jobs:
           if [ -z "$PREVIOUS_TAG" ]; then
             COMMITS=$(git log --pretty=format:"* %s" | grep "#" | sort -u)
           else
-            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"* %s" | grep "#" | sort -u)
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD \
+              --pretty=format:"%s" \
+              | grep -E '#[0-9]+' \
+              | awk '
+                {
+                  match($0, /#[0-9]+/)
+                  issue=substr($0, RSTART, RLENGTH)
+                  if (!seen[issue]++) print "* " $0
+                }
+              ' \
+              | sort)
           fi
-          
+
           # Erstelle den Block mit Leerzeilen davor und danach
           # \n am Anfang sorgt für die Leerzeile nach "# Changelog"
           echo -e "\n## ${{ env.version }} ($DATE)\n$COMMITS" > current_changes.md
