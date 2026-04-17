@@ -470,6 +470,33 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_equal 'rejected', approval.status
   end
 
+  test "should sucess approval publish" do
+    put :publish, params: {
+      project_id: @project.id,
+      title: @page.title
+    }
+    assert_response :redirect
+    assert flash[:error].present?
+  end
+
+  test "should sucess approval publish denied" do
+    current_settings = Setting.plugin_redmine_wiki_approval.symbolize_keys
+    updates = {
+      wiki_approval_settings_enabled: "true",
+      wiki_approval_settings_required: "true",
+      wiki_approval_settings_version: "true"
+    }
+    Setting.plugin_redmine_wiki_approval = current_settings.merge(updates)
+    Setting.clear_cache
+
+    put :publish, params: {
+      project_id: @project.id,
+      title: @page.title
+    }
+    assert_response :redirect
+    assert_equal "Approval Required", flash[:error]
+  end
+
   test "index" do
     get :index
 

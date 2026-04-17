@@ -19,7 +19,7 @@ module RedmineWikiApproval
         return false unless setting.wiki_draft_enabled
 
         user = User.current.logged? ? User.current : User.anonymous
-        user.allowed_to?(:wiki_draft_create, project)
+        user.allowed_to?(:edit_wiki_pages, project)
       end
 
       def approval_start?(project, setting = nil)
@@ -46,6 +46,15 @@ module RedmineWikiApproval
 
         setting ||= WikiApprovalSetting.find_or_create(project.id)
         return setting.wiki_approval_enabled
+      end
+
+      def approval_publish?(project, setting = nil)
+        return false unless project
+        return false if setting.nil? && !is_enabled?(project)
+
+        setting ||= WikiApprovalSetting.find_or_create(project.id)
+        user = User.current.logged? ? User.current : User.anonymous
+        return user.allowed_to?(:wiki_approval_publish, project) && setting.wiki_draft_enabled
       end
 
       def approval_or_draft_enabled?(project, setting = nil)
@@ -77,7 +86,7 @@ module RedmineWikiApproval
 
         setting ||= WikiApprovalSetting.find_or_create(project.id)
         user = User.current.logged? ? User.current : User.anonymous
-        return user.allowed_to?(:wiki_draft_create, project) && setting.wiki_content_draft
+        return user.allowed_to?(:edit_wiki_pages, project) && setting.wiki_content_draft
       end
     end
   end

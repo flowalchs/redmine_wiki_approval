@@ -5,12 +5,12 @@ zh:
   permission_wiki_approval_grant: 授予审批
   permission_wiki_approval_forward: 转发审批
   permission_wiki_draft_view: 查看草稿
-  permission_wiki_draft_create: 新建草稿
+  permission_wiki_approval_publish: 发布Wiki草稿
   label_wiki_approval_settings_projects: 可按项目配置
   label_wiki_approval_settings_comment: 必须填写 Wiki 评论
   label_wiki_approval_settings_required: 需要审批
   label_wiki_approval_settings_version: 下一版本的审批工作流
-  label_wiki_approval_settings_draft_enabled: 启用 Wiki 草稿
+  label_wiki_approval_settings_draft_enabled: 启用Wiki草稿/发布功能
   label_wiki_approval_settings_enabled: 启用 Wiki 审批
   text_wiki_approval_settings_version: '在启动审批工作流后，此页面的后续版本将必须经过审批。'
   wiki_approval_link_draft: 查看草稿

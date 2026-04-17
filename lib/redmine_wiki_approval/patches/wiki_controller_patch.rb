@@ -10,10 +10,10 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        after_action :wiki_approval_save, only: [:update]
         append_before_action :set_wiki_approval_data, only: [:show, :edit, :update]
         append_before_action :mark_edit_context, only: [:edit]
         append_before_action :apply_content_draft_update, only: [:update]
+        append_before_action :apply_workflow_draft_update, only: [:update]
       end
 
       module InstanceOverwriteMethods
@@ -44,34 +44,6 @@ module RedmineWikiApproval
             setting: setting,
             step_approval: WikiApprovalWorkflowStep.first_pending_step_for(approval, User.current)
           }
-        end
-
-        def wiki_approval_save
-          return unless @wiki_approval_data
-          return if params[:draft].present?
-          return unless params[:status]
-          return unless User.current.allowed_to?(:wiki_draft_create, @project)
-          return if @page.errors.any?
-
-          approval = WikiApprovalWorkflow.save_for_draft(
-            page: @page,
-            user: User.current,
-            status: params[:status],
-            wiki_approval_data: @wiki_approval_data
-          )
-
-          if request.format.json?
-            case approval
-            when :already_released
-              return render_error status: :conflict
-            when :approval_required
-              return render_403
-            when :invalid_status
-              return render_error :status => :unprocessable_entity
-            when :invalid_page
-              return render_404
-            end
-          end
         end
 
         def mark_edit_context
@@ -113,6 +85,17 @@ module RedmineWikiApproval
           # Section-Parameter delete, all sections are append
           params.delete(:section)
           params.delete(:section_hash)
+        end
+
+        def apply_workflow_draft_update
+          return unless @wiki_approval_data # project not anaibled
+          return if params[:draft].present? # content draft
+          return if @page.errors.any? # error before, no comment
+          return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, @wiki_approval_data[:setting]) # no workflow/draft enabled
+
+          # Fallback: Default to "draft" status if params[:status] is blank or missing (e.g., via API)
+          Thread.current[:workflow_is_draft] = params[:status].presence || "draft"
+          Thread.current[:wiki_approval_data] = @wiki_approval_data
         end
       end
     end

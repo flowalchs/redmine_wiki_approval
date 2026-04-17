@@ -21,7 +21,7 @@ Redmine::Plugin.register :redmine_wiki_approval do
     permission :wiki_approval_grant, { :wiki_approval => [:grant] }, require: :member
     permission :wiki_approval_forward, { :wiki_approval => [:forward] }, require: :member
     permission :wiki_draft_view, { :wiki_approval => [:status, :history, :index] }, require: :member
-    permission :wiki_draft_create, { :wiki_approval => [:publish] }, require: :member
+    permission :wiki_approval_publish, { :wiki_approval => [:publish] }, require: :member
   end
 
   menu :admin_menu,

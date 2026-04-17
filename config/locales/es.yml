@@ -5,12 +5,12 @@ es:
   permission_wiki_approval_grant: Conceder aprobación
   permission_wiki_approval_forward: Reenviar aprobación
   permission_wiki_draft_view: Ver borrador
-  permission_wiki_draft_create: Crear borrador
+  permission_wiki_approval_publish: Publicar borrador de wiki
   label_wiki_approval_settings_projects: Configurable por proyecto
   label_wiki_approval_settings_comment: Comentario del wiki obligatorio
   label_wiki_approval_settings_required: Aprobación obligatoria
   label_wiki_approval_settings_version: Flujo de aprobación para la próxima versión
-  label_wiki_approval_settings_draft_enabled: Borrador del wiki habilitado
+  label_wiki_approval_settings_draft_enabled: Borrador/publicación de wiki activado
   label_wiki_approval_settings_enabled: Aprobación del wiki habilitada
   text_wiki_approval_settings_version: 'Después de iniciar un flujo de aprobación, será obligatorio para futuras versiones de esta página.'
   wiki_approval_link_draft: Ver borrador

@@ -6,12 +6,12 @@ sv:
   permission_wiki_approval_grant: Bevilja godkännande
   permission_wiki_approval_forward: Vidarebefordra godkännande
   permission_wiki_draft_view: Visa utkast
-  permission_wiki_draft_create: Skapa utkast
+  permission_wiki_approval_publish: Publicera wiki-utkast
   label_wiki_approval_settings_projects: Konfigurerbar per projekt
   label_wiki_approval_settings_comment: Wiki‑kommentar krävs
   label_wiki_approval_settings_required: Godkännande krävs
   label_wiki_approval_settings_version: Godkännandeflöde för nästa version
-  label_wiki_approval_settings_draft_enabled: Wiki‑utkast aktiverat
+  label_wiki_approval_settings_draft_enabled: Wiki-utkast/publicering aktiverad
   label_wiki_approval_settings_enabled: Wiki‑godkännande aktiverat
   text_wiki_approval_settings_version: 'Efter att ett godkännandeflöde har startats kommer det att krävas för framtida versioner av denna sida.'
   wiki_approval_link_draft: Visa utkast

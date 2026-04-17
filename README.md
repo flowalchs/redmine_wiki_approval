@@ -34,14 +34,14 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 
 ## 🔐 Permissions Overview
 
-| Permission           | Description                      |
-| -------------------- | -------------------------------- |
-| Manage Wiki approval | Configure workflow and settings  |
-| Start approval       | Begin approval workflow          |
-| Grant approval       | Approve a workflow step          |
-| Forward approval     | Move to another approver         |
-| View draft           | View unpublished versions        |
-| Create draft         | Create unpublished wiki versions |
+| Permission           | Description                                       |
+| -------------------- | ------------------------------------------------- |
+| Manage Wiki approval | Configure workflow and settings                   |
+| Start approval       | Begin approval workflow                           |
+| Grant approval       | Approve a workflow step                           |
+| Forward approval     | Move to another approver                          |
+| View draft           | View unpublished versions                         |
+| Publish wiki drafts  | Release an approved draft as the official version |
 
 ## 💡 Typical Use Case
 
@@ -144,6 +144,17 @@ Enable the Module "Wiki approval" per project
         <img src="./docs/screenshots/MyPage.png" width="250px" />
         <br>
         <sub><b>My page</b></sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="./docs/screenshots/Publish.png" width="250px" />
+        <br>
+        <sub><b>Publish wiki draft, without approval steps</b></sub>
+      </td>
+      <td align="center">
+      </td>
+      <td align="center">
       </td>
     </tr>
   </table>

@@ -24,7 +24,7 @@ class RoutingWikiTest < Redmine::RoutingTest
     should_route 'PUT /projects/foo/wiki_approval/Page_with_sections/forward' => 'wiki_approval#forward',
                  :project_id => 'foo', :title => 'Page_with_sections'
     # publish
-    should_route 'PATCH /projects/foo/wiki_approval/Page_with_sections/publish' => 'wiki_approval#publish',
+    should_route 'PUT /projects/foo/wiki_approval/Page_with_sections/publish' => 'wiki_approval#publish',
                  :project_id => 'foo', :title => 'Page_with_sections'
     # Permissions
     should_route 'GET  /projects/foo/wiki_approval/permissions' => 'wiki_approval#permissions',

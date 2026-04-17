@@ -6,12 +6,12 @@ pl:
   permission_wiki_approval_grant: Przyznaj zatwierdzenie
   permission_wiki_approval_forward: Przekaż zatwierdzenie
   permission_wiki_draft_view: Wyświetl wersję roboczą
-  permission_wiki_draft_create: Utwórz wersję roboczą
+  permission_wiki_approval_publish: Publikowanie szkicu wiki
   label_wiki_approval_settings_projects: Konfigurowalne dla projektu
   label_wiki_approval_settings_comment: Wymagany komentarz wiki
   label_wiki_approval_settings_required: Wymagane zatwierdzenie
   label_wiki_approval_settings_version: Przepływ zatwierdzania dla następnej wersji
-  label_wiki_approval_settings_draft_enabled: Wersja robocza wiki włączona
+  label_wiki_approval_settings_draft_enabled: Szkic/publikowanie wiki włączone
   label_wiki_approval_settings_enabled: Zatwierdzanie wiki włączone
   text_wiki_approval_settings_version: 'Po rozpoczęciu przepływu zatwierdzania będzie on wymagany dla przyszłych wersji tej strony.'
   wiki_approval_link_draft: Wyświetl wersję roboczą

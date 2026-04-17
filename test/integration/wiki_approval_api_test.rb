@@ -134,6 +134,31 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     assert_response :forbidden
   end
 
+  def test_start_approval_not_enabled
+    current_settings = Setting.plugin_redmine_wiki_approval.symbolize_keys
+    updates = {
+      wiki_approval_settings_enabled: "false",
+      wiki_approval_settings_required: "false",
+      wiki_approval_settings_version: "false"
+    }
+    Setting.plugin_redmine_wiki_approval = current_settings.merge(updates)
+    Setting.clear_cache
+
+    put(
+      "/projects/#{@project.id}/wiki_approval/#{@page.title}/start.json",
+      :params => {
+        :note => "Initialer Start über API",
+        :steps => [
+          { step: 1, step_type: "or", principal_id: 3 }, # Dave Lopper
+          { step: 1, step_type: "or", principal_id: 1 }  # Admin
+        ]
+      },
+      :headers => @jsmith_header
+    )
+
+    assert_response :forbidden
+  end
+
   def test_start_approval_version_was_released
     # delete version 3 from page
     version_to_delete = @page.content.versions.find_by(version: 3)
@@ -344,7 +369,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     Setting.plugin_redmine_wiki_approval = current_settings.merge(updates)
     Setting.clear_cache
 
-    patch "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
+    put "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
     assert_response :success
 
     @page.reload
@@ -352,8 +377,10 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
   end
 
   def test_publish_approval_required
-    patch "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
-    assert_response :forbidden
+    put "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_equal(["Approval Required"], json_response["errors"])
   end
 
   def test_publish_approval_released
@@ -370,8 +397,10 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     version_to_delete.destroy
     @page.reload
 
-    patch "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
-    assert_response :conflict
+    put "/projects/#{@project.id}/wiki_approval/#{@page.title}/publish.json", :headers => @dlopper_header
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_equal(["Already Released"], json_response["errors"])
   end
 
   # permissions
@@ -395,7 +424,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     # 3. Berechtigungen prüfen
     # Prüfen, ob eine spezifische Berechtigung vorhanden ist
     assert_includes dave['permissions'], "wiki_approval_grant"
-    assert_includes dave['permissions'], "wiki_draft_create"
+    assert_includes dave['permissions'], "wiki_approval_publish"
 
     # 4. Optional: Sicherstellen, dass alle Actors die Mindestberechtigung haben
     json['actors'].each do |actor|
@@ -425,7 +454,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     dave = actors.find { |a| a['id'] == 3 }
     assert_not_nil dave
     assert_includes dave['permissions'], "wiki_approval_forward"
-    assert_includes dave['permissions'], "wiki_draft_create"
+    assert_includes dave['permissions'], "wiki_approval_publish"
 
     # Negativ-Check: Sicherstellen, dass er wirklich kein 'grant' Recht hat
     assert_not_includes dave['permissions'], "wiki_approval_grant"
@@ -521,7 +550,9 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
         :headers => @jsmith_header
       )
     end
-    assert_response :forbidden
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_equal(["Approval Required"], json_response["errors"])
   end
 
   def test_update_wiki_content_published_approval
@@ -547,6 +578,36 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
       )
     end
     assert_response :success
+  end
+
+  def test_update_wiki_content_published_permission_denied
+    current_settings = Setting.plugin_redmine_wiki_approval.symbolize_keys
+    updates = {
+      wiki_approval_settings_required: "false",
+      wiki_approval_settings_version: "false"
+    }
+    Setting.plugin_redmine_wiki_approval = current_settings.merge(updates)
+    Setting.clear_cache
+
+    @manager_role.remove_permission!(:wiki_approval_publish)
+    @developer_role.remove_permission!(:wiki_approval_publish)
+
+    assert_difference 'WikiApprovalWorkflow.count', 0 do
+      put(
+        "/projects/#{@project.id}/wiki/#{@page.title}.json",
+        :params => {
+          wiki_page: {
+            text: "New content…8899",
+            comments: "New version"
+          },
+          status: "published"
+        },
+        :headers => @jsmith_header
+      )
+    end
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_equal(["Permission denied"], json_response["errors"])
   end
 
   def test_update_wiki_content_status_not_available
@@ -597,7 +658,9 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
         :headers => @jsmith_header
       )
     end
-    assert_response :conflict
+    assert_response :unprocessable_entity
+    json_response = JSON.parse(response.body)
+    assert_equal(["Already Released"], json_response["errors"])
   end
 
   # Wiki List index

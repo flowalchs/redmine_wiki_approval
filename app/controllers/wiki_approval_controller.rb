@@ -55,6 +55,8 @@ class WikiApprovalController < ApplicationController
   end
 
   def start
+    return render_403 unless RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
+
     # just if no approval is in the db
     @wiki_approval_data[:approval] ||= WikiApprovalWorkflow.find_or_initialize_by(
       page_id: @page.id,
@@ -152,6 +154,8 @@ class WikiApprovalController < ApplicationController
   end
 
   def grant
+    return render_403 unless RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
+
     @step = @wiki_approval_data[:step_approval]
 
     # Check if all is available
@@ -184,6 +188,8 @@ class WikiApprovalController < ApplicationController
   end
 
   def forward
+    return render_403 unless RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
+
     @step = @wiki_approval_data[:step_approval]
     return render_404 unless @step
 
@@ -225,31 +231,30 @@ class WikiApprovalController < ApplicationController
   end
 
   def publish
-    return render_403 if request.format.html?
-
-    approval = WikiApprovalWorkflow.save_for_draft(
+    WikiApprovalWorkflow.save_for_draft(
       page: @page,
+      content: @content,
       user: User.current,
       status: 'published',
-      wiki_approval_data: @wiki_approval_data
-    )
-
-    case approval
-    when :already_released
-      return render_error status: :conflict
-    when :approval_required
-      return render_403
-    end
+      wiki_approval_data: @wiki_approval_data)
 
     respond_to do |format|
-      format.json do
-        @wiki_approval_data[:approval].reload
-        render template: 'wiki_approval/status'
+      format.html do
+        flash[:error] = @content.errors.full_messages.to_sentence if @content.errors.any?
+        redirect_back(fallback_location: project_wiki_page_path(@project, @page.title))
+      end
+      format.api do
+        if @content.errors.any?
+          render_validation_errors(@content)
+        else
+          @wiki_approval_data[:approval].reload
+          render template: 'wiki_approval/status'
+        end
       end
     end
   end
 
-  # List users/groups with wiki_approval_grant permission
+  # List users/groups with wiki_approval permissions
   def permissions
     return render_403 if request.format.html?
 
@@ -448,11 +453,6 @@ class WikiApprovalController < ApplicationController
       return if query_id &&
                 project_id == @project&.id &&
                 WikiApprovalQuery.exists?(id: query_id)
-    end
-
-    # Default Query?
-    if default_query = WikiApprovalQuery.default(project: @project)
-      params[:query_id] = default_query.id
     end
   end
 

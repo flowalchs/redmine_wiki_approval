@@ -126,4 +126,46 @@ class WikiApprovalMailControllerTest < WikiApproval::Test::ControllerCase
     expected_set = Set["dlopper@somenet.foo"]
     assert_equal expected_set, to_set
   end
+
+  test "should send step mail status changed" do
+    set_session_user(@dlopper)
+
+    perform_enqueued_jobs do
+      put :grant, params: {
+        project_id: @project.id,
+        title: @page.title,
+        note: "Looks good",
+        step_status: "approved"
+      }
+    end
+
+    deliveries = ActionMailer::Base.deliveries
+    assert_equal 2, deliveries.size
+
+    to_set = deliveries.flat_map { |m| Array(m.to) }.to_set
+    expected_set = Set["dlopper@somenet.foo", "jsmith@somenet.foo"]
+    assert_equal expected_set, to_set
+  end
+
+  test "should send step mail status changed none" do
+    set_session_user(@dlopper)
+    @jsmith.mail_notification = 'none'
+    @jsmith.save!
+
+    perform_enqueued_jobs do
+      put :grant, params: {
+        project_id: @project.id,
+        title: @page.title,
+        note: "Looks good",
+        step_status: "approved"
+      }
+    end
+
+    deliveries = ActionMailer::Base.deliveries
+    assert_equal 1, deliveries.size
+
+    to_set = deliveries.flat_map { |m| Array(m.to) }.to_set
+    expected_set = Set["dlopper@somenet.foo"]
+    assert_equal expected_set, to_set
+  end
 end

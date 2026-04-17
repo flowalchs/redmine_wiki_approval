@@ -5,12 +5,12 @@ ja:
   permission_wiki_approval_grant: Grant approval
   permission_wiki_approval_forward: Forward approval
   permission_wiki_draft_view: View draft
-  permission_wiki_draft_create: Create draft
+  permission_wiki_approval_publish: Wikiの下書きを公開
   label_wiki_approval_settings_projects: プロジェクトごとに設定可能
   label_wiki_approval_settings_comment: Wikiコメントが必須
   label_wiki_approval_settings_required: 承認が必要
   label_wiki_approval_settings_version: 次のバージョンの承認ワークフロー
-  label_wiki_approval_settings_draft_enabled: Wikiの下書きが有効
+  label_wiki_approval_settings_draft_enabled: Wikiの下書き/公開機能を有効にする
   label_wiki_approval_settings_enabled: Wiki承認が有効
   text_wiki_approval_settings_version: '承認ワークフローを開始すると、このページの今後のバージョンで承認が必須になります。'
   wiki_approval_link_draft: 下書きを表示

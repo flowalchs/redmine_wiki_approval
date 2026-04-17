@@ -105,29 +105,30 @@ class WikiApprovalWorkflow < ApplicationRecord
     record&.version || 1
   end
 
-  def self.save_for_draft(page:, user:, status:, wiki_approval_data:)
-    return :invalid_page if page.nil? || page.errors.any? || !page.persisted?
-    return :invalid_status unless %w[draft published].include?(status)
+  def self.save_for_draft(page:, content:, user:, status:, wiki_approval_data:)
+    content.errors.add(:base, "Invalid Page") and return if page.nil? || page.errors.any? || !page.persisted?
+    content.errors.add(:base, "Invalid status") and return unless %w[draft published].include?(status)
+    content.errors.add(:base, "Permission denied") and return if status == "published" && !RedmineWikiApproval::Settings.approval_publish?(page.project, wiki_approval_data[:setting])
 
     approval_required = RedmineWikiApproval::WikiApproval.wiki_approval_ui_status_draft(
       page: page,
       approval: wiki_approval_data[:approval],
       setting: wiki_approval_data[:setting]
     )
-    return :approval_required if approval_required[:approval_required] && approval_required[:status] != status
+    content.errors.add(:base, "Approval Required") and return if approval_required[:approval_required] && approval_required[:status] != status
 
     approval = find_or_initialize_by(
       page_id: page.id,
       version: page.version
     )
 
-    return :already_released if approval.released?
+    content.errors.add(:base, "Already Released") and return if approval.released?
 
     approval.status     = status
     approval.author_id ||= user.id
     approval.save!
 
-    approval
+    true
   end
 
   def cancel_old_approvals

@@ -57,7 +57,7 @@ module WikiApproval
           role.add_permission! :wiki_approval_grant
           role.add_permission! :wiki_approval_forward
           role.add_permission! :wiki_draft_view
-          role.add_permission! :wiki_draft_create
+          role.add_permission! :wiki_approval_publish
         end
         @project = Project.find 1
         @project2 = Project.find 2
@@ -66,11 +66,11 @@ module WikiApproval
           project.enable_module! :wiki_approval
         end
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'false'
+        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = 'true'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = 'project'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'project'
         Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'true'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
         @group = Group.first
       end
 

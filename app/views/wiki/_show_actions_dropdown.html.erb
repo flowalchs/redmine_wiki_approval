@@ -17,4 +17,18 @@
                     remote: true,
                     class: 'icon icon-forward' %>
     <% end %>
+    <% if !@wiki_approval_data[:approval]&.released? && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_publish?(@project, @wiki_approval_data[:setting]) %>
+        <% approval_required = RedmineWikiApproval::WikiApproval.wiki_approval_ui_status_draft(
+                                    page: @page,
+                                    approval: @wiki_approval_data[:approval],
+                                    setting: @wiki_approval_data[:setting]
+                                ) %>
+        <% if !approval_required[:approval_required] %>
+            <%= link_to rma_icon('issue-closed', l(:permission_wiki_approval_publish), legacy_text_only: true),
+                        wiki_approval_publish_path(@project, @page.title),
+                        method: :put,
+                        class: 'icon icon-published' %>
+        <% end %>            
+    <% end %>
+    
 <% end %>

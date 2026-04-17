@@ -4,7 +4,7 @@ info:
   description: >
     API for managing multi-step approval workflows for Redmine Wiki pages. 
     Allows starting approvals, granting/rejecting steps, and tracking history.
-  version: 1.0.0
+  version: 1.0.1
   contact:
       name: FloWalchs
       url: https://github.com/FloWalchs/redmine_wiki_approval
@@ -22,7 +22,7 @@ servers:
           - http
         default: https
       domain:
-        default: 192.168.178.99:3000
+        default: redmine.example.com
         description: Redmine Development Server
 
 components:
@@ -624,6 +624,108 @@ paths:
                       step: 1
                       step_status: "approved"
 
+
+  # History
+  /projects/{project_id}/wiki_approval/{title}/history.json:
+    get:
+      summary: "Retrieve Workflow History"
+      description: >
+        Returns a complete audit log of all approval workflows associated with 
+        the specified wiki page. This includes past revisions, their final 
+        outcomes (released, rejected, canceled), and the associated notes 
+        and approval steps for each version. permission required: wiki_draft_view
+      operationId: wiki_approval_history
+      tags:
+        - "Wiki Approval"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: Filter by a specific project ID or project_identifier
+          schema:
+            type: string
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - *param_page
+        - *param_per_page
+      responses:
+        '200':
+          description: "A list of workflow revisions was successfully retrieved."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiApprovalHistoryResponse'
+              # Example showing an array of workflows
+              example:
+                wiki_approval_workflows:
+                  - id: 66
+                    version: 20
+                    status: "released"
+                    note: "Final version approved by tech lead"
+                    "wiki_approval_workflow_steps": [
+                      {
+                        "id": 54,
+                        "step": 1,
+                        "step_type": "or",
+                        "step_status": "approved"
+                      }
+                    ]
+                  - id: 45
+                    version: 19
+                    status: "rejected"
+                    note: "Missing documentation in section 4"
+        '403':
+          description: "Forbidden. No view permission"
+        '404':
+          description: "Not Found. The wiki page does not exist or has no approval history."
+
+  /projects/{project_id}/wiki_approval/permissions.json:
+    get:
+      summary: "List Project Actor Permissions"
+      description: >
+        Returns a list of all actors (Users and Groups) who have plugin-specific 
+        permissions within the given project. This is useful for populating 
+        dropdowns or checking who is authorized to grant or start approvals. permission required: wiki_approval_settings
+      operationId: wiki_approval_permissions
+      tags:
+        - "Wiki Approval"
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: "Project identifier (ID or identifier string)."
+          schema:
+            type: string
+          example: "new-project"
+        - name: permissions[]
+          in: query
+          required: false
+          description: "The specific permission key to check (e.g., 'wiki_approval_grant')."
+          style: form
+          explode: true 
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["wiki_approval_settings","wiki_approval_start","wiki_approval_grant","wiki_approval_forward","wiki_draft_view","wiki_approval_publish"]
+      responses:
+        '200':
+          description: "A list of actors and their associated permissions."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  actors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WikiApprovalPermissionResponse'
+        '403':
+          description: "Forbidden (User not logged in or no access to project)."
+
   # Start Process
   /projects/{project_id}/wiki_approval/{title}/start.json:
     put:
@@ -653,6 +755,12 @@ paths:
                 - step: 1
                   step_type: "or"
                   principal_id: 12
+                - step: 2
+                  step_type: "and"
+                  principal_id: 10
+                - step: 2
+                  step_type: "and"
+                  principal_id: 9
       responses:
         '200':
           description: Approval process successfully initialized.
@@ -695,9 +803,17 @@ paths:
                   description: "An optional comment. **Required** when step_status is 'rejected'."
                   example: "Missing technical documentation in section 3."
             # Using our previously defined example anchor or a new one
-            example:
-              step_status: "rejected"
-              note: "Rejected due to missing security clearance details."
+            examples:
+              grant_rejected:
+                summary: "Rejected a approval step"
+                value:
+                  step_status: "rejected"
+                  note: "Rejected due to missing security clearance details."
+              grant_approved:
+                summary: "Approve a approval step"
+                value:
+                  step_status: "approved"
+                  
       responses:
         '200':
           description: "Decision recorded successfully. Returns the updated workflow status."
@@ -759,72 +875,15 @@ paths:
         '422':
           description: "Unprocessable Entity. The workflow is not in a state where it can be approved, or duplicate users, or missing note parameter."
 
-  # History
-  /projects/{project_id}/wiki_approval/{title}/history.json:
-    get:
-      summary: "Retrieve Workflow History"
-      description: >
-        Returns a complete audit log of all approval workflows associated with 
-        the specified wiki page. This includes past revisions, their final 
-        outcomes (released, rejected, canceled), and the associated notes 
-        and approval steps for each version. permission required: wiki_draft_view
-      operationId: wiki_approval_history
-      tags:
-        - "Wiki Approval"
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          description: Filter by a specific project ID or project_identifier
-          schema:
-            type: string
-        - name: title
-          in: path
-          required: true
-          schema:
-            type: string
-        - *param_page
-        - *param_per_page
-      responses:
-        '200':
-          description: "A list of workflow revisions was successfully retrieved."
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WikiApprovalHistoryResponse'
-              # Example showing an array of workflows
-              example:
-                wiki_approval_workflows:
-                  - id: 66
-                    version: 20
-                    status: "released"
-                    note: "Final version approved by tech lead"
-                    "wiki_approval_workflow_steps": [
-                      {
-                        "id": 54,
-                        "step": 1,
-                        "step_type": "or",
-                        "step_status": "approved"
-                      }
-                    ]
-                  - id: 45
-                    version: 19
-                    status: "rejected"
-                    note: "Missing documentation in section 4"
-        '403':
-          description: "Forbidden. No view permission"
-        '404':
-          description: "Not Found. The wiki page does not exist or has no approval history."
-
   # Publish (Finalize)
   /projects/{project_id}/wiki_approval/{title}/publish.json:
-    patch:
+    put:
       summary: "Directly Publish Wiki Page"
       description: >
         Forces the immediate publication of the wiki page. This action finalizes 
         the current workflow and sets the status to 'published' or 'released'. 
         **Note:** Any existing or pending approval steps for this revision 
-        will be automatically canceled. permission required: wiki_draft_create
+        will be automatically canceled. permission required: wiki_approval_publish
       operationId: wiki_approval_publish
       tags:
         - "Wiki Approval"
@@ -845,14 +904,26 @@ paths:
         '409':
           description: "Conflict. The page has already been released or published."
         '422':
-          description: "Unprocessable Entity. The wiki page is invalid or missing."
+          description: "Unprocessable Entity (Validation errors)."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    description: "List of validation error messages"
+                    items:
+                      type: string
+                    example: ["Comments cannot be blank", "Invalid Page", "Already released", "Invalid status", "Approval Required"]
+
           
   /projects/{project_id}/wiki/{title}.json:
     put:
       summary: "Update Wiki Page with Approval Status"
       description: >
         Updates a standard Redmine wiki page and allows setting an approval status 
-        if the Wiki Approval Plugin is enabled. permission required: wiki_draft_create
+        if the Wiki Approval Plugin is enabled. permission required: edit_wiki_pages
       operationId: wiki#update
       tags:
         - "Wiki Controller"
@@ -898,6 +969,13 @@ paths:
                     text: "New content…8899"
                     comments: "New version"
                   status: "draft"
+              update_example_published:
+                summary: "Standard Update with Status Published"
+                value:
+                  wiki_page:
+                    text: "New content…8899"
+                    comments: "New version"
+                  status: "published"
       responses:
         '204':
           description: "Wiki page updated successfully."
@@ -905,47 +983,15 @@ paths:
           description: "Project or Wiki page not found."
         '422':
           description: "Unprocessable Entity (Validation errors)."
-          
-  /projects/{project_id}/wiki_approval/permissions.json:
-    get:
-      summary: "List Project Actor Permissions"
-      description: >
-        Returns a list of all actors (Users and Groups) who have plugin-specific 
-        permissions within the given project. This is useful for populating 
-        dropdowns or checking who is authorized to grant or start approvals. permission required: wiki_approval_settings
-      operationId: wiki_approval_permissions
-      tags:
-        - "Wiki Approval"
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          description: "Project identifier (ID or identifier string)."
-          schema:
-            type: string
-          example: "new-project"
-        - name: permissions[]
-          in: query
-          required: false
-          description: "The specific permission key to check (e.g., 'wiki_approval_grant')."
-          style: form
-          explode: true 
-          schema:
-            type: array
-            items:
-              type: string
-              enum: ["wiki_approval_settings","wiki_approval_start","wiki_approval_grant","wiki_approval_forward","wiki_draft_view","wiki_draft_create"]
-      responses:
-        '200':
-          description: "A list of actors and their associated permissions."
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  actors:
+                  errors:
                     type: array
+                    description: "List of validation error messages"
                     items:
-                      $ref: '#/components/schemas/WikiApprovalPermissionResponse'
-        '403':
-          description: "Forbidden (User not logged in or no access to project)."
+                      type: string
+                    example: ["Comments cannot be blank", "Invalid Page", "Already released", "Invalid status", "Approval Required"]
+          
