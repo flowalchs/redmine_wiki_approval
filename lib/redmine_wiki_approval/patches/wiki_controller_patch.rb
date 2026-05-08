@@ -10,7 +10,7 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        append_before_action :set_wiki_approval_data, only: [:show, :edit, :update]
+        append_before_action :set_wiki_approval_data, only: [:show, :edit, :update, :preview]
         append_before_action :mark_edit_context, only: [:edit]
         append_before_action :apply_content_draft_update, only: [:update]
         append_before_action :apply_workflow_draft_update, only: [:update]

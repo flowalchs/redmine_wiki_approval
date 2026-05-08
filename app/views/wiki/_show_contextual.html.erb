@@ -18,9 +18,6 @@ if @wiki_approval_data && RedmineWikiApproval::Settings.approval_or_draft_enable
                         { controller: 'wiki', action: 'show', id: @page.title, version: @page.version }, 
                         { class: 'icon icon-workflows' } %>
         <% end %>
-        <% if @wiki_approval_data[:approval] %>
-            <span class="badge <%= wiki_approval_badge(@wiki_approval_data[:approval].status) %>" style="bottom: 0px"><%= l("wiki_approval_workflow.status.#{@wiki_approval_data[:approval].status}") %></span>
-        <% end %>
+        <%= wiki_approval_badge(@wiki_approval_data&.dig(:approval)&.status) %>
     <% end %>
-
 <% end %>

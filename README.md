@@ -3,7 +3,7 @@
 [![build](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml/badge.svg)](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml)
 [![Last release](https://img.shields.io/github/v/release/FloWalchs/redmine_wiki_approval?label=latest%20release&logo=github&style=flat-square)](https://github.com/FloWalchs/redmine_wiki_approval/releases/latest)
 [![Rate at redmine.org](http://img.shields.io/badge/rate%20at-redmine.org-blue.svg?style=flat-square)](https://www.redmine.org/plugins/redmine_wiki_approval)
-![Redmine](https://img.shields.io/badge/redmine->=4.2-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0&link=https%3A%2F%2Fwww.redmine.org)
+[![Redmine](https://img.shields.io/badge/redmine->=4.2-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0)](https://www.redmine.org)
 [![codecov](https://codecov.io/gh/FloWalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/FloWalchs/redmine_wiki_approval)
 [![API Docs](https://img.shields.io/badge/API_Docs-Online-blue?style=flat-square&logo=swagger)](https://flowalchs.github.io/redmine_wiki_approval/)
 
@@ -31,6 +31,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 - **Per‑Project or Global Settings** – Configure behavior globally or individually per project, such as enabling approval requirements, drafts, or mandatory comments.
 - **Mandatory Save Comment** – Requires users to enter a comment when saving Wiki content (configurable on/off)
 - **My Page Blocks** – Manage your Wiki Approval Queue for pending reviews and track your own Wiki Drafts directly from your personal dashboard
+- **Wiki Approval Macros** – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
 
 ## 🔐 Permissions Overview
 
@@ -198,6 +199,35 @@ graph TD
     style REJ fill:#ffebee,stroke:#c62828
     style CAN fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
 ```   
+
+## 🧩 Macros
+
+The following macros can be used inside wiki pages to render approval-related information directly within the content:
+
+```textile
+{{rwa_status}}                # Display the current approval status as a badge
+{{rwa_status(text)}}          # Display the approval status as plain text
+
+{{rwa_revision}}              # Display the approved revision number
+
+{{rwa_updated_at}}            # Display last workflow update timestamp
+{{rwa_updated_at(relative)}}  # Display relative update time (e.g. "about 1 minute ago")
+
+{{rwa_diff}}   # Display a diff link between the current wiki version and the last approved version
+
+{{rwa_users}}                  # Display all users involved in the approval workflow
+{{rwa_users(step=1)}}          # Display only the users assigned to approval step 1
+{{rwa_users(step=1,approved)}} # Display only the users assigned to approval step 1 that are already approved
+
+#Display the workflow starter with avatar, profile link, and additional details via mouse‑over
+{{rwa_users(starter,userimage,mouseover,userlink)}} 
+
+# Display only the user who initiated the approval workflow
+{{rwa_users(starter,step=0)}} 
+
+# Display approvers of step 2 including approval notes and current step status
+{{rwa_users(step=2,note,status)}} 
+```
 
 ## ❌ Uninstall
 
