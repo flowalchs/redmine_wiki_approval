@@ -4,7 +4,7 @@
   if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
 -%>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
-    <div id="approval">
+    <div class="approval">
       <ul>
         <li>
           <%= wiki_approval_status_value(@wiki_approval_data[:approval].status) %> ·
@@ -17,7 +17,7 @@
       </ul>
     </div>
     <% if @wiki_approval_data[:approval].status.in?(%w[pending rejected released canceled]) %>
-      <%= wiki_approval_users(@wiki_approval_data[:approval], starter: true, note: true, userimage: true, status: true, mouseover: true, userlink: false) %>
+      <%= wiki_approval_users(@wiki_approval_data[:approval], starter: true, note: true, userimage: true, status: true, mouseover: true, userlink: true) %>
     <% end %>
   <% end %>
 

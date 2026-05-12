@@ -48,4 +48,5 @@ ko:
   wiki_approval_queue: "위키 승인 대기열"
   button_wiki_approval_content_draft: "초안 저장" 
   button_wiki_approval_content_draft_prev: "이전 버전 불러오기"
+  label_wiki_approval_steps: 단계
   

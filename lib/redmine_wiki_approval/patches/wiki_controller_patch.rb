@@ -97,6 +97,19 @@ module RedmineWikiApproval
           Thread.current[:workflow_is_draft] = params[:status].presence || "draft"
           Thread.current[:wiki_approval_data] = @wiki_approval_data
         end
+
+        def history
+          super
+
+          return unless @versions && @page && RedmineWikiApproval::Settings.is_enabled?(@project)
+
+          version_numbers = @versions.map(&:version)
+          approvals = WikiApprovalWorkflow
+            .where(page_id: @page.id, version: version_numbers)
+            .includes(:approval_steps)
+            .index_by(&:version)
+          @wiki_approval_versions = approvals
+        end
       end
     end
   end

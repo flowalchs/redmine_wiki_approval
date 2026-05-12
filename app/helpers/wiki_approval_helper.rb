@@ -94,7 +94,7 @@ module WikiApprovalHelper
           mouseover: mouseover,
           status: status
         ) +
-        (note && approval.note.present? ? approval_note(approval.note) : ''.html_safe)
+        (note && approval.note.present? ? approval_note(approval.note, userimage: userimage) : ''.html_safe)
       end
     end
 
@@ -112,18 +112,20 @@ module WikiApprovalHelper
           userimage: userimage,
           userlink: userlink,
           mouseover: mouseover,
-          status: status
+          status: status,
+          step: approval_step.step,
+          step_type: approval_step.step_type
         ) +
-        (note && approval_step.note.present? ? approval_note(approval_step.note) : ''.html_safe)
+        (note && approval_step.note.present? ? approval_note(approval_step.note, userimage: userimage) : ''.html_safe)
       end
     end
 
-    content_tag :div, id: 'approval' do
+    content_tag :div, class: 'approval' do
       content_tag :ul, safe_join(items)
     end
   end
 
-  def approval_user_entry(user, label:, updated_at:, userimage:, userlink:, mouseover:, status:)
+  def approval_user_entry(user, label:, updated_at:, userimage:, userlink:, mouseover:, status:, step: nil, step_type: nil)
     content_tag(:div, class: 'rwa-user') do
       html = ''.html_safe
 
@@ -132,7 +134,11 @@ module WikiApprovalHelper
       end
 
       if user
-        name = userlink ? link_to_user(user) : user.name
+        name = if userlink
+                 user.is_a?(Group) ? link_to(user.name, group_path(user)) : link_to_user(user)
+               else
+                 user.name
+               end
         html << content_tag(:div, name)
       end
 
@@ -141,7 +147,13 @@ module WikiApprovalHelper
           :div,
           label,
           class: 'rwa-status',
-          title: mouseover ? "#{l(:label_ago)} #{time_ago_in_words(updated_at)}" : nil
+          title: if mouseover
+                   [step && "#{l(:label_wiki_approval_step)} #{step}",
+                    step_type && I18n.t("wiki_approval_#{step_type}", default: '').to_s,
+                    updated_at && "#{l(:label_ago)} #{time_ago_in_words(updated_at)}"].compact.join(' | ')
+                 else
+                   nil
+                 end
         )
       end
 
@@ -149,8 +161,8 @@ module WikiApprovalHelper
     end
   end
 
-  def approval_note(text)
-    content_tag(:div, text, class: 'rwa-note', title: l(:field_comments))
+  def approval_note(text, userimage: false)
+    content_tag(:div, text, class: ['rwa-note', userimage && 'rwa-avatar-note'].compact.join(' '), title: l(:field_comments))
   end
 
   def wiki_approval_time(time, format: nil)

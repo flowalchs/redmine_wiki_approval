@@ -48,4 +48,5 @@ zh:
   wiki_approval_queue: "Wiki审批队列"
   button_wiki_approval_content_draft: "保存草稿" 
   button_wiki_approval_content_draft_prev: "加载上一版本"
+  label_wiki_approval_steps: 步骤
   

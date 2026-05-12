@@ -48,4 +48,5 @@ nb:
   wiki_approval_queue: "Wiki godkjenningskø"
   button_wiki_approval_content_draft: "Lagre utkast" 
   button_wiki_approval_content_draft_prev: "Last inn forrige versjon"
+  label_wiki_approval_steps: Trinn
   

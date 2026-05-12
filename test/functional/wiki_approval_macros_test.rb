@@ -194,11 +194,11 @@ class WikiApprovalMacrosTest < WikiApproval::Test::ControllerCase
 
     get :show, params: { project_id: @project.id, id: @page.title, version: @page.content.version }
     assert_select 'div.wiki.wiki-page' do
-      assert_select 'div#approval ul li', 2
-      assert_select 'div#approval ul li:nth-of-type(1) .rwa-user div', text: 'Dave Lopper'
-      assert_select 'div#approval .rwa-note', 0
-      assert_select 'div#approval ul li:nth-of-type(2) .rwa-user div', text: 'Robert Hill'
-      assert_select 'div#approval .rwa-user [class*="avatar"]', 0
+      assert_select 'div.approval ul li', 2
+      assert_select 'div.approval ul li:nth-of-type(1) .rwa-user div', text: 'Dave Lopper'
+      assert_select 'div.approval .rwa-note', 0
+      assert_select 'div.approval ul li:nth-of-type(2) .rwa-user div', text: 'Robert Hill'
+      assert_select 'div.approval .rwa-user [class*="avatar"]', 0
     end
   end
 
@@ -228,14 +228,14 @@ class WikiApprovalMacrosTest < WikiApproval::Test::ControllerCase
     get :show, params: { project_id: @project.id, id: @page.title, version: @page.content.version }
 
     assert_select 'div.wiki.wiki-page' do
-      assert_select 'div#approval ul li', 3
-      assert_select 'div#approval ul li:nth-of-type(1) .rwa-user div', text: 'John Smith'
-      assert_select 'div#approval ul li:nth-of-type(2)' do
+      assert_select 'div.approval ul li', 3
+      assert_select 'div.approval ul li:nth-of-type(1) .rwa-user div', text: 'John Smith'
+      assert_select 'div.approval ul li:nth-of-type(2)' do
         assert_select '.rwa-user div', text: 'Dave Lopper'
         assert_select '.rwa-note', text: 'test note'
       end
-      assert_select 'div#approval ul li:nth-of-type(3) .rwa-user div', text: 'Robert Hill'
-      assert_select 'div#approval .rwa-user [class*="avatar"]', 3
+      assert_select 'div.approval ul li:nth-of-type(3) .rwa-user div', text: 'Robert Hill'
+      assert_select 'div.approval .rwa-user [class*="avatar"]', 3
     end
   end
 
@@ -264,8 +264,8 @@ class WikiApprovalMacrosTest < WikiApproval::Test::ControllerCase
 
     get :show, params: { project_id: @project.id, id: @page.title, version: @page.content.version }
     assert_select 'div.wiki.wiki-page' do
-      assert_select 'div#approval ul li', 1
-      assert_select 'div#approval ul li:nth-of-type(1)' do
+      assert_select 'div.approval ul li', 1
+      assert_select 'div.approval ul li:nth-of-type(1)' do
         assert_select '.rwa-user a.user.active', text: 'Dave Lopper', href: '/users/3'
         assert_select '.rwa-status', text: 'Approved', title: 'days ago less than a minute'
         assert_select '.rwa-note', 0
@@ -299,8 +299,8 @@ class WikiApprovalMacrosTest < WikiApproval::Test::ControllerCase
 
     get :show, params: { project_id: @project.id, id: @page.title, version: @page.content.version }
     assert_select 'div.wiki.wiki-page' do
-      assert_select 'div#approval ul li', 1
-      assert_select 'div#approval ul li:nth-of-type(1)' do
+      assert_select 'div.approval ul li', 1
+      assert_select 'div.approval ul li:nth-of-type(1)' do
         assert_select '.rwa-user a.user.active', text: 'Dave Lopper', href: '/users/3'
         assert_select '.rwa-status', text: 'Approved', title: 'days ago less than a minute'
         assert_select '.rwa-note', 0
@@ -334,8 +334,8 @@ class WikiApprovalMacrosTest < WikiApproval::Test::ControllerCase
 
     get :show, params: { project_id: @project.id, id: @page.title, version: @page.content.version }
     assert_select 'div.wiki.wiki-page' do
-      assert_select 'div#approval ul li', 1
-      assert_select 'div#approval ul li:nth-of-type(1)' do
+      assert_select 'div.approval ul li', 1
+      assert_select 'div.approval ul li:nth-of-type(1)' do
         assert_select '.rwa-user a.user.active', text: 'Dave Lopper', href: '/users/3'
         assert_select '.rwa-status', text: 'Approved', title: 'days ago less than a minute'
         assert_select '.rwa-note', 0

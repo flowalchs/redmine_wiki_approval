@@ -1,0 +1,8 @@
+<% if @wiki_approval_versions.present? %>
+    <% approval = @wiki_approval_versions[ver.version] %>
+    <td><%= wiki_approval_status_value(approval&.status, format: :text) %></td>
+    <td><%= approval&.approval_steps&.maximum(:step) || '' %></td>
+    <td><%= approval&.revision || '' %></td>
+    <td><%= wiki_approval_users(approval, starter: true, note: true, step: 0, mouseover: true, userlink: true) %></td>
+    <td><%= wiki_approval_users(approval, note: true, status: true, mouseover: true, userlink: true) %></td>
+<% end %>

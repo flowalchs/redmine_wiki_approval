@@ -49,4 +49,5 @@ ru:
   wiki_approval_queue: "Очередь утверждения вики"
   button_wiki_approval_content_draft: "Сохранить черновик" 
   button_wiki_approval_content_draft_prev: "Загрузить предыдущую версию"
+  label_wiki_approval_steps: Шаги
   

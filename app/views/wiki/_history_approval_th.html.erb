@@ -1,0 +1,7 @@
+<% if @wiki_approval_versions.present? %>
+    <th><%= I18n.t(:field_status, default: 'Status') %></th>
+    <th><%= I18n.t(:label_wiki_approval_steps, default: 'Steps') %></th>
+    <th><%= I18n.t(:label_revision, default: 'Revision') %></th>
+    <th><%= I18n.t(:label_wiki_approval_starter, default: 'Workflow-Starter') %></th>
+    <th><%= I18n.t(:label_wiki_approval_workflow, default: 'Approvals workflow') %></th>
+<% end %>

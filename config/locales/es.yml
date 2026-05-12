@@ -48,4 +48,5 @@ es:
   wiki_approval_queue: "Cola de aprobación de wiki"
   button_wiki_approval_content_draft: "Guardar borrador" 
   button_wiki_approval_content_draft_prev: "Cargar versión anterior"
+  label_wiki_approval_steps: Pasos
   
