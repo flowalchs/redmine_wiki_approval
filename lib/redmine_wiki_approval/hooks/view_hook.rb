@@ -7,10 +7,11 @@ module RedmineWikiApproval
 
       def view_layouts_base_html_head(context)
         if context[:controller].is_a?(WikiController) &&
-           context[:controller].action_name == 'show' &&
+           (context[:controller].action_name == 'show' || context[:controller].action_name == 'history') &&
            RedmineWikiApproval::Settings.is_enabled?(context[:project])
 
           if RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(context[:project]) &&
+             context[:controller].action_name == 'show' &&
              !from_update?(context[:controller])
 
             controller = context[:controller]

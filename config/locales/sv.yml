@@ -49,4 +49,5 @@ sv:
   wiki_approval_queue: "Godkännandekö för wiki"
   button_wiki_approval_content_draft: "Spara utkast" 
   button_wiki_approval_content_draft_prev: "Ladda tidigare version"
+  label_wiki_approval_steps: Steg
   

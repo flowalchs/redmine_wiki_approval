@@ -37,7 +37,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     # workflow approval icon
     assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections"]'
     # sidebar
-    assert_select '#sidebar #approval', minimum: 1
+    assert_select '#sidebar .approval', minimum: 1
     # no workflow grant icon
     assert_select 'div#content div.contextual a.icon.icon-approval', count: 0
     # no workflow forward icon
@@ -181,7 +181,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     # no badge
     assert_select 'div#content div.contextual span.badge', false
     # sidebar no approval
-    assert_select '#sidebar #approval', count: 0
+    assert_select '#sidebar .approval', count: 0
     # no workflow grant icon
     assert_select 'div#content div.contextual a.icon.icon-approval', count: 0
     # no workflow forward icon

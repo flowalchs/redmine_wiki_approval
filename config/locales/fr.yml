@@ -49,4 +49,6 @@ fr:
   wiki_approval_queue: "File d'attente d'approbation wiki"
   button_wiki_approval_content_draft: "Enregistrer le brouillon" 
   button_wiki_approval_content_draft_prev: "Charger la version précédente"
+  label_wiki_approval_steps: Étapes
+  
   

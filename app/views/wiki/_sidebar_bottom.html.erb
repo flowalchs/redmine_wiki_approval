@@ -4,69 +4,21 @@
   if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
 -%>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
-    <div id="approval">
+    <div class="approval">
       <ul>
-        <li class="approval-sidebar-header">
-          <%= l("wiki_approval_workflow.status.#{@wiki_approval_data[:approval].status}") %> ·
-          <%= l(:label_ago) + " " + time_ago_in_words(@wiki_approval_data[:approval].updated_at) %>
-          <% if User.current.allowed_to?(:view_wiki_edits, @project) %>
-            · (<%= link_to l(:label_diff), diff_project_wiki_page_path(project_id: @project.identifier, id: @page.title, version: @wiki_approval_data[:view_version_id], version_from: WikiApprovalWorkflow.latest_public_from_version(@page.id, @wiki_approval_data[:view_version_id])) %>)
-          <% end %>  
+        <li>
+          <%= wiki_approval_status_value(@wiki_approval_data[:approval].status) %> ·
+          <%= wiki_approval_time(@wiki_approval_data[:approval].updated_at, format: :relative) %>
+          <% diff_link = wiki_approval_diff(approval: @wiki_approval_data[:approval], project: @project, page: @page, view_version_id: @wiki_approval_data[:view_version_id]) %>
+          <% if diff_link.present? %>
+            · (<%= diff_link %>)
+          <% end %>
         </li>
       </ul>
-      <% if @wiki_approval_data[:approval].status.in?(%w[pending rejected released canceled]) %>
-        <ul>
-          <li>
-            <div class="approval-sidebar-user">
-              <%= avatar(@wiki_approval_data[:approval].author, :size => 16, :title => @wiki_approval_data[:approval].author.name) %> 
-              <div><%= @wiki_approval_data[:approval].author.name %></div>
-              <div class="aproval-sidebar-status">
-                  <%= content_tag :span, l(:label_wiki_approval_starter),
-                      title: l(:label_ago) + " " + time_ago_in_words(@page.content.updated_on)
-                  %>
-              </div>
-            </div>
-            <% if @wiki_approval_data[:approval].note.present? %>
-              <%= content_tag :div,
-                      @wiki_approval_data[:approval].note,
-                      title: l(:field_comments),
-                      class: "aproval-sidebar-note" %>
-            <% end %>
-          </li>
-    
-        </ul>
-        <ul>
-          <% @wiki_approval_data[:approval].approval_steps.order(:step).each do |step| %>
-            <li>
-              <div class="approval-sidebar-user">
-                <%= avatar(step.principal, size: 16, title: step.principal.name) if step.principal %>
-                <div><%= step.principal&.name %></div>
-                <div class="aproval-sidebar-status">
-                  <% if @wiki_approval_data[:step_approval] &&
-                        @wiki_approval_data[:step_approval] == step &&
-                        @wiki_approval_data[:step_approval].id == step.id &&
-                        User.current.allowed_to?(:wiki_approval_grant, @project) %>
-                    <%= link_to l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
-                                wiki_approval_grant_path(@project, @page.title),
-                                remote: true %>
-                  <% else %>
-                    <%= content_tag :span,
-                        l("wiki_approval_workflow_steps.step_status.#{step.step_status}"),
-                        title: "#{l(:label_wiki_approval_step)} #{step.step} | #{l(:label_ago)} #{time_ago_in_words(step.updated_at)}" %>
-                  <% end %>
-                </div>
-              </div>
-              <% if step.note.present? %>
-                <%= content_tag :div,
-                    step.note,
-                    title: l(:field_comments),
-                    class: "aproval-sidebar-note" %>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      <% end %>
     </div>
+    <% if @wiki_approval_data[:approval].status.in?(%w[pending rejected released canceled]) %>
+      <%= wiki_approval_users(@wiki_approval_data[:approval], starter: true, note: true, userimage: true, status: true, mouseover: true, userlink: true) %>
+    <% end %>
   <% end %>
 
   <% if @wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id] %>

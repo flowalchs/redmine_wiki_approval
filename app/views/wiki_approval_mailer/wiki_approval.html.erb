@@ -2,7 +2,7 @@
 <hr />
 <h1>
   <%= link_to(@wiki_page_title, @wiki_page_url) %>
-  <span class="badge <%= wiki_approval_badge(@approval.status) %>" style="bottom: 0px"><%= l("wiki_approval_workflow.status.#{@approval.status}") %></span>
+  <%= wiki_approval_badge(@approval.status) %>
 </h1>
 <p>
 <%= @wiki_page.content.author.name %> <small>(<%= I18n.t("field_author")%>

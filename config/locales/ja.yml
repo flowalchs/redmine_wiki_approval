@@ -48,4 +48,5 @@ ja:
   wiki_approval_queue: "Wiki承認待ちキュー"
   button_wiki_approval_content_draft: "下書きを保存" 
   button_wiki_approval_content_draft_prev: "前のバージョンを読み込む"
+  label_wiki_approval_steps: ステップ
   

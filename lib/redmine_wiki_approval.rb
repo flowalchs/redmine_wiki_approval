@@ -3,7 +3,7 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.10.4'
+  VERSION = '0.11.2'
 
   include RedminePluginKit::PluginBase
 
@@ -24,6 +24,8 @@ module RedmineWikiApproval
       ]
 
       loader.apply!
+
+      loader.load_macros!
 
       loader.load_view_hooks!
     end

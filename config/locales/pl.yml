@@ -49,4 +49,5 @@ pl:
   wiki_approval_queue: "Kolejka zatwierdzania wiki"
   button_wiki_approval_content_draft: "Zapisz szkic" 
   button_wiki_approval_content_draft_prev: "Wczytaj poprzednią wersję"
+  label_wiki_approval_steps: Kroki
   

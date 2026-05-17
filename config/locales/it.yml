@@ -49,4 +49,5 @@ it:
   wiki_approval_queue: "Coda di approvazione wiki"
   button_wiki_approval_content_draft: "Salva bozza" 
   button_wiki_approval_content_draft_prev: "Carica versione precedente"
+  label_wiki_approval_steps: Passaggi
   
