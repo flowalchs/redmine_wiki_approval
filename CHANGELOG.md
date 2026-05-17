@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.11.2 (2026-05-17)
+* Feature: add wiki approval macros and helpers #8
+* feat: extend core wiki history with approval workflow data #19
+* fix: cannot create first wiki page on new project due to smart drafting #22
+
 ## v0.10.4 (2026-04-17)
 * Add "Save as Work-in-Progress" (Smart Drafting) for Wiki Pages #6
 * End support for Ruby 2.6 and Redmine 4.1 #17
