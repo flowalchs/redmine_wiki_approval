@@ -49,4 +49,6 @@ es:
   button_wiki_approval_content_draft: "Guardar borrador" 
   button_wiki_approval_content_draft_prev: "Cargar versión anterior"
   label_wiki_approval_steps: Pasos
-  
+  label_wiki_approval_settings_sidebar_project: "Activar configuración de la barra lateral por proyecto"
+  label_wiki_approval_settings_sidebar_status: "Información de flujo de trabajo predeterminada en la barra lateral para estados seleccionados"
+  text_wiki_approval_settings_sidebar_status: "Define para qué estados se muestra información del flujo de trabajo (por ejemplo, personas asignadas, estado actual o enlace de diferencias) en la barra lateral."

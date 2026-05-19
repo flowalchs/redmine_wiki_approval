@@ -6,13 +6,7 @@ class WikiApprovalSetting < ApplicationRecord
   before_save :sync_data_hash_to_json
 
   def self.find_or_create(pj_id)
-    setting = WikiApprovalSetting.find_by(project_id: pj_id)
-    unless setting
-      setting = WikiApprovalSetting.new
-      setting.project_id = pj_id
-      setting.save!
-    end
-    return setting
+    find_or_create_by!(project_id: pj_id)
   end
 
   def data_hash
@@ -29,82 +23,82 @@ class WikiApprovalSetting < ApplicationRecord
     @data_hash = hash
   end
 
-  # Getter with default value, or setting from projecct
-  def wiki_comment_required
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_comment_required])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment])
+  # DSL DEFINITIONS
+  def self.setting_bool(setting_key, field_name:)
+    define_method(field_name) do
+      project_or_global_bool(setting_key, data_hash[field_name])
+    end
+
+    define_method("#{field_name}=") do |value|
+      write_boolean_to_data_hash(field_name, value)
     end
   end
 
-  def wiki_comment_required=(value)
-    data_hash[:wiki_comment_required] = ActiveModel::Type::Boolean.new.cast(value)
-  end
+  def self.setting_array(project_key, global_key, field_name:)
+    define_method(field_name) do
+      project_or_global_array(project_key, global_key, data_hash[field_name])
+    end
 
-  def wiki_draft_enabled
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_draft_enabled])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled])
+    define_method("#{field_name}=") do |value|
+      data_hash[field_name] = Array(value || '')
     end
   end
 
-  def wiki_draft_enabled=(value)
-    data_hash[:wiki_draft_enabled] = ActiveModel::Type::Boolean.new.cast(value)
-  end
+  # DSL USAGE
+  # Getter/Setter with default value, or setting from projecct
 
-  def wiki_approval_enabled
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_approval_enabled])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled])
-    end
-  end
+  setting_bool :wiki_approval_settings_required,        field_name: :wiki_approval_required
+  setting_bool :wiki_approval_settings_version,         field_name: :wiki_approval_version
+  setting_bool :wiki_approval_settings_enabled,         field_name: :wiki_approval_enabled
+  setting_bool :wiki_approval_settings_content_draft,   field_name: :wiki_content_draft
+  setting_bool :wiki_approval_settings_comment,         field_name: :wiki_comment_required
+  setting_bool :wiki_approval_settings_draft_enabled,   field_name: :wiki_draft_enabled
 
-  def wiki_approval_enabled=(value)
-    data_hash[:wiki_approval_enabled] = ActiveModel::Type::Boolean.new.cast(value)
-  end
-
-  def wiki_approval_required
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_approval_required])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required])
-    end
-  end
-
-  def wiki_approval_required=(value)
-    data_hash[:wiki_approval_required] = ActiveModel::Type::Boolean.new.cast(value)
-  end
-
-  def wiki_approval_version
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_approval_version])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version])
-    end
-  end
-
-  def wiki_approval_version=(value)
-    data_hash[:wiki_approval_version] = ActiveModel::Type::Boolean.new.cast(value)
-  end
-
-  def wiki_content_draft
-    if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] == WikiApprovalSettingsHelper::PROJECT
-      ActiveModel::Type::Boolean.new.cast(data_hash[:wiki_content_draft])
-    else
-      ActiveModel::Type::Boolean.new.cast(Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft])
-    end
-  end
-
-  def wiki_content_draft=(value)
-    data_hash[:wiki_content_draft] = ActiveModel::Type::Boolean.new.cast(value)
-  end
+  setting_array(
+    :wiki_approval_settings_sidebar_project,
+    :wiki_approval_settings_sidebar_status,
+    field_name: :wiki_sidebar_status
+  )
 
   private
 
   def sync_data_hash_to_json
     self.json_data = @data_hash.to_json if @data_hash
+  end
+
+  def project_or_global_bool(setting_key, data_value)
+    setting = RedmineWikiApproval.safe_setting(setting_key)
+    value =
+      if setting == WikiApprovalSettingsHelper::PROJECT
+        data_value
+      else
+        setting
+      end
+
+    ActiveModel::Type::Boolean.new.cast(value)
+  end
+
+  def project_or_global_array(project_key, global_key, data_value)
+    project_enabled = ActiveModel::Type::Boolean.new.cast(
+      RedmineWikiApproval.safe_setting(project_key)
+    )
+
+    value =
+      if project_enabled
+        # not nil for sidebar status in projects
+        if data_value.nil? && global_key.to_s == 'wiki_approval_settings_sidebar_status'
+          ['', 'canceled', 'draft', 'pending', 'rejected']
+        else
+          data_value
+        end
+      else
+        RedmineWikiApproval.safe_setting(global_key)
+      end
+
+    Array(value).map(&:to_s)
+  end
+
+  def write_boolean_to_data_hash(key, value)
+    data_hash[key] = ActiveModel::Type::Boolean.new.cast(value || '0')
   end
 end

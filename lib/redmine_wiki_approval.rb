@@ -3,11 +3,15 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.11.2'
+  VERSION = '0.12.0'
 
   include RedminePluginKit::PluginBase
 
   class << self
+    def safe_setting(key)
+      setting(key.to_sym)
+    end
+
     private
 
     def setup

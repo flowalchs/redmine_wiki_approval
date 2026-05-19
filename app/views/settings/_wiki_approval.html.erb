@@ -1,53 +1,33 @@
 <fieldset class="box tabular settings"><legend><%= l(:label_settings) %></legend>
-  <p>
-    <%= content_tag :label, l(:label_wiki_approval_settings_comment) %>
-    <%= select_tag 'settings[wiki_approval_settings_comment]',
-          options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment]) %>
-  </p>
-  <p>
-    <%= content_tag :label, l(:label_wiki_approval_settings_content_draft) %>
-    <%= select_tag 'settings[wiki_approval_settings_content_draft]',
-          options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft]) %>
-  </p>
+  <%= wiki_approval_select_field(:wiki_approval_settings_comment) %>
+  <%= wiki_approval_select_field(:wiki_approval_settings_content_draft) %>
+  <%= wiki_approval_checkbox_field(:wiki_approval_settings_sidebar_project) %>
+  <div style="margin-left: 20px;">
+    <%= wiki_approval_select_field(:wiki_approval_settings_sidebar_status, 
+                                   html_options: { multiple: true, size: 6, class: 'multiselect wide' },
+                                   options: wiki_approval_sidebar_status_select_options) %>
+  </div>
 </fieldset>
 <fieldset class="box tabular settings"><legend><%= l(:label_wiki_approval_workflow) %></legend>
- <p>
-    <%= content_tag :label, l(:label_wiki_approval_settings_draft_enabled) %>
-    <%= select_tag 'settings[wiki_approval_settings_draft_enabled]',
-          options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled]) %>
-  </p>
-  <p>
-    <%= content_tag :label, l(:label_wiki_approval_settings_enabled) %>
-    <%= select_tag 'settings[wiki_approval_settings_enabled]',
-          options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled]),
-          id: 'approval_enable' %>
-  </p>
+  <%= wiki_approval_select_field(:wiki_approval_settings_draft_enabled) %>
+  <%= wiki_approval_select_field(:wiki_approval_settings_enabled) %>
   <div style="margin-left: 20px;">
-    <p>
-      <%= content_tag :label, l(:label_wiki_approval_settings_required) %>
-      <%= select_tag 'settings[wiki_approval_settings_required]',
-            options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required]),
-            id: 'approval' %>
-    </p>
-    <p>
-      <%= content_tag :label, l(:label_wiki_approval_settings_version) %>
-      <%= select_tag 'settings[wiki_approval_settings_version]',
-            options_for_select(wiki_approval_select_options, Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version]),
-            id: 'approval_version' %>
-      <em class="info"><%= t(:text_wiki_approval_settings_version) %></em>
-    </p>
+    <%= wiki_approval_select_field(:wiki_approval_settings_required) %>
+    <%= wiki_approval_select_field(:wiki_approval_settings_version) %>
   </div>
 </fieldset>
 
-
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const enableSelect = document.getElementById('approval_enable');
+    const enableSelect = document.getElementById('wiki_approval_settings_enabled');
     const dependentSelects = [
-      document.getElementById('approval'),
-      document.getElementById('approval_version')
+      document.getElementById('wiki_approval_settings_required'),
+      document.getElementById('wiki_approval_settings_version')
     ];
+
+    // Checkbox + Multiselect
+    const sidebarCheckbox = document.getElementById('wiki_approval_settings_sidebar_project');
+    const sidebarMultiselect = document.getElementById('wiki_approval_settings_sidebar_status');
 
     function toggleDependentSelects() {
       const isDisabled = enableSelect.value === 'false';
@@ -59,7 +39,24 @@
       });
     }
 
+    function toggleSidebarMultiselect() {
+      const isChecked = sidebarCheckbox.checked;
+
+      // Checkbox activ → Multiselect disabled + empty
+      sidebarMultiselect.disabled = isChecked;
+
+      if (isChecked) {
+        // empty value
+        Array.from(sidebarMultiselect.options).forEach(opt => {
+          opt.selected = false;
+        });
+      }
+    }
+
     enableSelect.addEventListener('change', toggleDependentSelects);
+    sidebarCheckbox.addEventListener('change', toggleSidebarMultiselect);
     toggleDependentSelects();
+    toggleSidebarMultiselect();
+
   });
 </script>

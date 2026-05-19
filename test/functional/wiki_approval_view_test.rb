@@ -25,6 +25,8 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki/Page_with_sections/3"]'
     # closed badge
     assert_select 'div#content div.contextual span.badge.badge-status-closed'
+    # no sidebar default value settings
+    assert_select '#sidebar .approval', minimum: 0
   end
 
   test 'wiki page show pending version and sidebar' do
@@ -44,6 +46,54 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     assert_select 'div#content div.contextual a.icon.icon-forward', count: 0
   end
 
+  test 'wiki page show pending version and without sidebar setting update' do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_status] = ["", "draft"]
+
+    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    assert_response :success
+    # link to draft version, under contextual
+    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki/Page_with_sections/2"]'
+    # open badge
+    assert_select 'div#content div.contextual span.badge.badge-status-open'
+    # workflow approval icon
+    assert_select 'div#content div.contextual a.icon.icon-workflows[href*="wiki_approval/Page_with_sections"]'
+    # sidebar
+    assert_select '#sidebar .approval', minimum: 0
+  end
+
+  test 'wiki page show pending version and sidebar setting update' do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_status] = ["", "pending"]
+
+    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    assert_response :success
+    # sidebar
+    assert_select '#sidebar .approval', minimum: 1
+  end
+
+  test 'wiki page show pending version and without sidebar projectsetting update' do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 1
+    setting = WikiApprovalSetting.find_by(project_id: @project.id)
+    setting.wiki_sidebar_status = ['', 'draft']
+    setting.save!
+
+    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    assert_response :success
+    # sidebar
+    assert_select '#sidebar .approval', minimum: 0
+  end
+
+  test 'wiki page show pending version and with sidebar projectsetting update' do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 1
+    setting = WikiApprovalSetting.find_by(project_id: @project.id)
+    setting.wiki_sidebar_status = ['', 'pending']
+    setting.save!
+
+    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    assert_response :success
+    # sidebar
+    assert_select '#sidebar .approval', minimum: 1
+  end
+
   test 'wiki page show pending version and grant forward' do
     set_session_user(@dlopper)
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
@@ -52,6 +102,8 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     assert_select 'div#content div.contextual a.icon.icon-approval[href*="wiki_approval/Page_with_sections/grant"]'
     # workflow forward icon
     assert_select 'div#content div.contextual a.icon.icon-forward[href*="wiki_approval/Page_with_sections/forward"]'
+    # sidebar default value
+    assert_select '#sidebar .approval', minimum: 1
   end
 
   test 'wiki page Unauthorized pending version no permission draft view' do

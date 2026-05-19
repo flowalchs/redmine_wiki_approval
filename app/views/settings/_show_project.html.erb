@@ -9,56 +9,25 @@
                              :partial => 'wiki_approval_settings/update',
                              :setting_id => @wiki_approval_setting.id} do |f| %>
     <%= error_messages_for 'wiki_approval_setting' %>
-
     <fieldset class="box tabular settings">
       <legend><%= l(:label_settings) %></legend>
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>  
-        <label><%= l(:label_wiki_approval_settings_comment) %></label>
-        <%= hidden_field_tag 'wiki_comment_required', '0' %>
-        <%= check_box_tag 'wiki_comment_required', '1', @wiki_approval_setting.wiki_comment_required %>
-      </p>
-      <% end %>
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>  
-        <label><%= l(:label_wiki_approval_settings_content_draft) %></label>
-        <%= hidden_field_tag 'wiki_content_draft', '0' %>
-        <%= check_box_tag 'wiki_content_draft', '1', @wiki_approval_setting.wiki_content_draft %>
-      </p>
+      <%= wiki_approval_checkbox_field(:wiki_approval_settings_comment, value: @wiki_approval_setting.wiki_comment_required, field_name: :wiki_comment_required) %>
+      <%= wiki_approval_checkbox_field(:wiki_approval_settings_content_draft, value: @wiki_approval_setting.wiki_content_draft, field_name: :wiki_content_draft) %>
+      <% if ActiveModel::Type::Boolean.new.cast(RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)) == true %>
+        <%= wiki_approval_select_field(:wiki_approval_settings_sidebar_status, 
+                                  value: @wiki_approval_setting.wiki_sidebar_status,
+                                  field_name: :wiki_sidebar_status,
+                                  html_options: { multiple: true, size: 6, class: 'multiselect wide' },
+                                  options: wiki_approval_sidebar_status_select_options) %>
       <% end %>
     </fieldset>
     <fieldset class="box tabular settings">
       <legend><%= l(:label_wiki_approval_workflow) %></legend>
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>
-        <label><%= l(:label_wiki_approval_settings_draft_enabled) %></label>
-        <%= hidden_field_tag 'wiki_draft_enabled', '0' %>
-        <%= check_box_tag 'wiki_draft_enabled', '1', @wiki_approval_setting.wiki_draft_enabled %>
-      </p>
-      <% end %>
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>
-        <label><%= l(:label_wiki_approval_settings_enabled) %></label>
-        <%= hidden_field_tag 'wiki_approval_enabled', '0' %>
-        <%= check_box_tag 'wiki_approval_enabled', '1', @wiki_approval_setting.wiki_approval_enabled, id: 'approval_enabled_box' %>
-      </p>
-      <% end %>
+      <%= wiki_approval_checkbox_field(:wiki_approval_settings_draft_enabled, value: @wiki_approval_setting.wiki_draft_enabled, field_name: :wiki_draft_enabled) %>
+      <%= wiki_approval_checkbox_field(:wiki_approval_settings_enabled, value: @wiki_approval_setting.wiki_approval_enabled, field_name: :wiki_approval_enabled) %>
       <div style="margin-left: 20px;">
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>
-        <label><%= l(:label_wiki_approval_settings_required) %></label>
-        <%= hidden_field_tag 'wiki_approval_required', '0' %>
-        <%= check_box_tag 'wiki_approval_required', '1', @wiki_approval_setting.wiki_approval_required, id: 'approval_required_box' %>
-      </p>
-      <% end %>
-      <% if Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] == WikiApprovalSettingsHelper::PROJECT %>
-      <p>
-        <label><%= l(:label_wiki_approval_settings_version) %></label>
-        <%= hidden_field_tag 'wiki_approval_version', '0' %>
-        <%= check_box_tag 'wiki_approval_version', '1', @wiki_approval_setting.wiki_approval_version, id: 'approval_version_box' %>
-        <em class="info"><%= t(:text_wiki_approval_settings_version) %></em>
-      </p>
-      <% end %>
+        <%= wiki_approval_checkbox_field(:wiki_approval_settings_required, value: @wiki_approval_setting.wiki_approval_required, field_name: :wiki_approval_required) %>
+        <%= wiki_approval_checkbox_field(:wiki_approval_settings_version, value: @wiki_approval_setting.wiki_approval_version, field_name: :wiki_approval_version) %>
       </div>
     </fieldset>
     <%= submit_tag l(:button_update) %>
@@ -68,10 +37,10 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const mainCheckbox = document.getElementById('approval_enabled_box');
+    const mainCheckbox = document.getElementById('wiki_approval_settings_enabled');
     const dependentCheckboxes = [
-      document.getElementById('approval_required_box'),
-      document.getElementById('approval_version_box')
+      document.getElementById('wiki_approval_settings_required'),
+      document.getElementById('wiki_approval_settings_version')
     ];
 
     function toggleDependentCheckboxes() {

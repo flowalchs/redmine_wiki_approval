@@ -50,3 +50,6 @@ en:
   button_wiki_approval_content_draft: Save draft
   button_wiki_approval_content_draft_prev: Load previous version
   label_wiki_approval_steps: Steps
+  label_wiki_approval_settings_sidebar_project: "Enable per-project sidebar settings"
+  label_wiki_approval_settings_sidebar_status: "Default workflow information in the sidebar for selected statuses"
+  text_wiki_approval_settings_sidebar_status: "Defines for which statuses workflow information (e.g., assigned users, current status, or diff link) is displayed in the sidebar."

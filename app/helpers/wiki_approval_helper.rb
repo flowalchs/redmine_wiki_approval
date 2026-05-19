@@ -211,4 +211,10 @@ module WikiApprovalHelper
       )
     )
   end
+
+  def wiki_approval_sidebar_status_visible?(approval_data)
+    approval_data&.dig(:approval)&.status.to_s.in?(
+      Array(approval_data[:setting]&.wiki_sidebar_status).map(&:to_s)
+    )
+  end
 end

@@ -83,10 +83,12 @@ Enable the Module "Wiki approval" per project
    - Settings can be configured per project or system-wide
 2. Navigate to **Project Settings → Wiki approval**
    - enable the modul per project
-3. Available options:
+3. Available options: [Wiki Plugin Settings](https://github.com/FloWalchs/redmine_wiki_approval/wiki/Screenshots#plugin-settings)
    - Settings 
      - Wiki comment required 
      - Wiki Content Drafts enabled
+     - Enable per-project sidebar approval settings
+       - Default sidebar approval statuses (multiselect) 
    - Approval workflow
      - Wiki draft enabled
      - Wiki approval enabled

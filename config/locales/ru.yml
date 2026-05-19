@@ -50,4 +50,6 @@ ru:
   button_wiki_approval_content_draft: "Сохранить черновик" 
   button_wiki_approval_content_draft_prev: "Загрузить предыдущую версию"
   label_wiki_approval_steps: Шаги
-  
+  label_wiki_approval_settings_sidebar_project: "Включить настройки боковой панели для проектов"
+  label_wiki_approval_settings_sidebar_status: "Информация рабочего процесса по умолчанию в боковой панели для выбранных статусов"
+  text_wiki_approval_settings_sidebar_status: "Определяет, для каких статусов отображается информация рабочего процесса (например, назначенные пользователи, текущий статус или ссылка на различия) в боковой панели."
