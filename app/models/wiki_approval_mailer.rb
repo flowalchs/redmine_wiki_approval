@@ -6,6 +6,8 @@ require 'mailer'
 class WikiApprovalMailer < Mailer
   layout 'mailer'
 
+  helper :wiki_approval
+
   def self.deliver_wiki_approval_state(approval, status, wiki_page, actor)
     return unless Setting.notified_events.include?('wiki_approval_notifications')
 

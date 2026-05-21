@@ -35,8 +35,6 @@ Redmine::Plugin.register :redmine_wiki_approval do
 end
 
 RedminePluginKit::Loader.persisting do
-  Redmine::Notifiable.singleton_class.prepend RedmineWikiApproval::Patches::NotifiablePatch
-
   # Hooks
   loader.load_model_hooks!
 end

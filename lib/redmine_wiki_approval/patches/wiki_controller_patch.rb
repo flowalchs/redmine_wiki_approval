@@ -14,6 +14,9 @@ module RedmineWikiApproval
         append_before_action :mark_edit_context, only: [:edit]
         append_before_action :apply_content_draft_update, only: [:update]
         append_before_action :apply_workflow_draft_update, only: [:update]
+
+        helper :wiki_approval_icon
+        helper :wiki_approval
       end
 
       module InstanceOverwriteMethods
