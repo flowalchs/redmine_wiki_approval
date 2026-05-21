@@ -10,10 +10,9 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        append_before_action :set_wiki_approval_data, only: [:show, :edit, :update, :preview]
-        append_before_action :mark_edit_context, only: [:edit]
-        append_before_action :apply_content_draft_update, only: [:update]
-        append_before_action :apply_workflow_draft_update, only: [:update]
+        append_before_action :set_wiki_approval_data, only: [:show, :preview]
+        append_before_action :handle_edit_flow, only: [:edit]
+        append_before_action :handle_update_flow, only: [:update]
 
         helper :wiki_approval_icon
         helper :wiki_approval
@@ -61,7 +60,10 @@ module RedmineWikiApproval
           return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
 
           page = @wiki.find_page(params[:id])
-          return if page.nil? # content drafts not on a new page
+          if page.nil? # content drafts not on a new page
+            params.delete(:draft) # delete parameter for later apply_workflow_draft_update
+            return
+          end
 
           # Thread parameter, is available later in the page model patch
           Thread.current[:wiki_is_draft] = params[:draft].present?
@@ -112,6 +114,17 @@ module RedmineWikiApproval
             .includes(:approval_steps)
             .index_by(&:version)
           @wiki_approval_versions = approvals
+        end
+
+        def handle_update_flow
+          set_wiki_approval_data
+          apply_content_draft_update
+          apply_workflow_draft_update
+        end
+
+        def handle_edit_flow
+          set_wiki_approval_data
+          mark_edit_context
         end
       end
     end

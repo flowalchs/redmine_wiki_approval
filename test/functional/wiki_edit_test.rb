@@ -400,4 +400,27 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
       assert_equal 'canceled', step.step_status
     end
   end
+
+  test "should redirect edit for new page" do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'true'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'true'
+
+    # update page, with same content
+    post :new, params: {
+      project_id: @project.id,
+      title: "testpage"
+    }
+
+    assert_response :redirect
+    assert_match(/\/projects\/ecookbook\/wiki\/testpage/i, response.redirect_url)
+
+    get :edit, params: {
+      project_id: @project.id,
+      id: "Testpage"
+    }
+
+    assert_response :success
+    assert_select "input[type=submit][name=draft]", 0
+  end
 end
