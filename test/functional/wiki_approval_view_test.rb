@@ -15,7 +15,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     get :show, params: { project_id: @project.id, id: @page.title }
 
     assert_response :redirect
-    assert_redirected_to "/projects/1/wiki/#{@page.title}/2"
+    assert_redirected_to "/projects/ecookbook/wiki/#{@page.title}/2"
   end
 
   test 'wiki page show released version' do
@@ -108,7 +108,7 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
 
   test 'wiki page Unauthorized pending version no permission draft view' do
     set_session_user(@dlopper)
-    RedmineWikiApproval::Settings.stubs(:view_draft?).with(@project).returns(false)
+    RedmineWikiApproval::Settings.stubs(:view_draft?).with(@project, anything).returns(false)
     get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
     assert_response :forbidden
   end
@@ -219,14 +219,14 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
 
     get :show, params: { project_id: @project.id, id: @page.title }
     assert_response :redirect
-    assert_redirected_to "/projects/1/wiki/CookBook_documentation/3"
+    assert_redirected_to "/projects/ecookbook/wiki/CookBook_documentation/3"
 
     # respons.body from version 3 test, after redirect rsponse.body is from original version
-    get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    get :show, params: { project_id: @project.identifier, id: @page.title, version: 3 }
     assert_response :success
 
     # link to view draft
-    assert_select "a.icon-workflows[href='/projects/1/wiki/CookBook_documentation/4']" do |links|
+    assert_select "a.icon-workflows[href='/projects/ecookbook/wiki/CookBook_documentation/4']" do |links|
       assert_match /View draft/, links.first.text
     end
 

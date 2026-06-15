@@ -10,9 +10,10 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        append_before_action :set_wiki_approval_data, only: [:show, :preview, :new]
+        append_before_action :set_wiki_approval_data, only: [:preview, :new]
         append_before_action :handle_edit_flow, only: [:edit]
         append_before_action :handle_update_flow, only: [:update]
+        append_before_action :handle_show_flow, only: [:show]
 
         helper :wiki_approval_icon
         helper :wiki_approval
@@ -33,12 +34,23 @@ module RedmineWikiApproval
             page = @wiki.find_page(page_identifier) if page_identifier.present?
           end
 
+          latest_public = page ? WikiApprovalWorkflow.latest_public_version_nr(page) : nil
+
+          # show: redirect to version, if not set & enabled
+          if action_name == 'show' &&
+            params[:version].blank? &&
+            !from_wiki_edit_referer? &&
+            RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(@project, setting) &&
+            latest_public.present? && latest_public != page&.version
+
+            redirect_to({ controller: 'wiki', action: 'show', project_id: @project.identifier, id: page.title, version: latest_public })
+            return
+          end
+
           # @page or param
           view_version = params[:version] || page&.version
-
           # @page must be there
           approval = page ? WikiApprovalWorkflow.for_wiki(page.id, view_version.to_i).first : nil
-          latest_public = page ? WikiApprovalWorkflow.latest_public_version_nr(page) : nil
 
           @wiki_approval_data = {
             view_version_id: view_version&.to_i,
@@ -127,6 +139,11 @@ module RedmineWikiApproval
           mark_edit_context
         end
 
+        def handle_show_flow
+          set_wiki_approval_data
+          check_version_authorization
+        end
+
         # only patch when post and parameter rwa_template_id
         def new
           begin
@@ -178,6 +195,29 @@ module RedmineWikiApproval
 
           # fallback or no text found
           super
+        end
+
+        private
+
+        def from_wiki_edit_referer?
+          referer = request.referer
+          referer.present? && referer.include?('/wiki/') && referer.include?('edit')
+        end
+
+        def check_version_authorization
+          return unless @wiki_approval_data
+          return if RedmineWikiApproval::Settings.view_draft?(@project, @wiki_approval_data[:setting]) != false
+
+          version = params[:version]&.to_i || @page.version
+          return unless version
+
+          approval = if @wiki_approval_data[:view_version_id] == version
+                       @wiki_approval_data[:approval]
+                     else
+                       WikiApprovalWorkflow.for_wiki(@page.id, version).first
+                     end
+
+          raise ::Unauthorized if approval&.status_before_type_cast&.< WikiApprovalWorkflow.statuses[:published]
         end
       end
     end

@@ -33,8 +33,8 @@ module RedmineWikiApproval
         user.allowed_to?(:wiki_approval_start, project)
       end
 
-      def is_allowed_to_show_last_version?(project)
-        return false unless approval_or_draft_enabled?(project)
+      def is_allowed_to_show_last_version?(project, setting = nil)
+        return false unless approval_or_draft_enabled?(project, setting)
 
         user = User.current.logged? ? User.current : User.anonymous
         user.allowed_to?(:view_wiki_edits, project)
@@ -74,7 +74,7 @@ module RedmineWikiApproval
       end
 
       def view_draft?(project, setting = nil)
-        return false unless is_allowed_to_show_last_version?(project)
+        return false unless is_allowed_to_show_last_version?(project, setting)
 
         user = User.current.logged? ? User.current : User.anonymous
         user.allowed_to?(:wiki_draft_view, project) || user.allowed_to?(:wiki_approval_grant, project)
