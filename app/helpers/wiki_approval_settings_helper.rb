@@ -86,4 +86,16 @@ module WikiApprovalSettingsHelper
   def wiki_approval_sidebar_status_select_options
     WikiApprovalWorkflow.statuses.keys.map { |k| [l("wiki_approval_workflow.status.#{k}"), k] }
   end
+
+  def wiki_approval_templates_select_options(settings = nil)
+    types = RedmineWikiApproval::WikiTemplates::ENABLED_TEMPLATE_TYPES
+
+    return types if settings.blank?
+
+    Array(settings).map(&:to_s) & types
+  end
+
+  def setting_array_present?(value)
+    Array(value).any?(&:present?)
+  end
 end

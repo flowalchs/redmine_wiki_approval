@@ -1,11 +1,11 @@
 # Redmine Wiki Approval Plugin
 
-[![build](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml/badge.svg)](https://github.com/FloWalchs/redmine_wiki_approval/actions/workflows/build.yml)
-[![Last release](https://img.shields.io/github/v/release/FloWalchs/redmine_wiki_approval?label=latest%20release&logo=github&style=flat-square)](https://github.com/FloWalchs/redmine_wiki_approval/releases/latest)
+[![build](https://github.com/flowalchs/redmine_wiki_approval/actions/workflows/build.yml/badge.svg)](https://github.com/flowalchs/redmine_wiki_approval/actions/workflows/build.yml)
+[![Last release](https://img.shields.io/github/v/release/flowalchs/redmine_wiki_approval?label=latest%20release&logo=github&style=flat-square)](https://github.com/flowalchs/redmine_wiki_approval/releases/latest)
 [![Rate at redmine.org](http://img.shields.io/badge/rate%20at-redmine.org-blue.svg?style=flat-square)](https://www.redmine.org/plugins/redmine_wiki_approval)
 [![Redmine](https://img.shields.io/badge/redmine->=4.2-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0)](https://www.redmine.org)
-[![codecov](https://codecov.io/gh/FloWalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/FloWalchs/redmine_wiki_approval)
-[![Wiki](https://img.shields.io/badge/wiki-home-lightgrey)](https://github.com/FloWalchs/redmine_wiki_approval/wiki)
+[![codecov](https://codecov.io/gh/flowalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/flowalchs/redmine_wiki_approval)
+[![Wiki](https://img.shields.io/badge/wiki-home-lightgrey)](https://github.com/flowalchs/redmine_wiki_approval/wiki)
 [![API Docs](https://img.shields.io/badge/API_Docs-Online-blue?style=flat-square&logo=swagger)](https://flowalchs.github.io/redmine_wiki_approval/)
 
 This plugin adds an approval workflow to the wiki, allowing teams to review, approve, and control changes before they are published. It supports drafts, multi‑step approval processes, role‑based permissions, and status tracking to ensure content quality and traceability in collaborative documentation.
@@ -33,6 +33,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 - **Mandatory Save Comment** – Requires users to enter a comment when saving Wiki content (configurable on/off)
 - **My Page Blocks** – Manage your Wiki Approval Queue for pending reviews and track your own Wiki Drafts directly from your personal dashboard
 - **Wiki Approval Macros** – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
+- [**Wiki Templates**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Templates) – Define reusable wiki page templates stored as regular wiki pages, organized by global scope, project, or role.
 
 ## 🔐 Permissions Overview
 
@@ -44,6 +45,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 | Forward approval     | Move to another approver                          |
 | View draft           | View unpublished versions                         |
 | Publish wiki drafts  | Release an approved draft as the official version |
+| Edit wiki templates  | Create and modify wiki template pages             |
 
 ## 💡 Typical Use Case
 
@@ -69,7 +71,7 @@ The plugin supports 14+ languages, including English, German, Japanese, French, 
 
 ```bash
 cd $REDMINE_ROOT/plugins
-git clone https://github.com/FloWalchs/redmine_wiki_approval.git
+git clone https://github.com/flowalchs/redmine_wiki_approval.git
 cd $REDMINE_ROOT
 bundle install
 bundle exec rake redmine:plugins:migrate RAILS_ENV=production
@@ -83,12 +85,13 @@ Enable the Module "Wiki approval" per project
    - Settings can be configured per project or system-wide
 2. Navigate to **Project Settings → Wiki approval**
    - enable the modul per project
-3. Available options: [Wiki Plugin Settings](https://github.com/FloWalchs/redmine_wiki_approval/wiki/Screenshots#plugin-settings)
+3. Available options: [Wiki Plugin Settings](https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots#plugin-settings)
    - Settings 
      - Wiki comment required 
      - Wiki Content Drafts enabled
      - Enable per-project sidebar approval settings
-       - Default sidebar approval statuses (multiselect) 
+       - Default sidebar approval statuses (multiselect)
+     - Wiki Templates (multiselect: global, projects, roles) — feature disabled if nothing selected
    - Approval workflow
      - Wiki draft enabled
      - Wiki approval enabled
@@ -98,10 +101,10 @@ Enable the Module "Wiki approval" per project
 ## 🖼️ Screenshots
 
 Additional and up‑to‑date screenshots can be found in the Wiki:  
-👉 **https://github.com/FloWalchs/redmine_wiki_approval/wiki/Screenshots**
+👉 **https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots**
 
 <p>
-  <a href="https://github.com/FloWalchs/redmine_wiki_approval/wiki/Screenshots">
+  <a href="https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots">
     <img
       src="https://github.com/user-attachments/assets/bd26ea3b-a358-4c3e-98fc-3dc497b39037"
       alt="Wiki Screenshots Preview"

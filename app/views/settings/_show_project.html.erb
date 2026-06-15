@@ -20,6 +20,14 @@
                                   html_options: { multiple: true, size: 6, class: 'multiselect wide' },
                                   options: wiki_approval_sidebar_status_select_options) %>
       <% end %>
+      <% settings_templates = RedmineWikiApproval.safe_setting(:wiki_approval_settings_templates) %>
+      <% if setting_array_present?(settings_templates) %>
+        <%= wiki_approval_select_field(:wiki_approval_settings_templates, 
+                                  value: @wiki_approval_setting.wiki_templates,
+                                  field_name: :wiki_templates,
+                                  html_options: { multiple: true, size: 3, class: 'multiselect wide' },
+                                  options: wiki_approval_templates_select_options(settings_templates)) %>
+      <% end %>
     </fieldset>
     <fieldset class="box tabular settings">
       <legend><%= l(:label_wiki_approval_workflow) %></legend>

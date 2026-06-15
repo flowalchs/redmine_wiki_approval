@@ -53,3 +53,6 @@ pt-BR:
   label_wiki_approval_settings_sidebar_project: "Ativar configurações da barra lateral por projeto"
   label_wiki_approval_settings_sidebar_status: "Informações de fluxo de trabalho padrão na barra lateral para status selecionados"
   text_wiki_approval_settings_sidebar_status: "Define para quais status as informações de fluxo de trabalho (por exemplo, usuários atribuídos, status atual ou link de comparação) são exibidas na barra lateral."
+  label_wiki_approval_template: Modelo
+  label_wiki_approval_settings_templates: Escopo dos modelos Wiki
+  no_wiki_template_permission: Você não tem permissão para editar páginas de modelos Wiki

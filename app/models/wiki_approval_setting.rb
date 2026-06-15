@@ -54,11 +54,8 @@ class WikiApprovalSetting < ApplicationRecord
   setting_bool :wiki_approval_settings_comment,         field_name: :wiki_comment_required
   setting_bool :wiki_approval_settings_draft_enabled,   field_name: :wiki_draft_enabled
 
-  setting_array(
-    :wiki_approval_settings_sidebar_project,
-    :wiki_approval_settings_sidebar_status,
-    field_name: :wiki_sidebar_status
-  )
+  setting_array(:wiki_approval_settings_sidebar_project, :wiki_approval_settings_sidebar_status, field_name: :wiki_sidebar_status)
+  setting_array(:wiki_approval_settings_templates, :wiki_approval_settings_templates, field_name: :wiki_templates)
 
   private
 
@@ -79,26 +76,36 @@ class WikiApprovalSetting < ApplicationRecord
   end
 
   def project_or_global_array(project_key, global_key, data_value)
-    project_enabled = ActiveModel::Type::Boolean.new.cast(
-      RedmineWikiApproval.safe_setting(project_key)
-    )
+    project_setting = RedmineWikiApproval.safe_setting(project_key)
 
-    value =
-      if project_enabled
-        # not nil for sidebar status in projects
-        if data_value.nil? && global_key.to_s == 'wiki_approval_settings_sidebar_status'
-          ['', 'canceled', 'draft', 'pending', 'rejected']
-        else
-          data_value
-        end
-      else
-        RedmineWikiApproval.safe_setting(global_key)
-      end
+    unless project_setting.is_a?(Array)
+      project_enabled = ActiveModel::Type::Boolean.new.cast(project_setting)
 
-    Array(value).map(&:to_s)
+      return RedmineWikiApproval.safe_setting(global_key) unless project_enabled
+    end
+
+    if data_value.is_a?(Array)
+      global = Array(RedmineWikiApproval.safe_setting(global_key))
+      data_value = Array(data_value) & global
+    end
+
+    project_value_or_default(global_key, data_value)
   end
 
   def write_boolean_to_data_hash(key, value)
     data_hash[key] = ActiveModel::Type::Boolean.new.cast(value || '0')
+  end
+
+  def project_value_or_default(global_key, data_value)
+    return Array(data_value).reject(&:blank?) unless data_value.nil?
+
+    case global_key.to_s
+    when 'wiki_approval_settings_templates'
+      RedmineWikiApproval::WikiTemplates::ENABLED_TEMPLATE_TYPES
+    when 'wiki_approval_settings_sidebar_status'
+      ['canceled', 'draft', 'pending', 'rejected']
+    else
+      data_value
+    end
   end
 end

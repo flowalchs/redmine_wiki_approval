@@ -53,3 +53,6 @@ fr:
   label_wiki_approval_settings_sidebar_project: "Activer les paramètres de la barre latérale par projet"
   label_wiki_approval_settings_sidebar_status: "Informations de workflow par défaut dans la barre latérale pour les statuts sélectionnés"
   text_wiki_approval_settings_sidebar_status: "Définit pour quels statuts les informations de workflow (par ex. utilisateurs assignés, statut actuel ou lien de diff) sont affichées dans la barre latérale."
+  label_wiki_approval_template: Modèle
+  label_wiki_approval_settings_templates: Portée des modèles Wiki
+  no_wiki_template_permission: Vous n'avez pas la permission de modifier les pages de modèles Wiki

@@ -37,6 +37,14 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
       %w[canceled draft pending rejected published released].each do |status|
         assert_select "select[name=\"settings[wiki_approval_settings_sidebar_status][]\"] option[value=\"#{status}\"][selected]", 1
       end
+      # templates multiselect
+      assert_select 'input[type=hidden][name="settings[wiki_approval_settings_templates][]"]', 1
+      assert_select 'select[name="settings[wiki_approval_settings_templates][]"][multiple]', 1
+
+      # alle selected
+      %w[global projects roles].each do |status|
+        assert_select "select[name=\"settings[wiki_approval_settings_templates][]\"] option[value=\"#{status}\"][selected]", 1
+      end
 
       # draft_enabled = true
       assert_select 'select[name="settings[wiki_approval_settings_draft_enabled]"]' do
@@ -68,7 +76,8 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
              wiki_approval_settings_version: 'false',
              wiki_approval_settings_content_draft: 'project',
              wiki_approval_settings_sidebar_project: 'false',
-             wiki_approval_settings_sidebar_status: ['', 'draft', 'pending']
+             wiki_approval_settings_sidebar_status: ['', 'draft', 'pending'],
+             wiki_approval_settings_templates: ['', 'projects', 'roles']
            }
          }
 
@@ -85,6 +94,7 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_equal 'project', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft]
     assert_equal 'false', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project]
     assert_equal ['', 'draft', 'pending'], Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_status]
+    assert_equal ['', 'projects', 'roles'], Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates]
 
     assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_comment)
     assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_draft_enabled)
@@ -94,6 +104,7 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_equal 'project', RedmineWikiApproval.safe_setting(:wiki_approval_settings_content_draft)
     assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)
     assert_equal ['', 'draft', 'pending'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_status)
+    assert_equal ['', 'projects', 'roles'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_templates)
   end
 
   def test_project_plugin_settings
@@ -110,5 +121,6 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_content_draft)
     assert_equal '0', RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)
     assert_equal ['canceled', 'draft', 'pending', 'rejected', 'released', 'canceled', 'published'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_status)
+    assert_equal ['global', 'projects', 'roles'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_templates)
   end
 end

@@ -13,3 +13,7 @@ wiki_approval_settings_sidebar_status:
   - rejected
   - released
   - published
+wiki_approval_settings_templates:
+  - global
+  - projects
+  - roles

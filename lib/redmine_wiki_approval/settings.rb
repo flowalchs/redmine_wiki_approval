@@ -88,6 +88,14 @@ module RedmineWikiApproval
         user = User.current.logged? ? User.current : User.anonymous
         return user.allowed_to?(:edit_wiki_pages, project) && setting.wiki_content_draft
       end
+
+      def wiki_templates(project, setting = nil)
+        return [] unless project
+        return [] if setting.nil? && !is_enabled?(project)
+
+        setting ||= WikiApprovalSetting.find_or_create(project.id)
+        Array(setting.wiki_templates).select(&:present?)
+      end
     end
   end
 end

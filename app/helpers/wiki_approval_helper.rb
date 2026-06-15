@@ -220,4 +220,12 @@ module WikiApprovalHelper
       Array(approval_data[:setting]&.wiki_sidebar_status).map(&:to_s)
     )
   end
+
+  def find_templates(project, user, setting)
+    RedmineWikiApproval::WikiTemplates.new(
+      project: project,
+      user: user,
+      setting: setting
+    ).templates
+  end
 end

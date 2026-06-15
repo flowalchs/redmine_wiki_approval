@@ -6,8 +6,8 @@ info:
     Allows starting approvals, granting/rejecting steps, and tracking history.
   version: 1.0.1
   contact:
-      name: FloWalchs
-      url: https://github.com/FloWalchs/redmine_wiki_approval
+      name: flowalchs
+      url: https://github.com/flowalchs/redmine_wiki_approval
   license:
       name: MIT License
       url: https://opensource.org/licenses/MIT

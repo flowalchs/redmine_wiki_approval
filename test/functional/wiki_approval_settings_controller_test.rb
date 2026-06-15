@@ -19,6 +19,7 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = WikiApprovalSettingsHelper::PROJECT
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 1
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] = RedmineWikiApproval::WikiTemplates::ENABLED_TEMPLATE_TYPES
 
     post :update, params: {
       project_id: @project.id,
@@ -28,7 +29,8 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
       wiki_approval_required: 'false',
       wiki_approval_version: 'true',
       wiki_content_draft: 'false',
-      wiki_sidebar_status: ["", "draft", "pending"]
+      wiki_sidebar_status: ["", "draft", "pending"],
+      wiki_templates: ["projects"]
     }
 
     assert_response :redirect
@@ -41,7 +43,8 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     assert_not setting.wiki_approval_required
     assert setting.wiki_approval_version
     assert_not setting.wiki_content_draft
-    assert_equal ["", "draft", "pending"], setting.wiki_sidebar_status
+    assert_equal ["draft", "pending"], setting.wiki_sidebar_status
+    assert_equal ["projects"], setting.wiki_templates
   end
 
   test "save find or create" do
@@ -55,6 +58,7 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = WikiApprovalSettingsHelper::PROJECT
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 0
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] = RedmineWikiApproval::WikiTemplates::ENABLED_TEMPLATE_TYPES
 
     post :update, params: {
       project_id: @project2.id,
@@ -79,6 +83,7 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     assert setting.wiki_content_draft
     # default value
     assert_equal ["canceled", "draft", "pending", "rejected", "released", "published"], setting.wiki_sidebar_status
+    assert_equal [], setting.wiki_templates
   end
 
   test "data_hash should rescue JSON::ParserError and return empty hash" do
@@ -149,7 +154,8 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
       wiki_approval_enabled: "0",
       wiki_approval_required: "0",
       wiki_approval_version: "0",
-      wiki_sidebar_status: [""]
+      wiki_sidebar_status: [""],
+      wiki_templates: [""]
     }
 
     assert_response :redirect
@@ -162,7 +168,8 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     assert_not setting.wiki_approval_required
     assert_not setting.wiki_approval_version
     assert_not setting.wiki_content_draft
-    assert_equal [""], setting.wiki_sidebar_status
+    assert_equal [], setting.wiki_sidebar_status
+    assert_equal [], setting.wiki_templates
 
     assert_not RedmineWikiApproval::Settings.draft_create?(@project)
     assert_not RedmineWikiApproval::Settings.approval_start?(@project)
@@ -173,5 +180,6 @@ class WikiApprovalSettingsControllerTest < WikiApproval::Test::ControllerCase
     assert_not RedmineWikiApproval::Settings.wiki_comment_required?(@project)
     assert_not RedmineWikiApproval::Settings.view_draft?(@project)
     assert_not RedmineWikiApproval::Settings.content_draft?(@project)
+    assert_not RedmineWikiApproval::Settings.wiki_templates(@project).any?
   end
 end

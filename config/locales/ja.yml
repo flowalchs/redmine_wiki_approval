@@ -52,3 +52,6 @@ ja:
   label_wiki_approval_settings_sidebar_project: "プロジェクトごとのサイドバー設定を有効化"
   label_wiki_approval_settings_sidebar_status: "選択したステータスに対するサイドバーのデフォルトワークフロー情報"
   text_wiki_approval_settings_sidebar_status: "どのステータスでワークフロー情報（担当者、現在のステータス、差分リンクなど）をサイドバーに表示するかを定義します。"
+  label_wiki_approval_template: テンプレート
+  label_wiki_approval_settings_templates: Wikiテンプレートの範囲
+  no_wiki_template_permission: Wikiテンプレートページを編集する権限がありません

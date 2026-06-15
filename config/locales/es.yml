@@ -52,3 +52,6 @@ es:
   label_wiki_approval_settings_sidebar_project: "Activar configuración de la barra lateral por proyecto"
   label_wiki_approval_settings_sidebar_status: "Información de flujo de trabajo predeterminada en la barra lateral para estados seleccionados"
   text_wiki_approval_settings_sidebar_status: "Define para qué estados se muestra información del flujo de trabajo (por ejemplo, personas asignadas, estado actual o enlace de diferencias) en la barra lateral."
+  label_wiki_approval_template: Plantilla
+  label_wiki_approval_settings_templates: Ámbito de plantillas Wiki
+  no_wiki_template_permission: No tiene permiso para editar páginas de plantillas Wiki

@@ -5,7 +5,6 @@ class WikiApprovalWorkflow < ApplicationRecord
   attr_accessor :_status_changed_in_txn
 
   belongs_to :wiki_page, foreign_key: :page_id
-  belongs_to :wiki_version, class_name: 'WikiContent::Version'
   belongs_to :author, class_name: 'User'
 
   has_many :approval_steps, class_name: 'WikiApprovalWorkflowStep', dependent: :destroy, inverse_of: :approval
@@ -176,6 +175,10 @@ class WikiApprovalWorkflow < ApplicationRecord
           updated_at: Time.current
         )
     end
+  end
+
+  def wiki_version
+    wiki_page&.content_for_version(version)
   end
 
   private

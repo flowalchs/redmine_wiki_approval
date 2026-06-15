@@ -10,7 +10,7 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        append_before_action :set_wiki_approval_data, only: [:show, :preview]
+        append_before_action :set_wiki_approval_data, only: [:show, :preview, :new]
         append_before_action :handle_edit_flow, only: [:edit]
         append_before_action :handle_update_flow, only: [:update]
 
@@ -125,6 +125,59 @@ module RedmineWikiApproval
         def handle_edit_flow
           set_wiki_approval_data
           mark_edit_context
+        end
+
+        # only patch when post and parameter rwa_template_id
+        def new
+          begin
+            if request.post? && params[:rwa_template_id].present?
+              @page = WikiPage.new(:wiki => @wiki, :title => params[:title])
+              unless User.current.allowed_to?(:edit_wiki_pages, @project)
+                render_403
+                return
+              end
+              @page.title = '' unless editable?
+              @page.validate
+              if @page.errors[:title].blank?
+                # path with additional parameter
+                path = project_wiki_page_path(@project, @page.title, :parent => params[:parent], :rwa_template_id => params[:rwa_template_id])
+
+                respond_to do |format|
+                  format.html { redirect_to path }
+                  format.js   { render :js => "window.location = #{path.to_json}" }
+                end
+                return
+              end
+            end
+          rescue => e
+            Rails.logger.error("new fallback plugin rwa triggered: #{e.class} - #{e.message}")
+          end
+          # fallback or no template_id
+          super
+        end
+
+        # only patch when parameter rwa_template_id available and wiki_templates enabled
+        def initial_page_content(page)
+          begin
+            if params[:rwa_template_id].present? && @wiki_approval_data &&
+              (workflow = WikiApprovalWorkflow.find_by(id: params[:rwa_template_id])&.latest_public_version)
+
+              if RedmineWikiApproval::WikiTemplates.new(
+                project: @project,
+                user: User.current,
+                setting: @wiki_approval_data[:setting]
+              ).accessible_template?(page: workflow.wiki_page)
+
+                text = workflow.wiki_version&.text
+                return text if text.present?
+              end
+            end
+          rescue => e
+            Rails.logger.error("initial_page_content plugin rwa fallback triggered: #{e.class} - #{e.message}")
+          end
+
+          # fallback or no text found
+          super
         end
       end
     end

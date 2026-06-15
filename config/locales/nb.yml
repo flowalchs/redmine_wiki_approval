@@ -52,3 +52,6 @@ nb:
   label_wiki_approval_settings_sidebar_project: "Aktiver sidefeltinnstillinger per prosjekt"
   label_wiki_approval_settings_sidebar_status: "Standard arbeidsflytinformasjon i sidefeltet for valgte statuser"
   text_wiki_approval_settings_sidebar_status: "Definerer for hvilke statuser arbeidsflytinformasjon (f.eks. tildelte brukere, gjeldende status eller diff-lenke) vises i sidefeltet."
+  label_wiki_approval_template: Mal
+  label_wiki_approval_settings_templates: Wiki-mal omfang
+  no_wiki_template_permission: Du har ikke tillatelse til å redigere Wiki-malsider

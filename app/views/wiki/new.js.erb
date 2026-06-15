@@ -1,0 +1,3 @@
+<% @wiki_templates = find_templates(@project, User.current, @wiki_approval_data[:setting]) if @wiki_approval_data %>
+$('#ajax-modal').html('<%= j(render partial: (@wiki_templates ? "wiki/new_modal_template" : "wiki/new_modal")) %>');
+showModal('ajax-modal', '600px');
