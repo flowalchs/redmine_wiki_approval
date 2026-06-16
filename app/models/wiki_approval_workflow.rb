@@ -187,9 +187,11 @@ class WikiApprovalWorkflow < ApplicationRecord
     # value set when
     # - status published or released
     # - revision is  nil
-    # - record existiert bereits oder wird neu created
+    unless published? || released?
+      self.revision = nil
+      return
+    end
 
-    return unless published? || released?
     return unless self.revision.nil?
 
     self.revision = next_revision
