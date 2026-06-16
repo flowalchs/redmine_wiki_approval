@@ -19,25 +19,37 @@ class ProjectSettingsViewTest < WikiApproval::Test::ControllerCase
     assert_select 'div.tabs ul li a#tab-wiki_approval.selected', 1
 
     assert_select 'div#tab-content-wiki_approval div#wiki_approval_settings' do
-      # approval_required_box checked
-      assert_select 'input#approval_required_box[type=checkbox][name=wiki_approval_required][value="1"]', 1
-      assert_select 'input#approval_required_box[type=checkbox][checked=checked]', 1
-      # Hidden-Fallback
-      assert_select 'input#wiki_approval_required[type=hidden][name=wiki_approval_required][value="0"]', 1
+      # wiki_approval_required
+      assert_select 'input[type=checkbox][name=wiki_approval_required][value="1"][checked=checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_required][value="0"]', 1
 
-      # approval_enabled_box checked
-      assert_select 'input#approval_enabled_box[type=checkbox][name=wiki_approval_enabled][value="1"]', 1
-      assert_select 'input#approval_enabled_box[type=checkbox][checked=checked]', 1
-      # Hidden-Fallback
-      assert_select 'input#wiki_approval_enabled[type=hidden][name=wiki_approval_enabled][value="0"]', 1
+      # wiki_approval_enabled
+      assert_select 'input[type=checkbox][name=wiki_approval_enabled][value="1"][checked=checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_enabled][value="0"]', 1
 
-      # hidden wiki_draft_enabled
-      assert_select 'input#wiki_draft_enabled[type=checkbox][name=wiki_draft_enabled]', 0
-      # hidden approval_enabled
-      assert_select 'input#wiki_comment_required[type=checkbox][name=wiki_comment_required]', 0
-      # hidden wiki_content_draft
-      assert_select 'input#wiki_content_draft[type=checkbox][name=wiki_content_draft]', 0
+      # --- Sidebar Status (multiselect) ---
+      assert_select 'select[name="wiki_sidebar_status[]"][multiple]', 0
+
+      # wiki_draft_enabled soll NICHT als checkbox existieren
+      assert_select 'input[type=checkbox][name=wiki_draft_enabled]', 0
+
+      # wiki_comment_required soll NICHT als checkbox existieren
+      assert_select 'input[type=checkbox][name=wiki_comment_required]', 0
+
+      # wiki_content_draft soll NICHT als checkbox existieren
+      assert_select 'input[type=checkbox][name=wiki_content_draft]', 0
     end
+
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+
+    # alle 3 optionen vorhanden und selected
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 1
+
+    # hidden field für leeren submit
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
   end
 
   test "view project settings hidden approval hidden approval enabled" do
@@ -48,29 +60,299 @@ class ProjectSettingsViewTest < WikiApproval::Test::ControllerCase
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'false'
     Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] = [RedmineWikiApproval::WikiTemplates::PROJECTS]
+
+    get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
+    assert_response :success
+    assert_select 'div#tab-content-wiki_approval div#wiki_approval_settings' do
+      # approval Felder (sollten nicht existieren)
+      assert_select 'input[type=checkbox][name=wiki_approval_required][value="1"]', 0
+      assert_select 'input[type=checkbox][name=wiki_approval_enabled][value="1"]', 0
+
+      # wiki_draft_enabled
+      assert_select 'input[type=checkbox][name=wiki_draft_enabled][value="1"][checked=checked]', 1
+      assert_select 'input[type=hidden][name=wiki_draft_enabled][value="0"]', 1
+
+      # --- Sidebar Status (multiselect) ---
+      assert_select 'select[name="wiki_sidebar_status[]"][multiple]', 0
+
+      # wiki_comment_required
+      assert_select 'input[type=checkbox][name=wiki_comment_required][value="1"][checked=checked]', 1
+      assert_select 'input[type=hidden][name=wiki_comment_required][value="0"]', 1
+
+      # wiki_content_draft
+      assert_select 'input[type=checkbox][name=wiki_content_draft][value="1"][checked=checked]', 1
+      assert_select 'input[type=hidden][name=wiki_content_draft][value="0"]', 1
+    end
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+
+    # alle 3 optionen vorhanden und selected
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 0
+
+    # hidden field für leeren submit
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
+  end
+
+  test "view project all settings" do
+    # Plugin-Settings to 'project'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 1
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] =
+      [RedmineWikiApproval::WikiTemplates::PROJECTS, RedmineWikiApproval::WikiTemplates::ROLES, RedmineWikiApproval::WikiTemplates::GLOBAL]
+    get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
+    assert_response :success
+    assert_select 'div#tab-content-wiki_approval div#wiki_approval_settings' do
+      # --- Settings ---
+
+      # wiki_comment_required
+      assert_select 'input[type=checkbox][name=wiki_comment_required][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_comment_required][value="0"]', 1
+
+      # wiki_content_draft
+      assert_select 'input[type=checkbox][name=wiki_content_draft][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_content_draft][value="0"]', 1
+
+      # --- Sidebar Status (multiselect) ---
+      assert_select 'select[name="wiki_sidebar_status[]"][multiple]', 1
+
+      # ausgewählte Optionen prüfen
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="canceled"]', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="draft"]', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="published"]', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="pending"]', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="rejected"]', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[selected][value="released"]', 1
+
+      # wiki_draft_enabled
+      assert_select 'input[type=checkbox][name=wiki_draft_enabled][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_draft_enabled][value="0"]', 1
+
+      # wiki_approval_enabled
+      assert_select 'input[type=checkbox][name=wiki_approval_enabled][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_enabled][value="0"]', 1
+
+      # wiki_approval_required
+      assert_select 'input[type=checkbox][name=wiki_approval_required][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_required][value="0"]', 1
+
+      # wiki_approval_version
+      assert_select 'input[type=checkbox][name=wiki_approval_version][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_version][value="0"]', 1
+    end
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+
+    # alle 3 optionen vorhanden und selected
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 1
+
+    # hidden field für leeren submit
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
+
+    assert RedmineWikiApproval::Settings.draft_create?(@project)
+    assert RedmineWikiApproval::Settings.approval_start?(@project)
+    assert RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(@project)
+    assert RedmineWikiApproval::Settings.approval_enabled?(@project)
+    assert RedmineWikiApproval::Settings.approval_publish?(@project)
+    assert RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project)
+    assert RedmineWikiApproval::Settings.wiki_comment_required?(@project)
+    assert RedmineWikiApproval::Settings.view_draft?(@project)
+    assert RedmineWikiApproval::Settings.content_draft?(@project)
+    assert RedmineWikiApproval::Settings.wiki_templates(@project)
+  end
+
+  test "get project all settings diffent values " do
+    # Plugin-Settings to 'project'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = WikiApprovalSettingsHelper::PROJECT
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project] = 1
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] =
+      [RedmineWikiApproval::WikiTemplates::PROJECTS, RedmineWikiApproval::WikiTemplates::ROLES, RedmineWikiApproval::WikiTemplates::GLOBAL]
+
+    # all false
+    setting = WikiApprovalSetting.find_by(project_id: @project.id)
+    setting.wiki_comment_required = false
+    setting.wiki_draft_enabled = false
+    setting.wiki_approval_enabled = false
+    setting.wiki_approval_required = false
+    setting.wiki_approval_version = false
+    setting.wiki_content_draft = false
+    setting.wiki_sidebar_status = ['']
+    setting.wiki_templates = ['']
+    setting.save!
 
     get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
     assert_response :success
 
     assert_select 'div#tab-content-wiki_approval div#wiki_approval_settings' do
-      # hidden approval_required
-      assert_select 'input#approval_required_box[type=checkbox][name=wiki_approval_required][value="1"]', 0
-      # hidden approval_enabled
-      assert_select 'input#approval_enabled_box[type=checkbox][name=wiki_approval_enabled][value="1"]', 0
+      # --- Settings ---
 
-      # wiki_draft_enabled checked
-      assert_select 'input#wiki_draft_enabled[type=checkbox][checked=checked]', 1
-      # Hidden-Fallback
-      assert_select 'input#wiki_draft_enabled[type=hidden][name=wiki_draft_enabled][value="0"]', 1
-
-      # wiki_comment_required checked
-      assert_select 'input#wiki_comment_required[type=checkbox][checked=checked]', 1
-      # Hidden-Fallback
-      assert_select 'input#wiki_comment_required[type=hidden][name=wiki_comment_required][value="0"]', 1
+      # wiki_comment_required
+      assert_select 'input[type=checkbox][name=wiki_comment_required][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_comment_required][value="0"]', 1
 
       # wiki_content_draft
-      assert_select 'input#wiki_content_draft[type=checkbox][checked=checked]', 1
-      assert_select 'input#wiki_content_draft[type=hidden][name=wiki_content_draft][value="0"]', 1
+      assert_select 'input[type=checkbox][name=wiki_content_draft][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_content_draft][value="0"]', 1
+
+      # --- Sidebar Status (multiselect) ---
+      assert_select 'select[name="wiki_sidebar_status[]"][multiple]', 1
+
+      # nicht ausgewählt
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="canceled"]:not([selected])', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="draft"]:not([selected])', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="published"]:not([selected])', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="pending"]:not([selected])', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="rejected"]:not([selected])', 1
+      assert_select 'select[name="wiki_sidebar_status[]"] option[value="released"]:not([selected])', 1
+
+      # wiki_draft_enabled
+      assert_select 'input[type=checkbox][name=wiki_draft_enabled][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_draft_enabled][value="0"]', 1
+
+      # wiki_approval_enabled
+      assert_select 'input[type=checkbox][name=wiki_approval_enabled][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_approval_enabled][value="0"]', 1
+
+      # wiki_approval_required
+      assert_select 'input[type=checkbox][name=wiki_approval_required][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_approval_required][value="0"]', 1
+
+      # wiki_approval_version
+      assert_select 'input[type=checkbox][name=wiki_approval_version][checked]', 0
+      assert_select 'input[type=hidden][name=wiki_approval_version][value="0"]', 1
     end
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 0
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
+
+    assert_not RedmineWikiApproval::Settings.draft_create?(@project)
+    assert_not RedmineWikiApproval::Settings.approval_start?(@project)
+    assert_not RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(@project)
+    assert_not RedmineWikiApproval::Settings.approval_enabled?(@project)
+    assert_not RedmineWikiApproval::Settings.approval_publish?(@project)
+    assert_not RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project)
+    assert_not RedmineWikiApproval::Settings.wiki_comment_required?(@project)
+    assert_not RedmineWikiApproval::Settings.view_draft?(@project)
+    assert_not RedmineWikiApproval::Settings.content_draft?(@project)
+    assert_empty RedmineWikiApproval::Settings.wiki_templates(@project)
+  end
+
+  test "create project with wiki + wiki_approval and open settings tab default values" do
+    project = Project.generate!(identifier: 'wiki-approval-test')
+
+    put :update, params: {
+      id: project.identifier,
+      project: {
+        name: project.name,
+        identifier: project.identifier,
+        enabled_module_names: ['wiki', 'wiki_approval']
+      }
+    }
+
+    assert_response :redirect
+    project.reload
+    assert project.module_enabled?('wiki')
+    assert project.module_enabled?('wiki_approval')
+
+    get :settings, params: { id: project.identifier, tab: 'wiki_approval' }
+
+    assert_response :success
+    assert_select 'div#tab-content-wiki_approval div#wiki_approval_settings' do
+      # =========================
+      # Approval Workflow
+      # =========================
+
+      # wiki_approval_enabled (checked)
+      assert_select 'input[type=checkbox][name=wiki_approval_enabled][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_enabled][value="0"]', 1
+
+      # wiki_approval_required (checked)
+      assert_select 'input[type=checkbox][name=wiki_approval_required][checked]', 1
+      assert_select 'input[type=hidden][name=wiki_approval_required][value="0"]', 1
+
+      # =========================
+      # NICHT VORHANDENE FELDER
+      # =========================
+
+      assert_select 'input[type=checkbox][name=wiki_comment_required]', 0
+      assert_select 'input[type=checkbox][name=wiki_content_draft]', 0
+      assert_select 'input[type=checkbox][name=wiki_draft_enabled]', 0
+      assert_select 'input[type=checkbox][name=wiki_approval_version]', 0
+
+      # optional auch hidden prüfen
+      assert_select 'input[type=hidden][name=wiki_comment_required]', 0
+      assert_select 'input[type=hidden][name=wiki_content_draft]', 0
+      assert_select 'input[type=hidden][name=wiki_draft_enabled]', 0
+      assert_select 'input[type=hidden][name=wiki_approval_version]', 0
+    end
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 1
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
+
+    assert RedmineWikiApproval::Settings.draft_create?(@project)
+    assert RedmineWikiApproval::Settings.approval_start?(@project)
+    assert RedmineWikiApproval::Settings.is_allowed_to_show_last_version?(@project)
+    assert RedmineWikiApproval::Settings.approval_enabled?(@project)
+    assert RedmineWikiApproval::Settings.approval_publish?(@project)
+    assert RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project)
+    assert_not RedmineWikiApproval::Settings.wiki_comment_required?(@project)
+    assert RedmineWikiApproval::Settings.view_draft?(@project)
+    assert RedmineWikiApproval::Settings.content_draft?(@project)
+    assert RedmineWikiApproval::Settings.wiki_templates(@project)
+  end
+
+  test "view project settings hidden tempaltes disabled" do
+    # Plugin-Settings to 'project'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] = []
+
+    get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
+    assert_response :success
+
+    # wiki_templates multiselect not found
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="global"][selected=selected]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"][selected=selected]', 0
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 0
+  end
+
+  test "get project selected options only roles templates " do
+    # Plugin-Settings to 'project'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates] =
+      [RedmineWikiApproval::WikiTemplates::PROJECTS, RedmineWikiApproval::WikiTemplates::ROLES, RedmineWikiApproval::WikiTemplates::GLOBAL]
+
+    # template roles
+    setting = WikiApprovalSetting.find_by(project_id: @project.id)
+    setting.wiki_templates = [RedmineWikiApproval::WikiTemplates::ROLES]
+    setting.save!
+
+    get :settings, params: { id: @project.identifier, tab: 'wiki_approval' }
+    assert_response :success
+
+    # wiki_templates multiselect vorhanden
+    assert_select 'select#wiki_approval_settings_templates[multiple][name="wiki_templates[]"]', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="global"]:not([selected])', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="projects"]:not([selected])', 1
+    assert_select 'select#wiki_approval_settings_templates option[value="roles"][selected=selected]', 1
+    assert_select 'input[type=hidden][name="wiki_templates[]"][value=""]', 1
   end
 end

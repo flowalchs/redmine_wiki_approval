@@ -1,4 +1,4 @@
-<% if @wiki_approval_data && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting]) %> 
+<% if @wiki_approval_data && @page.new_record? == false && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting]) %> 
     <%= submit_tag l(:button_wiki_approval_content_draft), :name => 'draft' %>
 
     <% if WikiApprovalDraft.exists?( page_id: @page.id ) %>

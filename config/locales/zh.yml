@@ -49,4 +49,10 @@ zh:
   button_wiki_approval_content_draft: "保存草稿" 
   button_wiki_approval_content_draft_prev: "加载上一版本"
   label_wiki_approval_steps: 步骤
+  label_wiki_approval_settings_sidebar_project: "启用按项目设置侧边栏配置"
+  label_wiki_approval_settings_sidebar_status: "侧边栏中选定状态的默认工作流信息"
+  text_wiki_approval_settings_sidebar_status: "定义在哪些状态下在侧边栏中显示工作流信息（例如相关人员、当前状态或差异链接）。"
+  label_wiki_approval_template: 模板
+  label_wiki_approval_settings_templates: Wiki模板范围
+  no_wiki_template_permission: 您没有权限编辑Wiki模板页面
   

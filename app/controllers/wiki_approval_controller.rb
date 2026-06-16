@@ -19,6 +19,8 @@ class WikiApprovalController < ApplicationController
   helper :queries
   helper :sort
   helper :routes
+  helper :wiki_approval_icon
+  helper :wiki_approval
 
   def status
     return render_403 if request.format.html? && @content.version != @page.content.version

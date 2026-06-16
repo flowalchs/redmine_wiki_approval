@@ -79,7 +79,7 @@ jobs:
       - name: Checkout redmine_wiki_approval
         uses: actions/checkout@v5
         with:
-          repository: FloWalchs/redmine_wiki_approval
+          repository: flowalchs/redmine_wiki_approval
           path: redmine/plugins/redmine_wiki_approval
 
       - name: Update package archives

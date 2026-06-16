@@ -50,4 +50,9 @@ it:
   button_wiki_approval_content_draft: "Salva bozza" 
   button_wiki_approval_content_draft_prev: "Carica versione precedente"
   label_wiki_approval_steps: Passaggi
-  
+  label_wiki_approval_settings_sidebar_project: "Abilitare le impostazioni della barra laterale per progetto"
+  label_wiki_approval_settings_sidebar_status: "Informazioni di workflow predefinite nella barra laterale per stati selezionati"
+  text_wiki_approval_settings_sidebar_status: "Definisce per quali stati vengono mostrate le informazioni di workflow (ad es. utenti assegnati, stato corrente o link al diff) nella barra laterale."
+  label_wiki_approval_template: Modello
+  label_wiki_approval_settings_templates: Ambito dei modelli Wiki
+  no_wiki_template_permission: Non hai il permesso di modificare le pagine dei modelli Wiki

@@ -211,4 +211,21 @@ module WikiApprovalHelper
       )
     )
   end
+
+  def wiki_approval_sidebar_status_visible?(approval_data)
+    return false if @wiki_approval_data.nil?
+    return false if @wiki_approval_data[:approval].nil?
+
+    approval_data&.dig(:approval)&.status.to_s.in?(
+      Array(approval_data[:setting]&.wiki_sidebar_status).map(&:to_s)
+    )
+  end
+
+  def find_templates(project, user, setting)
+    RedmineWikiApproval::WikiTemplates.new(
+      project: project,
+      user: user,
+      setting: setting
+    ).templates
+  end
 end

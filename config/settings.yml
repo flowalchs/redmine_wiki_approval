@@ -5,3 +5,15 @@ wiki_approval_settings_enabled: 'project'
 wiki_approval_settings_required: 'project'
 wiki_approval_settings_version: 'true'
 wiki_approval_settings_content_draft: 'true'
+wiki_approval_settings_sidebar_project: 0
+wiki_approval_settings_sidebar_status:
+  - canceled
+  - draft
+  - pending
+  - rejected
+  - released
+  - published
+wiki_approval_settings_templates:
+  - global
+  - projects
+  - roles

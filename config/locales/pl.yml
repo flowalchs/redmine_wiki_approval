@@ -50,4 +50,9 @@ pl:
   button_wiki_approval_content_draft: "Zapisz szkic" 
   button_wiki_approval_content_draft_prev: "Wczytaj poprzednią wersję"
   label_wiki_approval_steps: Kroki
-  
+  label_wiki_approval_settings_sidebar_project: "Włącz ustawienia paska bocznego dla projektu"
+  label_wiki_approval_settings_sidebar_status: "Domyślne informacje o workflow w pasku bocznym dla wybranych statusów"
+  text_wiki_approval_settings_sidebar_status: "Określa, dla których statusów wyświetlane są informacje o workflow (np. przypisani użytkownicy, aktualny status lub link do różnic) w pasku bocznym."
+  label_wiki_approval_template: Szablon
+  label_wiki_approval_settings_templates: Zakres szablonów Wiki
+  no_wiki_template_permission: Nie masz uprawnień do edycji stron szablonów Wiki

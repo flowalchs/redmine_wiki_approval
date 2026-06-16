@@ -345,4 +345,43 @@ class WikiHistoryTest < WikiApproval::Test::ControllerCase
             "No approval expected in old version row #{i + 3}"
     end
   end
+
+  test 'wiki history approval with workflow page 1 first published then same content pending' do
+    @page = WikiPage.find(1)
+    @page.content.text = "content text"
+    @page.content.author = @admin
+    @page.content.save!
+    approval = WikiApprovalWorkflow.create!(
+      page_id: @page.id,
+      version: @page.content.version,
+      status: :published,
+      author_id: @admin.id
+    )
+
+    approval.status = :pending
+    approval.save!
+
+    step = approval.approval_steps.for_principal(@dlopper).find_or_initialize_by(step: 1)
+    step.step_status = :pending
+    step.note = "test pending"
+    step.save!
+
+    get :history, params: { project_id: @project.id, id: @page.title, page: 1, per_page: 25 }
+
+    assert_response :success
+    rows = css_select('tbody tr.wiki-page-version')
+
+    first_row = rows.first
+
+    assert_select first_row, 'td', text: 'In approval'
+
+    revision_cell = first_row.css('td')[8] # 0-indexed, Revision ist die 9. Spalte
+    assert_equal '', revision_cell.text.strip,
+      'Revision should be empty when workflow was restarted from published to pending'
+
+    assert_select first_row, 'td .approval ul li .rwa-user a', text: 'Redmine Admin'
+
+    assert_select first_row, 'td .approval .rwa-status', text: /In approval/
+    assert_select first_row, 'td .approval .rwa-note', text: 'test pending'
+  end
 end

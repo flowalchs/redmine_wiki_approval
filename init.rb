@@ -5,9 +5,9 @@ loader = RedminePluginKit::Loader.new plugin_id: 'redmine_wiki_approval'
 Redmine::Plugin.register :redmine_wiki_approval do
   name 'Redmine Wiki Approval Workflow plugin'
   author 'Florian Walchshofer'
-  author_url 'https://github.com/FloWalchs/'
+  author_url 'https://github.com/flowalchs/'
   description 'A Redmine plugin that adds an approval workflow to the wiki, including drafts to ensure content quality before publication.'
-  url 'https://github.com/FloWalchs/redmine_wiki_approval/'
+  url 'https://github.com/flowalchs/redmine_wiki_approval/'
   version RedmineWikiApproval::VERSION
   requires_redmine :version_or_higher => '4.0.0'
 
@@ -22,6 +22,7 @@ Redmine::Plugin.register :redmine_wiki_approval do
     permission :wiki_approval_forward, { :wiki_approval => [:forward] }, require: :member
     permission :wiki_draft_view, { :wiki_approval => [:status, :history, :index] }, require: :member
     permission :wiki_approval_publish, { :wiki_approval => [:publish] }, require: :member
+    permission :wiki_template_edit, {}, require: :member
   end
 
   menu :admin_menu,
@@ -35,8 +36,6 @@ Redmine::Plugin.register :redmine_wiki_approval do
 end
 
 RedminePluginKit::Loader.persisting do
-  Redmine::Notifiable.singleton_class.prepend RedmineWikiApproval::Patches::NotifiablePatch
-
   # Hooks
   loader.load_model_hooks!
 end

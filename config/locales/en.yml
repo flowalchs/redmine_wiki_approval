@@ -6,6 +6,7 @@ en:
   permission_wiki_approval_forward: Forward approval
   permission_wiki_draft_view: View draft
   permission_wiki_approval_publish: Publish wiki draft
+  permission_wiki_template_edit: Edit wiki templates
   label_wiki_approval_settings_projects: 'Configurable per project'
   label_wiki_approval_settings_comment: Wiki comment required
   label_wiki_approval_settings_content_draft: Wiki Content Drafts enabled
@@ -50,3 +51,9 @@ en:
   button_wiki_approval_content_draft: Save draft
   button_wiki_approval_content_draft_prev: Load previous version
   label_wiki_approval_steps: Steps
+  label_wiki_approval_settings_sidebar_project: "Enable per-project sidebar settings"
+  label_wiki_approval_settings_sidebar_status: "Default workflow information in the sidebar for selected statuses"
+  text_wiki_approval_settings_sidebar_status: "Defines for which statuses workflow information (e.g., assigned users, current status, or diff link) is displayed in the sidebar."
+  label_wiki_approval_template: Template
+  label_wiki_approval_settings_templates: Wiki Template Scope
+  no_wiki_template_permission: You do not have permission to edit wiki template pages

@@ -50,4 +50,9 @@ pt:
   button_wiki_approval_content_draft: "Guardar rascunho" 
   button_wiki_approval_content_draft_prev: "Carregar versão anterior"
   label_wiki_approval_steps: Etapas
-  
+  label_wiki_approval_settings_sidebar_project: "Ativar definições da barra lateral por projeto"
+  label_wiki_approval_settings_sidebar_status: "Informações de fluxo de trabalho padrão na barra lateral para estados selecionados"
+  text_wiki_approval_settings_sidebar_status: "Define para quais estados as informações de fluxo de trabalho (por exemplo, utilizadores atribuídos, estado atual ou ligação de diff) são apresentadas na barra lateral."
+  label_wiki_approval_template: Modelo
+  label_wiki_approval_settings_templates: Âmbito dos modelos Wiki
+  no_wiki_template_permission: Não tem permissão para editar páginas de modelos Wiki

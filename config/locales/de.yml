@@ -50,3 +50,9 @@ de:
   button_wiki_approval_content_draft: Zwischenspeichern
   button_wiki_approval_content_draft_prev: Letzte Version laden
   label_wiki_approval_steps: Schritte
+  label_wiki_approval_settings_sidebar_project: "Projektspezifische Sidebar-Einstellungen aktivieren"
+  label_wiki_approval_settings_sidebar_status: "Standard-Workflow-Informationen in der Sidebar für ausgewählte Status"
+  text_wiki_approval_settings_sidebar_status: "Definiert, für welche Status Workflow-Informationen (z. B. beteiligte Personen, aktueller Status oder Diff-Link) in der Sidebar angezeigt werden."
+  label_wiki_approval_template: Vorlage
+  label_wiki_approval_settings_templates: Wiki-Vorlagen Geltungsbereich
+  no_wiki_template_permission: Sie haben keine Berechtigung, Wiki-Vorlagenseiten zu bearbeiten

@@ -1,7 +1,7 @@
 <% 
   return if @wiki_approval_data.nil?
 
-  if @wiki_approval_data[:approval] && !@wiki_approval_data[:approval]&.published? && RedmineWikiApproval::Settings.approval_enabled?(@project, @wiki_approval_data[:setting])
+  if wiki_approval_sidebar_status_visible?(@wiki_approval_data)
 -%>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
     <div class="approval">
@@ -16,9 +16,7 @@
         </li>
       </ul>
     </div>
-    <% if @wiki_approval_data[:approval].status.in?(%w[pending rejected released canceled]) %>
-      <%= wiki_approval_users(@wiki_approval_data[:approval], starter: true, note: true, userimage: true, status: true, mouseover: true, userlink: true) %>
-    <% end %>
+    <%= wiki_approval_users(@wiki_approval_data[:approval], starter: true, note: true, userimage: true, status: true, mouseover: true, userlink: true) %>
   <% end %>
 
   <% if @wiki_approval_data[:latest_public_version] && @wiki_approval_data[:latest_public_version] == @wiki_approval_data[:view_version_id] %>

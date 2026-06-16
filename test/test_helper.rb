@@ -58,6 +58,7 @@ module WikiApproval
           role.add_permission! :wiki_approval_forward
           role.add_permission! :wiki_draft_view
           role.add_permission! :wiki_approval_publish
+          role.add_permission! :wiki_template_edit
         end
         @project = Project.find 1
         @project2 = Project.find 2
@@ -65,12 +66,6 @@ module WikiApproval
         [@project, @project3].each do |project|
           project.enable_module! :wiki_approval
         end
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'false'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft] = 'true'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_enabled] = 'project'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'project'
-        Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'true'
         @group = Group.first
       end
 
@@ -85,6 +80,112 @@ module WikiApproval
         Setting.clear_cache
         Rails.cache.clear
         I18n.locale = :en
+      end
+
+      def with_wiki_approval_settings(updates)
+        current = Setting.plugin_redmine_wiki_approval.symbolize_keys
+
+        Setting.plugin_redmine_wiki_approval = current.merge(updates)
+        Setting.clear_cache
+
+        RedmineWikiApproval.instance_variable_set(:@settings, nil)
+        RedmineWikiApproval.instance_variable_set(:@default_settings_redmine_wiki_approval, nil)
+
+        yield
+      ensure
+        Setting.plugin_redmine_wiki_approval = current
+        Setting.clear_cache
+      end
+
+      def with_project_wiki_settings(project, updates)
+        setting = WikiApprovalSetting.find_or_initialize_by(project_id: project.id)
+
+        # aktuellen Zustand sichern
+        original = setting.attributes.slice(
+          'wiki_comment_required',
+          'wiki_draft_enabled',
+          'wiki_approval_enabled',
+          'wiki_approval_required',
+          'wiki_approval_version',
+          'wiki_content_draft',
+          'wiki_sidebar_status',
+          'wiki_templates'
+        )
+
+        # Updates anwenden
+        updates.each do |key, value|
+          setting.public_send("#{key}=", value)
+        end
+
+        setting.save!
+
+        yield
+      ensure
+        # Restore
+        original.each do |key, value|
+          setting.public_send("#{key}=", value)
+        end
+        setting.save!
+      end
+
+      def ajax_html(body)
+        html = body[/\.html\((["'])(.*)\1\);/m, 2]
+
+        return nil unless html
+
+        html
+          .gsub('\"', '"')   # JS Quotes
+          .gsub('\/', '/')   # escaped slashes
+      end
+
+      def create_wiki_tree(project)
+        wiki = project.wiki
+        template = create_page(wiki, "templates")
+
+        # Root pages (Redmine hat kein echtes Root, das simulieren wir)
+        global    = create_page(wiki, "Global", parent: template)
+        project_n = create_page(wiki, "Project", parent: template)
+        roles_n   = create_page(wiki, "Roles", parent: template)
+
+        # --- GLOBAL ---
+        create_page(wiki, "GlobTemplate 1", parent: global)
+        create_page(wiki, "GlobTemplate 2", parent: global)
+
+        # --- PROJECT ---
+        subproject = create_page(wiki, project.identifier, parent: project_n)
+
+        create_page(wiki, "Project 1", parent: subproject)
+        create_page(wiki, "Projekt 2", parent: subproject)
+
+        role_node = create_page(wiki, "Role-1", parent: subproject)
+        manager   = create_page(wiki, "Manager proj", parent: role_node)
+
+        create_page(wiki, "ManagerProject 1", parent: manager)
+        create_page(wiki, "ManagerProject 2", parent: manager)
+
+        # --- ROLES ---
+        manager2 = create_page(wiki, "Manager", parent: roles_n)
+
+        create_page(wiki, "Manager first", parent: manager2)
+        create_page(wiki, "Manager second", parent: manager2)
+
+        wiki
+      end
+
+      def create_page(wiki, title, parent: nil)
+        page = WikiPage.new(wiki: wiki, title: title)
+        page.parent = parent if parent
+        page.content = WikiContent.new(page: page, text: "Test content template #{title}")
+        page.save!
+
+        WikiApprovalWorkflow.create!(
+          page_id: page.id,
+          version: page.content.version,
+          status: :released,
+          author_id: @admin.id
+        )
+
+        page
       end
     end
 

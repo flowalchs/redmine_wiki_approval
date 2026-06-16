@@ -3,11 +3,15 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.11.2'
+  VERSION = '0.12.6'
 
   include RedminePluginKit::PluginBase
 
   class << self
+    def safe_setting(key)
+      setting(key.to_sym)
+    end
+
     private
 
     def setup
@@ -17,11 +21,10 @@ module RedmineWikiApproval
                           WikiPage
                           WikiContent]
 
-      loader.add_global_helper [
-        WikiApprovalSettingsHelper,
-        WikiApprovalIconHelper,
-        WikiApprovalHelper
-      ]
+      loader.add_helper [{ controller: 'Settings', helper: 'WikiApprovalSettings' },
+                         { controller: 'Projects', helper: 'WikiApprovalSettings' }]
+
+      Redmine::Notifiable.singleton_class.prepend RedmineWikiApproval::Patches::NotifiablePatch
 
       loader.apply!
 

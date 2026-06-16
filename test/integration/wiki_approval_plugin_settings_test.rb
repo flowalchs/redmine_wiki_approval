@@ -11,18 +11,58 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     get '/settings/plugin/redmine_wiki_approval'
     assert_response :success
 
-    # all fields
-    assert_select 'select[name="settings[wiki_approval_settings_comment]"]'
-    assert_select 'select[name="settings[wiki_approval_settings_draft_enabled]"]'
-    assert_select 'select[name="settings[wiki_approval_settings_enabled]"]'
-    assert_select 'select[name="settings[wiki_approval_settings_required]"]'
-    assert_select 'select[name="settings[wiki_approval_settings_version]"]'
-    assert_select 'select[name="settings[wiki_approval_settings_content_draft]"]'
+    assert_select 'div#settings.plugin-redmine_wiki_approval' do
+      # wiki_comment_required = false
+      assert_select 'select[name="settings[wiki_approval_settings_comment]"]' do
+        assert_select 'option[value="false"][selected]', 1
+      end
 
-    # all available options (Yes, No, Projects)
-    assert_select 'option[value="true"]'
-    assert_select 'option[value="false"]'
-    assert_select 'option[value="project"]'
+      # wiki_content_draft = true
+      assert_select 'select[name="settings[wiki_approval_settings_content_draft]"]' do
+        assert_select 'option[value="true"][selected]', 1
+      end
+
+      # sidebar project checkbox (NOT checked)
+      assert_select 'input[type=checkbox][name="settings[wiki_approval_settings_sidebar_project]"]', 1
+      assert_select 'input[type=checkbox][name="settings[wiki_approval_settings_sidebar_project]"][checked]', 0
+
+      # hidden fallback vorhanden
+      assert_select 'input[type=hidden][name="settings[wiki_approval_settings_sidebar_project]"][value="0"]', 1
+
+      # Sidebar Status multiselect
+      assert_select 'input[type=hidden][name="settings[wiki_approval_settings_sidebar_status][]"]', 1
+      assert_select 'select[name="settings[wiki_approval_settings_sidebar_status][]"][multiple]', 1
+
+      # alle selected
+      %w[canceled draft pending rejected published released].each do |status|
+        assert_select "select[name=\"settings[wiki_approval_settings_sidebar_status][]\"] option[value=\"#{status}\"][selected]", 1
+      end
+      # templates multiselect
+      assert_select 'input[type=hidden][name="settings[wiki_approval_settings_templates][]"]', 1
+      assert_select 'select[name="settings[wiki_approval_settings_templates][]"][multiple]', 1
+
+      # alle selected
+      %w[global projects roles].each do |status|
+        assert_select "select[name=\"settings[wiki_approval_settings_templates][]\"] option[value=\"#{status}\"][selected]", 1
+      end
+
+      # draft_enabled = true
+      assert_select 'select[name="settings[wiki_approval_settings_draft_enabled]"]' do
+        assert_select 'option[value="true"][selected]', 1
+      end
+      # approval_enabled = project
+      assert_select 'select[name="settings[wiki_approval_settings_enabled]"]' do
+        assert_select 'option[value="project"][selected]', 1
+      end
+      # approval_required = project
+      assert_select 'select[name="settings[wiki_approval_settings_required]"]' do
+        assert_select 'option[value="project"][selected]', 1
+      end
+      # approval_version = true
+      assert_select 'select[name="settings[wiki_approval_settings_version]"]' do
+        assert_select 'option[value="true"][selected]', 1
+      end
+    end
   end
 
   def test_update_all_settings
@@ -34,7 +74,10 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
              wiki_approval_settings_enabled: 'project',
              wiki_approval_settings_required: 'true',
              wiki_approval_settings_version: 'false',
-             wiki_approval_settings_content_draft: 'project'
+             wiki_approval_settings_content_draft: 'project',
+             wiki_approval_settings_sidebar_project: 'false',
+             wiki_approval_settings_sidebar_status: ['', 'draft', 'pending'],
+             wiki_approval_settings_templates: ['', 'projects', 'roles']
            }
          }
 
@@ -49,10 +92,35 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     assert_equal 'true', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required]
     assert_equal 'false', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version]
     assert_equal 'project', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_content_draft]
+    assert_equal 'false', Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_project]
+    assert_equal ['', 'draft', 'pending'], Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_sidebar_status]
+    assert_equal ['', 'projects', 'roles'], Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_templates]
+
+    assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_comment)
+    assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_draft_enabled)
+    assert_equal 'project', RedmineWikiApproval.safe_setting(:wiki_approval_settings_enabled)
+    assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_required)
+    assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_version)
+    assert_equal 'project', RedmineWikiApproval.safe_setting(:wiki_approval_settings_content_draft)
+    assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)
+    assert_equal ['', 'draft', 'pending'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_status)
+    assert_equal ['', 'projects', 'roles'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_templates)
   end
 
   def test_project_plugin_settings
     get '/projects/1/settings/wiki_approval'
     assert_response :success
+  end
+
+  def default_plugin_settings
+    assert_equal 'false', RedmineWikiApproval.safe_setting(:wiki_approval_settings_comment)
+    assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_draft_enabled)
+    assert_equal 'project', RedmineWikiApproval.safe_setting(:wiki_approval_settings_enabled)
+    assert_equal 'project', RedmineWikiApproval.safe_setting(:wiki_approval_settings_required)
+    assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_version)
+    assert_equal 'true', RedmineWikiApproval.safe_setting(:wiki_approval_settings_content_draft)
+    assert_equal '0', RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)
+    assert_equal ['canceled', 'draft', 'pending', 'rejected', 'released', 'canceled', 'published'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_status)
+    assert_equal ['global', 'projects', 'roles'], RedmineWikiApproval.safe_setting(:wiki_approval_settings_templates)
   end
 end

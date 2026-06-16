@@ -17,7 +17,7 @@ class WikiApprovalWorkflowStatus < ApplicationRecord
     permission: :wiki_draft_view,
     scope: proc { |options = {}, _user = nil|
       joins(wiki_approval_workflow: { wiki_page: { wiki: :project } })
-        .includes(wiki_approval_workflow: { wiki_page: { wiki: :project } })
+        .includes({ author: [:email_address, :preference] }, wiki_approval_workflow: { wiki_page: { wiki: :project } })
     }
 
   acts_as_event \

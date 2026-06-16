@@ -49,4 +49,9 @@ ko:
   button_wiki_approval_content_draft: "초안 저장" 
   button_wiki_approval_content_draft_prev: "이전 버전 불러오기"
   label_wiki_approval_steps: 단계
-  
+  label_wiki_approval_settings_sidebar_project: "프로젝트별 사이드바 설정 활성화"
+  label_wiki_approval_settings_sidebar_status: "선택된 상태에 대한 사이드바 기본 워크플로 정보"
+  text_wiki_approval_settings_sidebar_status: "어떤 상태에서 워크플로 정보(예: 담당자, 현재 상태 또는 diff 링크)를 사이드바에 표시할지 정의합니다."
+  label_wiki_approval_template: 템플릿
+  label_wiki_approval_settings_templates: Wiki 템플릿 범위
+  no_wiki_template_permission: Wiki 템플릿 페이지를 편집할 권한이 없습니다

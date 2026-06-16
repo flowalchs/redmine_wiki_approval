@@ -50,4 +50,9 @@ sv:
   button_wiki_approval_content_draft: "Spara utkast" 
   button_wiki_approval_content_draft_prev: "Ladda tidigare version"
   label_wiki_approval_steps: Steg
-  
+  label_wiki_approval_settings_sidebar_project: "Aktivera sidofältsinställningar per projekt"
+  label_wiki_approval_settings_sidebar_status: "Standard arbetsflödesinformation i sidofältet för valda statusar"
+  text_wiki_approval_settings_sidebar_status: "Anger för vilka statusar arbetsflödesinformation (t.ex. tilldelade användare, aktuell status eller diff-länk) visas i sidofältet."
+  label_wiki_approval_template: Mall
+  label_wiki_approval_settings_templates: Wiki-mallens omfattning
+  no_wiki_template_permission: Du har inte behörighet att redigera Wiki-mallsidor
