@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.12.6 (2026-06-16)
+* Fix: Reset revision when status is not published or released #25
+* Refactor: Prevent redundant settings loads and cache resolved settings in WikiApprovalSetting #27
+* feat: add configurable sidebar visibility for wiki approval info #21
+* feat: add wiki template scope with global, role and project support #7
+* fix: error when creating new wiki page with smart drafting button from redirect to edit #24
+* refactor: move global helper usage to controller-specific helpers #23
+* refactor: move wiki approval version resolution from view hook into controller patch #26
+
 ## v0.11.2 (2026-05-17)
 * Feature: add wiki approval macros and helpers #8
 * feat: extend core wiki history with approval workflow data #19
