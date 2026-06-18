@@ -20,6 +20,7 @@ module RedmineWikiApproval
                 foreign_key: :page_id,
                 dependent: :destroy
         after_save :delete_draft_after_publish
+        attr_accessor :use_draft_content
       end
 
       module InstanceOverwriteMethods
@@ -62,7 +63,7 @@ module RedmineWikiApproval
 
         def content_for_version(version=nil)
           # overwrite from wiki controller show edit
-          if Thread.current[:wiki_edit_context]
+          if use_draft_content
             draft = WikiApprovalDraft.find_by(page_id: id)
             # get draft if available, return it as a content
             if draft
@@ -75,8 +76,6 @@ module RedmineWikiApproval
           end
 
           super
-        ensure
-          Thread.current[:wiki_edit_context] = nil
         end
 
         def delete_draft_after_publish

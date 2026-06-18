@@ -62,10 +62,10 @@ module RedmineWikiApproval
         end
 
         def mark_edit_context
-          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
+          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting])
+          return unless @page && params[:version].blank?
 
-          # parameter version is set, at rollback to prev version
-          Thread.current[:wiki_edit_context] = params[:version].blank?
+          @page.use_draft_content = true
         end
 
         def apply_content_draft_update
