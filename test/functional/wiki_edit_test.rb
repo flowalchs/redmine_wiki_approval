@@ -246,6 +246,10 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
         },
         draft: 'true'}
 
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit}, response.location)
+
+    get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
     assert_select "textarea", /new contentDraft/
@@ -273,6 +277,9 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
       },
       draft: 'true'}
 
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit}, response.location)
+    get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
     assert_select "textarea", /CookBook documentation/
@@ -310,6 +317,10 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
         text: "h1. section 2\n\nsecond\n\nnewText"
       },
       draft: 'true'}
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit\?section=2}, response.location)
+
+    get :edit, params: { project_id: @project.id, id: @page.title, section: 2 }
     assert_response :success
 
     assert_equal old_version_count, @page.content.versions.count
@@ -367,7 +378,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
       }
     end
 
-    assert_response :success
+    assert_response :redirect
   end
 
   test "should update wiki page to puplished cancel other approvers" do

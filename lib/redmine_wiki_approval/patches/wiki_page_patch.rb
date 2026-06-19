@@ -48,16 +48,9 @@ module RedmineWikiApproval
             return result && !content.errors.any?
           end
 
-          # save as contentdraft, no version created
-          if Thread.current[:wiki_is_draft]
-            return update_content_draft(content)
-          else
-            super
-          end
+          super
         ensure
           Thread.current[:workflow_is_draft] = nil
-          Thread.current[:wiki_is_draft] = nil
-          Thread.current[:wiki_attachments] = nil
           Thread.current[:wiki_approval_data] = nil
         end
 
@@ -80,27 +73,6 @@ module RedmineWikiApproval
 
         def delete_draft_after_publish
           WikiApprovalDraft.where(page_id: id).delete_all
-        end
-
-        def update_content_draft(content)
-          latest_content = content.versions.find_by_version(content.version)
-          draft = WikiApprovalDraft.find_or_initialize_by(page_id: content.page.id)
-
-          # if text is same then last version, delete draft
-          if latest_content && latest_content.text == content.text && draft.persisted?
-            draft.destroy
-            return false
-          end
-
-          # update conten Draft
-          draft.update!(
-            author_id: User.current.id,
-            text: content.text)
-
-          # attachments save
-          Attachment.attach_files(content.page, Thread.current[:wiki_attachments]) if Thread.current[:wiki_attachments].present?
-
-          false
         end
       end
     end
