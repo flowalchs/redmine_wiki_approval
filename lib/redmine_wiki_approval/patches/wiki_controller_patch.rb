@@ -130,8 +130,8 @@ module RedmineWikiApproval
           return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, @wiki_approval_data[:setting]) # no workflow/draft enabled
 
           # Fallback: Default to "draft" status if params[:status] is blank or missing (e.g., via API)
-          Thread.current[:workflow_is_draft] = params[:status].presence || "draft"
-          Thread.current[:wiki_approval_data] = @wiki_approval_data
+          RedmineWikiApproval::Current.workflow_is_draft = params[:status].presence || "draft"
+          RedmineWikiApproval::Current.wiki_approval_data = @wiki_approval_data
         end
 
         def history

@@ -27,31 +27,27 @@ module RedmineWikiApproval
         # overwrite from wiki controller update
         def save_with_content(content)
           # start workflow as draft, with new content version
-          if Thread.current[:workflow_is_draft]
+          if RedmineWikiApproval::Current.workflow_is_draft
             result = false
 
             transaction do
-              result = super # Versuche das originale Speichern
+              result = super
 
               if result
                 result = WikiApprovalWorkflow.save_for_draft(
                   page: content.page,
                   content: content,
                   user: User.current,
-                  status: Thread.current[:workflow_is_draft],
-                  wiki_approval_data: Thread.current[:wiki_approval_data]
+                  status: RedmineWikiApproval::Current.workflow_is_draft,
+                  wiki_approval_data: RedmineWikiApproval::Current.wiki_approval_data
                 )
               end
-              # Das Rollback macht 'super' rückgängig
               raise ActiveRecord::Rollback if content.errors.any?
             end
             return result && !content.errors.any?
           end
 
           super
-        ensure
-          Thread.current[:workflow_is_draft] = nil
-          Thread.current[:wiki_approval_data] = nil
         end
 
         def content_for_version(version=nil)
