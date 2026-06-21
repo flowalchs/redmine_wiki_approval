@@ -21,6 +21,7 @@ module RedmineWikiApproval
                 dependent: :destroy
         after_save :delete_draft_after_publish
         attr_accessor :use_draft_content
+        attr_accessor :draft_comments
       end
 
       module InstanceOverwriteMethods
@@ -58,8 +59,8 @@ module RedmineWikiApproval
             if draft
               content = WikiContent.new(page: self)
               content.text = draft.text
-              content.comments = nil
               content.version = nil
+              self.draft_comments = draft.comments
               return content
             end
           end

@@ -110,7 +110,7 @@ module RedmineWikiApproval
           if latest && latest.text == @text && draft.persisted?
             draft.destroy
           else
-            draft.update!(author_id: User.current.id, text: @text)
+            draft.update!(author_id: User.current.id, text: @text, comments: content_params[:comments])
             attachments = params[:attachments] || (params[:wiki_page] && params[:wiki_page][:uploads])
             Attachment.attach_files(page, attachments) if attachments.present?
           end

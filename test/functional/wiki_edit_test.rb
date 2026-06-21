@@ -252,6 +252,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value = "comment new"/
     assert_select "textarea", /new contentDraft/
     assert_includes flash[:notice], I18n.t(:notice_successful_update)
 
@@ -282,6 +283,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_select "textarea", /CookBook documentation/
     assert_equal old_version_count, @page.content.versions.count
     # Draft count same as before
@@ -307,6 +309,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     get :edit, params: { project_id: @project.id, id: @page.title, section: 2 }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_select "textarea", /h1. section 2/
     assert_select "textarea", /second/
     assert_select "textarea", { text: /newText/, count: 0 }
@@ -323,6 +326,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     get :edit, params: { project_id: @project.id, id: @page.title, section: 2 }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_equal old_version_count, @page.content.versions.count
     assert_equal old_draft_count + 1, WikiApprovalDraft.count
 
