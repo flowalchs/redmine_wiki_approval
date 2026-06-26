@@ -37,6 +37,7 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_not_nil approval
     assert_equal "Approval started", approval.note
     assert_equal 1, approval.approval_steps.count
+    assert_nil approval.approved_page_id
   end
 
   test "should reject approval if duplicate users" do
@@ -78,6 +79,13 @@ class WikiApprovalControllerTest < WikiApproval::Test::ControllerCase
     assert_equal 'Looks good', step.note
     approval.reload
     assert_equal 'released', approval.status
+    assert_equal @page.id, approval.approved_page_id
+    # Unique Index Invariante prüfen
+    other_approved = WikiApprovalWorkflow
+                      .where(page_id: @page.id)
+                      .where.not(id: approval.id)
+                      .where.not(approved_page_id: nil)
+    assert_empty other_approved
   end
 
   test "should forward approval" do

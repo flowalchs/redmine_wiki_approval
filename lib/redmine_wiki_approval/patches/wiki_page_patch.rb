@@ -15,6 +15,9 @@ module RedmineWikiApproval
         has_one :current_wiki_aw,
                  class_name: 'WikiApprovalWorkflow',
                  foreign_key: :current_page_id
+        has_one :approved_wiki_aw,
+                class_name: 'WikiApprovalWorkflow',
+                foreign_key: :approved_page_id
         has_many :wiki_approval_draft,
                 class_name: 'WikiApprovalDraft',
                 foreign_key: :page_id,
