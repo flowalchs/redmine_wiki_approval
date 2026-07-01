@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.13.2 (2026-07-01)
+* feat: persist and restore draft comments in wiki approval #29
+* refactor: add approved_page_id marker to WikiApprovalWorkflow #30
+* refactor: replace Thread.current[:workflow_is_draft] with ActiveSupport::CurrentAttributes for workflow draft context #28
+
 ## v0.12.6 (2026-06-16)
 * Fix: Reset revision when status is not published or released #25
 * Refactor: Prevent redundant settings loads and cache resolved settings in WikiApprovalSetting #27
