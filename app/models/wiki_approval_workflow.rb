@@ -19,7 +19,11 @@ class WikiApprovalWorkflow < ApplicationRecord
   after_create :cancel_old_approvals
   after_update :mark_status_changed
   after_destroy :handover_current_marker
+  after_destroy :handover_approved_marker
+  after_save :update_approved_marker, if: -> { saved_change_to_status? || id_previously_changed? }
   after_commit :on_status_change
+
+  APPROVED_STATUSES = [:published, :released].freeze
 
   if ActiveRecord::VERSION::MAJOR >= 7
     # Rails 7.x und 8.x → positional arguments
@@ -48,53 +52,37 @@ class WikiApprovalWorkflow < ApplicationRecord
   }
 
   def latest_public_version
-    page_id = wiki_page&.id
-    return nil if page_id.nil?
-
-    self.class.where(page_id: page_id, status: [self.class.statuses[:published], self.class.statuses[:released]])
-      .order(id: :desc)
-      .first
+    wiki_page&.approved_wiki_aw
   end
 
   def self.latest_public_version_status(page_id, specific_status = nil)
-    target_statuses = if specific_status
-                        statuses[specific_status]
-                      else
-                        [statuses[:published], statuses[:released]]
-                      end
-
-    where(page_id: page_id, status: target_statuses)
-      .order(id: :desc)
-      .first
+    if specific_status
+      where(page_id: page_id, status: statuses[specific_status]).order(id: :desc).first
+    else
+      WikiPage.find(page_id).approved_wiki_aw
+    end
   end
 
   def self.latest_public_version_nr(page)
-    record = where(page_id: page.id, status: [statuses[:published], statuses[:released]])
-            .order(id: :desc)
-            .first
+    page.approved_wiki_aw&.version || fallback_version_nr(page)
+  end
 
-    if record
-      version_nr = record.version
-    else
-      # find version without any approvalWorkflow when current is a draft
-      version = WikiApprovalWorkflow.where(page_id: page.id, status: "draft")
-                                  .order(version: :desc)
-                                  .first
-      if version
-        content = WikiContentVersion.where(wiki_content_id: page.content.id)
-                            .where("version < ?", version.version)
-                            .order(version: :desc)
-                            .first
-        version_nr = content.version if content
-      end
-    end
-    version_nr
+  def self.fallback_version_nr(page)
+    draft = where(page_id: page.id, status: statuses[:draft]).order(version: :desc).first
+    return nil unless draft
+
+    WikiContentVersion
+      .where(wiki_content_id: page.content.id)
+      .where("version < ?", draft.version)
+      .order(version: :desc)
+      .first
+      &.version
   end
 
   def self.latest_public_from_version(page_id, from_version)
     record = where(
       page_id: page_id,
-      status: [statuses[:published], statuses[:released]]
+      status: approved_status_values
     )
     .where('version < ?', from_version)
     .order(id: :desc)
@@ -181,6 +169,10 @@ class WikiApprovalWorkflow < ApplicationRecord
     wiki_page&.content_for_version(version)
   end
 
+  def self.approved_status_values
+    statuses.values_at(*APPROVED_STATUSES.map(&:to_s))
+  end
+
   private
 
   def assign_revision_if_needed
@@ -198,11 +190,8 @@ class WikiApprovalWorkflow < ApplicationRecord
   end
 
   def next_revision
-    # all workflows with same page_id status is published/released
-    approved_statuses = [self.class.statuses[:published], self.class.statuses[:released]]
-
     last_rev = self.class
-      .where(page_id: page_id, status: approved_statuses)
+      .where(page_id: page_id, status: self.class.approved_status_values)
       .maximum(:revision)
 
     (last_rev || 0) + 1
@@ -234,5 +223,49 @@ class WikiApprovalWorkflow < ApplicationRecord
                       .first
       next_leader.update_columns(current_page_id: page_id) if next_leader
     end
+  end
+
+  def update_approved_marker
+    if status.to_sym.in?(APPROVED_STATUSES)
+      # Dieser Eintrag ist jetzt ggf. der neueste approved → setzen
+      current_approved = WikiApprovalWorkflow
+                           .where(page_id: page_id, status: self.class.statuses.values_at(*APPROVED_STATUSES.map(&:to_s)))
+                           .order(id: :desc)
+                           .first
+
+      if current_approved
+        # Alten Marker löschen, neuen setzen
+        WikiApprovalWorkflow
+          .where(page_id: page_id)
+          .where.not(id: current_approved.id)
+          .where.not(approved_page_id: nil)
+          .update_all(approved_page_id: nil)
+
+        current_approved.update_columns(approved_page_id: page_id) unless current_approved.approved_page_id == page_id
+      end
+    elsif approved_page_id.present?
+      # Status wurde weg von approved geändert → Marker ggf. wandern
+      WikiApprovalWorkflow
+            .where(page_id: page_id)
+            .where.not(approved_page_id: nil)
+            .update_all(approved_page_id: nil)
+
+      new_approved = WikiApprovalWorkflow
+                       .where(page_id: page_id, status: self.class.statuses.values_at(*APPROVED_STATUSES.map(&:to_s)))
+                       .order(id: :desc)
+                       .first
+      new_approved&.update_columns(approved_page_id: page_id)
+    end
+  end
+
+  def handover_approved_marker
+    return unless approved_page_id.present?
+
+    WikiApprovalWorkflow
+      .where(page_id: page_id, status: self.class.statuses.values_at(*APPROVED_STATUSES.map(&:to_s)))
+      .where.not(id: id)
+      .order(id: :desc)
+      .first
+      &.update_columns(approved_page_id: page_id)
   end
 end

@@ -62,14 +62,14 @@ module RedmineWikiApproval
         end
 
         def mark_edit_context
-          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
+          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting])
+          return unless @page && params[:version].blank?
 
-          # parameter version is set, at rollback to prev version
-          Thread.current[:wiki_edit_context] = params[:version].blank?
+          @page.use_draft_content = true
         end
 
         def apply_content_draft_update
-          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, nil)
+          return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting])
 
           page = @wiki.find_page(params[:id])
           if page.nil? # content drafts not on a new page
@@ -77,32 +77,51 @@ module RedmineWikiApproval
             return
           end
 
-          # Thread parameter, is available later in the page model patch
-          Thread.current[:wiki_is_draft] = params[:draft].present?
-          Thread.current[:wiki_attachments] = params[:attachments] || (params[:wiki_page] && params[:wiki_page][:uploads])
+          # normale section save: draft as base
+          if params[:section].present? && params[:draft].blank?
+            draft = WikiApprovalDraft.find_by(page_id: page.id)
+            if draft
+              base_text = Redmine::WikiFormatting.formatter
+                .new(draft.text)
+                .update_section(params[:section].to_i, params[:content][:text], params[:section_hash])
+              params[:content][:text] = base_text
+              params.delete(:section)
+              params.delete(:section_hash)
+            end
+            return
+          end
 
-          # not the best place, but before rendering, couldn't find a better spot
-          flash.now[:notice] = l(:notice_successful_update) if Thread.current[:wiki_is_draft].present?
+          return if params[:draft].blank?
 
-          # return unless section parameter
-          return if params[:section].blank?
+          # draft section save
+          content_params = params[:content] || {}
+          @text = content_params[:text]
 
-          draft = WikiApprovalDraft.find_by(page_id: page.id)
-          return unless draft
+          if params[:section].present? && Redmine::WikiFormatting.supports_section_edit?
+            draft = WikiApprovalDraft.find_by(page_id: page.id)
+            base_text = draft ? draft.text : page.content&.text
+            @text = Redmine::WikiFormatting.formatter
+              .new(base_text)
+              .update_section(params[:section].to_i, @text, params[:section_hash])
+          end
 
-          base_text = draft.text
+          draft = WikiApprovalDraft.find_or_initialize_by(page_id: page.id)
+          latest = page.content&.versions&.find_by_version(page.content&.version)
+          if latest && latest.text == @text && draft.persisted?
+            draft.destroy
+          else
+            draft.update!(author_id: User.current.id, text: @text, comments: content_params[:comments])
+            attachments = params[:attachments] || (params[:wiki_page] && params[:wiki_page][:uploads])
+            Attachment.attach_files(page, attachments) if attachments.present?
+          end
 
-          # do section
-          base_text = Redmine::WikiFormatting.formatter
-            .new(base_text)
-            .update_section(params[:section].to_i, params[:content][:text], params[:section_hash])
-
-          # result in params vor normal update controller
-          params[:content][:text] = base_text
-
-          # Section-Parameter delete, all sections are append
-          params.delete(:section)
-          params.delete(:section_hash)
+          respond_to do |format|
+            format.html do
+              flash[:notice] = l(:notice_successful_update)
+              redirect_to edit_project_wiki_page_path(@project, page.title, section: params[:section])
+            end
+            format.api { render_api_ok }
+          end
         end
 
         def apply_workflow_draft_update
@@ -111,8 +130,8 @@ module RedmineWikiApproval
           return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, @wiki_approval_data[:setting]) # no workflow/draft enabled
 
           # Fallback: Default to "draft" status if params[:status] is blank or missing (e.g., via API)
-          Thread.current[:workflow_is_draft] = params[:status].presence || "draft"
-          Thread.current[:wiki_approval_data] = @wiki_approval_data
+          RedmineWikiApproval::Current.workflow_is_draft = params[:status].presence || "draft"
+          RedmineWikiApproval::Current.wiki_approval_data = @wiki_approval_data
         end
 
         def history

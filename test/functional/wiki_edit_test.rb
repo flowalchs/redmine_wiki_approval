@@ -246,8 +246,13 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
         },
         draft: 'true'}
 
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit}, response.location)
+
+    get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value = "comment new"/
     assert_select "textarea", /new contentDraft/
     assert_includes flash[:notice], I18n.t(:notice_successful_update)
 
@@ -273,8 +278,12 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
       },
       draft: 'true'}
 
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit}, response.location)
+    get :edit, params: { project_id: @project.id, id: @page.title }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_select "textarea", /CookBook documentation/
     assert_equal old_version_count, @page.content.versions.count
     # Draft count same as before
@@ -300,6 +309,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
     get :edit, params: { project_id: @project.id, id: @page.title, section: 2 }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_select "textarea", /h1. section 2/
     assert_select "textarea", /second/
     assert_select "textarea", { text: /newText/, count: 0 }
@@ -310,8 +320,13 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
         text: "h1. section 2\n\nsecond\n\nnewText"
       },
       draft: 'true'}
+    assert_response :redirect
+    assert_match(%r{/projects/ecookbook/wiki/CookBook_documentation/edit\?section=2}, response.location)
+
+    get :edit, params: { project_id: @project.id, id: @page.title, section: 2 }
     assert_response :success
 
+    assert_select 'script#wiki-approval-edit-script', text: /input\.value/, count: 0
     assert_equal old_version_count, @page.content.versions.count
     assert_equal old_draft_count + 1, WikiApprovalDraft.count
 
@@ -367,7 +382,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
       }
     end
 
-    assert_response :success
+    assert_response :redirect
   end
 
   test "should update wiki page to puplished cancel other approvers" do
@@ -422,5 +437,61 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
 
     assert_response :success
     assert_select "input[type=submit][name=draft]", 0
+  end
+
+  test 'wiki delete version 4 also approved_page_id moves back to version 2' do
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_comment] = 'false'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_required] = 'false'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_draft_enabled] = 'true'
+    Setting.plugin_redmine_wiki_approval[:wiki_approval_settings_version] = 'false'
+
+    @page = WikiPage.find_by(id: 11)
+
+    # Vorbedingung: Version 2 hat approved_page_id gesetzt (aus Fixtures)
+    v2_workflow = WikiApprovalWorkflow.find_by(page_id: @page.id, version: 2)
+    assert_equal @page.id, v2_workflow.approved_page_id, "Version 2 sollte approved_page_id gesetzt haben"
+
+    v3_workflow = WikiApprovalWorkflow.find_by(page_id: @page.id, version: 3)
+    assert_nil v3_workflow.approved_page_id, "Version 3 sollte kein approved_page_id haben"
+
+    # Version 4 über Controller erstellen mit Status published
+    put :update, params: {
+      project_id: @project.id,
+      id: @page.title,
+      content: {
+        text: "New Version and published",
+        comments: "Added via test",
+        version: @page.content.version
+      },
+      status: 'published'
+    }
+    assert_response :redirect
+
+    v4_workflow = WikiApprovalWorkflow.find_by(page_id: @page.id, version: 4)
+    assert_not_nil v4_workflow, "Version 4 Workflow sollte erstellt worden sein"
+
+    # Nach Create: nur Version 4 hat approved_page_id
+    v2_workflow.reload
+    assert_nil v2_workflow.approved_page_id, "Version 2 sollte nach Version 4 kein approved_page_id mehr haben"
+    assert_equal @page.id, v4_workflow.approved_page_id, "Version 4 sollte approved_page_id gesetzt haben"
+
+    # Version 4 über Controller löschen
+    delete :destroy_version, params: {
+      project_id: @project.id,
+      id: @page.title,
+      version: v4_workflow.version
+    }
+    assert_response :redirect
+
+    # Nach Delete: Version 2 hat wieder approved_page_id
+    v2_workflow.reload
+    assert_equal @page.id, v2_workflow.approved_page_id, "Version 2 sollte nach Delete von Version 4 wieder approved_page_id haben"
+
+    # Kein anderer Workflow hat approved_page_id
+    other_approved = WikiApprovalWorkflow
+                       .where(page_id: @page.id)
+                       .where.not(id: v2_workflow.id)
+                       .where.not(approved_page_id: nil)
+    assert_empty other_approved, "Nur Version 2 sollte approved_page_id gesetzt haben"
   end
 end

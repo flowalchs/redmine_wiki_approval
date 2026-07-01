@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ['3.2', '3.3', '3.4']
-        redmine: ['6.1-stable', 'master']
+        redmine: ['6.1-stable', '7.0-stable']
         db: ['postgres', 'mysql']
         include:
           # Redmine 4.2 mit Ruby 2.7
@@ -34,6 +34,20 @@ jobs:
             db: 'postgres'
           - redmine: '5.1-stable'
             ruby: '3.2'
+            db: 'mysql'
+          # Redmine 7.0 mit Ruby 4.0
+          - redmine: '7.0-stable'
+            ruby: '4.0'
+            db: 'postgres'
+          - redmine: '7.0-stable'
+            ruby: '4.0'
+            db: 'mysql'
+          # Redmine master mit Ruby 4.0
+          - redmine: 'master'
+            ruby: '4.0'
+            db: 'postgres'
+          - redmine: 'master'
+            ruby: '4.0'
             db: 'mysql'
 
     services:
@@ -70,14 +84,14 @@ jobs:
         if: matrix.db == 'mysql'
 
       - name: Checkout Redmine
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: redmine/redmine
           ref: ${{ matrix.redmine }}
           path: redmine
 
       - name: Checkout redmine_wiki_approval
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: flowalchs/redmine_wiki_approval
           path: redmine/plugins/redmine_wiki_approval
@@ -145,7 +159,7 @@ jobs:
         run: bundle exec rake redmine:plugins:migrate NAME=redmine_wiki_approval VERSION=0
         
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
