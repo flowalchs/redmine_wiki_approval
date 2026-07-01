@@ -220,4 +220,29 @@ module WikiApprovalHelper
       Array(approval_data[:setting]&.wiki_sidebar_status).map(&:to_s)
     )
   end
+
+  def wiki_approval_column_value(record, waw, project, column)
+    case column.name
+    when :title
+      project ? link_to(record.title, project_wiki_page_path(project, record.title)) : record.title
+    when :version
+      waw&.version
+    when :revision
+      waw&.revision
+    when :note
+      waw&.note
+    when :workflow_status
+      waw&.status
+    when :workflow_author_id
+      waw&.author&.name
+    when :workflow_updated_at
+      format_time(waw&.updated_at)
+    when :workflow_step_status
+      waw&.approval_steps&.first&.step_status
+    when :workflow_step_principal_id
+      waw&.approval_steps&.first&.principal&.name
+    else
+      column.value(record)
+    end
+  end
 end

@@ -5,6 +5,7 @@ class WikiApprovalController < ApplicationController
   accept_api_auth :status, :start, :grant, :forward, :publish, :permissions, :index, :history
 
   menu_item :wiki
+  menu_item :wiki_approval, only: [:index]
   before_action :find_project, :except => [:index]
   before_action :find_optional_project, :only => [:index]
   before_action :find_user

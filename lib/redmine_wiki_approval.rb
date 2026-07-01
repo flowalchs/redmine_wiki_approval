@@ -3,7 +3,7 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.14.0'
+  VERSION = '0.14.1'
 
   include RedminePluginKit::PluginBase
 
@@ -26,10 +26,10 @@ module RedmineWikiApproval
 
       Redmine::Notifiable.singleton_class.prepend RedmineWikiApproval::Patches::NotifiablePatch
 
+      RedmineWikiApproval::Patches::MenuManager.register
+
       loader.apply!
-
       loader.load_macros!
-
       loader.load_view_hooks!
     end
   end

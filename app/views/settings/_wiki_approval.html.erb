@@ -10,6 +10,7 @@
   <%= wiki_approval_select_field(:wiki_approval_settings_templates, 
                                   html_options: { multiple: true, size: 3, class: 'multiselect wide' },
                                   options: wiki_approval_templates_select_options) %>
+  <%= wiki_approval_checkbox_field(:wiki_approval_settings_menu) %>
 </fieldset>
 <fieldset class="box tabular settings"><legend><%= l(:label_wiki_approval_workflow) %></legend>
   <%= wiki_approval_select_field(:wiki_approval_settings_draft_enabled) %>

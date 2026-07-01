@@ -9,6 +9,15 @@ class WikiApprovalQuery < Query
     self.filters ||= {}
   end
 
+  # Standard-Spalten beim ersten Aufruf, bevor User eigene Auswahl speichert
+  def default_columns_names
+    @default_columns_names ||= [
+      :title, :version, :revision, :workflow_status,
+      :workflow_author_id, :workflow_updated_at,
+      :workflow_step_status, :workflow_step_principal_id
+    ]
+  end
+
   def available_filters
     return @available_filters if @available_filters
 
