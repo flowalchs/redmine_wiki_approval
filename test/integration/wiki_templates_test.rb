@@ -422,4 +422,41 @@ class WikiApprovalTest < WikiApproval::Test::IntegrationCase
       end
     end
   end
+
+  test "new wiki html deface override with templates" do
+    create_wiki_tree(@project)
+    get "/projects/#{@project.identifier}/wiki/new"
+
+    assert_response :success
+    body = @response.body
+
+    assert_includes body, 'New wiki page'
+    assert_match /<form.*new_page/, body
+
+    assert_select 'select#rwa_template_id' do
+      assert_select 'option', 7
+      assert_select 'option' do |elements|
+        assert_equal 1, elements.count { |e| e.text.delete("\u00A0").strip.empty? }
+      end
+      assert_select 'option', text: 'GlobTemplate 1', count: 1
+      assert_select 'option', text: 'GlobTemplate 2', count: 1
+      assert_select 'option', text: 'Project 1', count: 1
+      assert_select 'option', text: 'Projekt 2', count: 1
+      assert_select 'option', text: 'ManagerProject 1', count: 1
+      assert_select 'option', text: 'ManagerProject 2', count: 1
+      assert_select 'option', text: 'Manager first', count: 0
+      assert_select 'option', text: 'Manager second', count: 0
+    end
+  end
+
+  test "new wiki html deface override no templates" do
+    get "/projects/#{@project.identifier}/wiki/new"
+
+    assert_response :success
+    body = @response.body
+
+    assert_includes body, 'New wiki page'
+    assert_match /<form.*new_page/, body
+    assert_no_match(/name="rwa_template_id"/, body)
+  end
 end

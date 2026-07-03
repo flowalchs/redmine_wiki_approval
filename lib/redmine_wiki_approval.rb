@@ -3,7 +3,7 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.13.2'
+  VERSION = '0.14.0'
 
   include RedminePluginKit::PluginBase
 

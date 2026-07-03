@@ -10,7 +10,8 @@ module RedmineWikiApproval
       included do
         prepend InstanceOverwriteMethods
 
-        append_before_action :set_wiki_approval_data, only: [:preview, :new]
+        append_before_action :set_wiki_approval_data, only: [:preview]
+        append_before_action :handle_new_flow, only: [:new]
         append_before_action :handle_edit_flow, only: [:edit]
         append_before_action :handle_update_flow, only: [:update]
         append_before_action :handle_show_flow, only: [:show]
@@ -163,6 +164,11 @@ module RedmineWikiApproval
           check_version_authorization
         end
 
+        def handle_new_flow
+          set_wiki_approval_data
+          @wiki_templates = find_templates(@project, User.current, @wiki_approval_data[:setting]) if @wiki_approval_data
+        end
+
         # only patch when post and parameter rwa_template_id
         def new
           begin
@@ -237,6 +243,14 @@ module RedmineWikiApproval
                      end
 
           raise ::Unauthorized if approval&.status_before_type_cast&.< WikiApprovalWorkflow.statuses[:published]
+        end
+
+        def find_templates(project, user, setting)
+          RedmineWikiApproval::WikiTemplates.new(
+            project: project,
+            user: user,
+            setting: setting
+          ).templates
         end
       end
     end
