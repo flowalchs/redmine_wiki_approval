@@ -57,3 +57,5 @@ en:
   label_wiki_approval_template: Template
   label_wiki_approval_settings_templates: Wiki Template Scope
   no_wiki_template_permission: You do not have permission to edit wiki template pages
+  field_workflow_updated_at: Workflow updated
+  

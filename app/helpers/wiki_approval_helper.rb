@@ -221,28 +221,105 @@ module WikiApprovalHelper
     )
   end
 
-  def wiki_approval_column_value(record, waw, project, column)
+  def wiki_approval_column_value(record, waw, waw_approved, project, column)
     case column.name
+    when :project
+      project ? link_to(project.name, project_wiki_index_path(project)) : '–'
     when :title
       project ? link_to(record.title, project_wiki_page_path(project, record.title)) : record.title
-    when :version
-      waw&.version
-    when :revision
-      waw&.revision
-    when :note
-      waw&.note
+    when :created_on
+      format_time(record.created_on)
+    when :protected
+      record.protected? ? l(:general_text_yes) : l(:general_text_no)
+    when :page_parent
+      if record.parent
+        project ? link_to(record.parent.title, project_wiki_page_path(project, record.parent.title)) : record.parent.title
+      else
+        '–'
+      end
+    when :content_comments
+      record.content&.comments
+    when :content_updated_on
+      format_time(record.content&.updated_on)
+    when :content_version
+      if project && record.content&.version
+        link_to(record.content.version, url_for(controller: 'wiki', action: 'show', project_id: project.identifier, id: record.title, version: record.content.version))
+      else
+        record.content&.version
+      end
+    when :approved_revision
+      if project && waw_approved&.revision
+        link_to(waw_approved.revision, url_for(controller: 'wiki', action: 'show', project_id: project.identifier, id: record.title, version: waw_approved.version))
+      else
+        waw_approved&.revision
+      end
     when :workflow_status
       waw&.status
-    when :workflow_author_id
-      waw&.author&.name
     when :workflow_updated_at
       format_time(waw&.updated_at)
-    when :workflow_step_status
-      waw&.approval_steps&.first&.step_status
-    when :workflow_step_principal_id
-      waw&.approval_steps&.first&.principal&.name
+    when :workflow_users
+      wiki_approval_users(waw, note: true, status: true, mouseover: true, userlink: true)
+    when :workflow_author
+      wiki_approval_users(waw, starter: true, note: true, step: 0, mouseover: true, userlink: true)
     else
       column.value(record)
+    end
+  end
+
+  def grouped_wiki_approval_list(records, query, counts_by_group, &)
+    previous_group = false
+    records.each do |record|
+      if query.grouped?
+        group = begin
+          case query.group_by_column.name
+          when :project
+            record.wiki&.project&.name
+          when :page_parent
+            record.parent&.title
+          when :protected
+            record.protected? ? l(:general_text_yes) : l(:general_text_no)
+          when :workflow_status
+            record.current_wiki_aw&.status
+          else
+            query.group_by_column.value(record)
+          end
+        rescue
+          nil
+        end
+
+        if group != previous_group
+          group_name  = group.blank? ? l(:label_none) : group.to_s
+          group_count = case query.group_by_column.name
+                        when :protected
+                          counts_by_group&.dig(record.protected)
+                        when :workflow_status
+                          counts_by_group&.dig(record.current_wiki_aw&.status_before_type_cast)
+                        else
+                          counts_by_group&.dig(group)
+                        end
+          yield record, group_name, group_count
+          previous_group = group
+        else
+          yield record, nil, nil
+        end
+      else
+        yield record, nil, nil
+      end
+    end
+  end
+
+  def wiki_approval_group_link(group_name, column, first_record)
+    return l(:label_none) if group_name.blank?
+
+    waw          = first_record.current_wiki_aw
+    waw_approved = first_record.approved_wiki_aw
+    project      = first_record.wiki&.project
+
+    case column.name
+    when :project, :page_parent
+      wiki_approval_column_value(first_record, waw, waw_approved, project, column)
+    else
+      group_name
     end
   end
 end

@@ -7,35 +7,47 @@
   <%= render partial: "queries/query_form", locals: { query: @query } %>
 <% end %>
 
-<% if @records.empty? %>
-  <p class="nodata"><%= l(:label_no_data) %></p>
-<% else %>
+<% if @query.valid? %>
+  <% if @records.empty? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+    <%= render_query_totals(@query) %>
 
-  <%= render_query_totals(@query) %>
-
-  <table class="list">
-    <thead>
-      <tr>
-        <% @query.columns.each do |column| %>
-          <%= column_header(@query, column) %>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <% @records.each do |r| %>
-        <% waw = r.current_wiki_aw %>
-        <% project = r.wiki&.project %>
+    <table class="list odd-even">
+      <thead>
         <tr>
           <% @query.columns.each do |column| %>
-            <td class="<%= column.css_classes %>">
-              <%= wiki_approval_column_value(r, waw, project, column) %>
-            </td>
+            <%= column_header(@query, column) %>
           <% end %>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <br>
-  <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-
+      </thead>
+      <tbody>
+        <% grouped_wiki_approval_list(@records, @query, @counts_by_group) do |r, group_name, group_count| %>
+          <% if group_name %>
+            <tr class="group open">
+              <td colspan="<%= @query.columns.size %>">
+                <span class="expander icon icon-expanded" onclick="toggleRowGroup(this);"><%= sprite_icon("angle-down") %></span>
+                <span class="name"><%= wiki_approval_group_link(group_name, @query.group_by_column, r) %></span>
+                <% if group_count %>
+                  <span class="badge badge-count count"><%= group_count %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% waw          = r.current_wiki_aw %>
+          <% waw_approved = r.approved_wiki_aw %>
+          <% project      = r.wiki&.project %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <% @query.columns.each do |column| %>
+              <td class="<%= column.css_classes %>">
+                <%= wiki_approval_column_value(r, waw, waw_approved, project, column) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <br>
+    <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+  <% end %>
 <% end %>

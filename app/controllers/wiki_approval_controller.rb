@@ -308,24 +308,30 @@ class WikiApprovalController < ApplicationController
     retrieve_default_query(use_session)
     retrieve_query(WikiApprovalQuery, use_session)
 
-    sort_init 'title', 'asc'
+    sort_init 'project', 'asc'
     sort_update @query.sortable_columns
 
     @query.project = @project if @project
-    statement = @query.statement
-    base = @query.base_scope.where(statement)
 
-    @entry_count = base.count
-    @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-
-    @records = base.
-      order(sort_clause).
-      limit(@entry_pages.per_page).
-      offset(@entry_pages.offset)
-
-    respond_to do |format|
-      format.html
-      format.json
+    if @query.valid?
+      respond_to do |format|
+        format.html do
+          @entry_count = @query.wiki_page_count
+          @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+          @records     = @query.wiki_pages(offset: @entry_pages.offset, limit: @entry_pages.per_page)
+          @counts_by_group = @query.wiki_page_count_by_group
+          render layout: !request.xhr?
+        end
+        format.api do
+          @entry_count = @query.wiki_page_count
+          @records     = @query.wiki_pages
+        end
+      end
+    else
+      respond_to do |format|
+        format.html { render layout: !request.xhr? }
+        format.api  { render_validation_errors(@query) }
+      end
     end
   end
 
