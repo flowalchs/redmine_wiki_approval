@@ -22,13 +22,48 @@ class WikiApprovalQuery < Query
   end
 
   def wiki_pages(options = {})
-    order_option = [group_by_sort_order, (options[:order] || sort_criteria.sort_clause(@available_columns))].flatten.reject(&:blank?)
+    order_option = [group_by_sort_order, options[:order]].flatten.reject(&:blank?)
 
-    base_scope
+    active_columns = column_names.presence || default_columns_names
+    needs_steps  = active_columns.include?(:workflow_users) || active_columns.include?(:workflow_author)
+    needs_principal = active_columns.include?(:workflow_users)
+
+    current_aw_includes = []
+    current_aw_includes << :author if active_columns.any? do |c|
+      [:workflow_author, :workflow_users].include?(c)
+    end
+
+    approved_aw_includes = []
+    approved_aw_includes << :author if active_columns.any? do |c|
+      [:approved_revision].include?(c)
+    end
+
+    current_aw_chain  = current_aw_includes.empty? ? :current_wiki_aw  : { current_wiki_aw:  current_aw_includes }
+    approved_aw_chain = approved_aw_includes.empty? ? :approved_wiki_aw : { approved_wiki_aw: approved_aw_includes }
+
+    scope = base_scope
+      .includes(:parent, :content, wiki: :project)
+      .includes(current_aw_chain)
+      .includes(approved_aw_chain)
       .where(statement)
       .order(order_option)
       .limit(options[:limit])
       .offset(options[:offset])
+
+    if needs_steps
+      preload_hash =
+        if needs_principal
+          { approval_steps: :principal }
+        else
+          :approval_steps
+        end
+
+      scope = scope.preload(
+        current_wiki_aw: preload_hash
+      )
+    end
+
+    scope
   rescue ::ActiveRecord::StatementInvalid => e
     raise StatementInvalid.new(e.message)
   end
@@ -46,20 +81,9 @@ class WikiApprovalQuery < Query
     group_sql = group_by_column.sortable if group_sql == true
 
     scope = base_scope.where(statement)
-
-    # ensure joins are present for group_sql
-    if group_sql.to_s.include?("w.")
-      scope = scope.joins("LEFT JOIN wiki_approval_workflows w ON w.current_page_id = wiki_pages.id")
-    end
-    if group_sql.to_s.include?("wa.")
-      scope = scope.joins("LEFT JOIN wiki_approval_workflows wa ON wa.approved_page_id = wiki_pages.id")
-    end
-    if group_sql.to_s.include?("ws.")
-      scope = scope.joins("LEFT JOIN wiki_approval_workflow_steps ws ON ws.wiki_approval_workflow_id = w.id")
-    end
-    if group_sql.to_s.include?("parents_wiki_pages.")
-      scope = scope.joins("LEFT JOIN wiki_pages parents_wiki_pages ON parents_wiki_pages.id = wiki_pages.parent_id")
-    end
+    scope = scope.joins("LEFT JOIN wiki_approval_workflows w ON w.current_page_id = wiki_pages.id") if group_sql.to_s.include?("w.")
+    scope = scope.joins("LEFT JOIN wiki_approval_workflows wa ON wa.approved_page_id = wiki_pages.id") if group_sql.to_s.include?("wa.")
+    scope = scope.joins("LEFT JOIN wiki_approval_workflow_steps ws ON ws.wiki_approval_workflow_id = w.id") if group_sql.to_s.include?("ws.")
 
     scope.group(group_sql).count
   rescue ::ActiveRecord::StatementInvalid => e
@@ -163,42 +187,13 @@ class WikiApprovalQuery < Query
   # FROM + JOINs für deinen Index
   # ------------------------------------------
   def base_scope
-    scope = WikiPage
-      .preload(
-        :parent,
-        :content,
-        wiki: :project,
-        current_wiki_aw: [:author, { approval_steps: :principal }],
-        approved_wiki_aw: [:author, { approval_steps: :principal }]
-      )
+    WikiPage
       .joins(wiki: :project)
       .joins("INNER JOIN wiki_contents wc ON wc.page_id = wiki_pages.id")
       .joins("LEFT JOIN wiki_pages parents_wiki_pages ON parents_wiki_pages.id = wiki_pages.parent_id")
-
-    needs_w  = @filters_sql.to_s.include?("w.") ||
-               sort_criteria.to_s.include?("w.") ||
-               group_by_column&.instance_variable_get(:@groupable).to_s.include?("w.")
-
-    needs_ws = @filters_sql.to_s.include?("ws.") ||
-               sort_criteria.to_s.include?("ws.") ||
-               group_by_column&.instance_variable_get(:@groupable).to_s.include?("ws.")
-
-    needs_wa = @filters_sql.to_s.include?("wa.") ||
-               sort_criteria.to_s.include?("wa.") ||
-               group_by_column&.instance_variable_get(:@groupable).to_s.include?("wa.")
-
-    if needs_w
-      scope = scope.joins("LEFT JOIN wiki_approval_workflows w ON w.current_page_id = wiki_pages.id")
-    end
-    if needs_ws
-      scope = scope.joins("LEFT JOIN wiki_approval_workflow_steps ws ON ws.wiki_approval_workflow_id = w.id")
-                   .distinct
-    end
-    if needs_wa
-      scope = scope.joins("LEFT JOIN wiki_approval_workflows wa ON wa.approved_page_id = wiki_pages.id")
-    end
-
-    scope
+      .then { |s| needs_w?  ? s.joins("LEFT JOIN wiki_approval_workflows w ON w.current_page_id = wiki_pages.id") : s }
+      .then { |s| needs_ws? ? s.joins("LEFT JOIN wiki_approval_workflow_steps ws ON ws.wiki_approval_workflow_id = w.id").distinct : s }
+      .then { |s| needs_wa? ? s.joins("LEFT JOIN wiki_approval_workflows wa ON wa.approved_page_id = wiki_pages.id") : s }
   end
 
   def sql_for_status_field(field, operator, value)
@@ -256,6 +251,24 @@ class WikiApprovalQuery < Query
   end
 
   private
+
+  def needs_w?
+    @filters_sql.to_s.include?("w.") ||
+    sort_criteria.to_s.include?("w.") ||
+    group_by_column&.instance_variable_get(:@groupable).to_s.include?("w.")
+  end
+
+  def needs_ws?
+    @filters_sql.to_s.include?("ws.") ||
+    sort_criteria.to_s.include?("ws.") ||
+    group_by_column&.instance_variable_get(:@groupable).to_s.include?("ws.")
+  end
+
+  def needs_wa?
+    @filters_sql.to_s.include?("wa.") ||
+    sort_criteria.to_s.include?("wa.") ||
+    group_by_column&.instance_variable_get(:@groupable).to_s.include?("wa.")
+  end
 
   def allowed_project_ids
     if project

@@ -12,7 +12,6 @@
     <p class="nodata"><%= l(:label_no_data) %></p>
   <% else %>
     <%= render_query_totals(@query) %>
-
     <table class="list odd-even">
       <thead>
         <tr>
@@ -22,8 +21,9 @@
         </tr>
       </thead>
       <tbody>
-        <% grouped_wiki_approval_list(@records, @query, @counts_by_group) do |r, group_name, group_count| %>
+        <% grouped_wiki_approval_list(@records, @query, @counts_by_group) do |r, project, waw, waw_approved, group_name, group_count| %>
           <% if group_name %>
+            <% reset_cycle %>
             <tr class="group open">
               <td colspan="<%= @query.columns.size %>">
                 <span class="expander icon icon-expanded" onclick="toggleRowGroup(this);"><%= sprite_icon("angle-down") %></span>
@@ -34,9 +34,6 @@
               </td>
             </tr>
           <% end %>
-          <% waw          = r.current_wiki_aw %>
-          <% waw_approved = r.approved_wiki_aw %>
-          <% project      = r.wiki&.project %>
           <tr class="<%= cycle('odd', 'even') %>">
             <% @query.columns.each do |column| %>
               <td class="<%= column.css_classes %>">

@@ -69,92 +69,73 @@ module WikiApprovalHelper
     end
   end
 
-  def wiki_approval_users(approval,
-                          starter: false,
-                          step: nil,
-                          note: false,
-                          userimage: false,
-                          status: false,
-                          mouseover: false,
-                          userlink: false,
-                          approved: false)
-    return '' unless approval
+  def wiki_approval_users(approval, starter: false, step: nil, note: false,
+                          userimage: false, status: false, mouseover: false,
+                          userlink: false, approved: false)
+    return ''.html_safe unless approval
 
     items = []
 
-    # === Starter ===
     if starter && approval.author
-      items << content_tag(:li) do
-        approval_user_entry(
-          approval.author,
-          label: l(:label_wiki_approval_starter),
-          updated_at: approval.updated_at,
-          userimage: userimage,
-          userlink: userlink,
-          mouseover: mouseover,
-          status: status
-        ) +
-        (note && approval.note.present? ? approval_note(approval.note, userimage: userimage) : ''.html_safe)
-      end
+      entry = approval_user_entry(
+        approval.author,
+        label: l(:label_wiki_approval_starter),
+        updated_at: approval.updated_at,
+        userimage: userimage, userlink: userlink,
+        mouseover: mouseover, status: status
+      )
+      note_html = note && approval.note.present? ? approval_note(approval.note, userimage: userimage) : ''.html_safe
+      items << content_tag(:li, entry + note_html)
     end
 
-    # === Steps ===
-    steps = approval.approval_steps.order(:step)
-    steps = steps.where(step: step) if step.present?
-    steps = steps.where(step_status: :approved) if approved
+    steps = approval.approval_steps
+    steps = steps.select { |s| s.step.to_i == step.to_i } if step.present?
+    steps = steps.select(&:step_status_approved?) if approved
+
+    # early return
+    return ''.html_safe if !starter && steps.empty?
 
     steps.each do |approval_step|
-      items << content_tag(:li) do
-        approval_user_entry(
-          approval_step.principal,
-          label: l("wiki_approval_workflow_steps.step_status.#{approval_step.step_status}"),
-          updated_at: approval_step.updated_at,
-          userimage: userimage,
-          userlink: userlink,
-          mouseover: mouseover,
-          status: status,
-          step: approval_step.step,
-          step_type: approval_step.step_type
-        ) +
-        (note && approval_step.note.present? ? approval_note(approval_step.note, userimage: userimage) : ''.html_safe)
-      end
+      entry = approval_user_entry(
+        approval_step.principal,
+        label: l("wiki_approval_workflow_steps.step_status.#{approval_step.step_status}"),
+        updated_at: approval_step.updated_at,
+        userimage: userimage, userlink: userlink,
+        mouseover: mouseover, status: status,
+        step: approval_step.step,
+        step_type: approval_step.step_type
+      )
+      note_html = note && approval_step.note.present? ? approval_note(approval_step.note, userimage: userimage) : ''.html_safe
+      items << content_tag(:li, entry + note_html)
     end
 
-    content_tag :div, class: 'approval' do
-      content_tag :ul, safe_join(items)
-    end
+    content_tag(:div, content_tag(:ul, safe_join(items)), class: 'approval')
   end
 
   def approval_user_entry(user, label:, updated_at:, userimage:, userlink:, mouseover:, status:, step: nil, step_type: nil)
+    return ''.html_safe unless user
+
     content_tag(:div, class: 'rwa-user') do
       html = ''.html_safe
 
-      if userimage && user
-        html << avatar(user, size: 22, title: user.name)
-      end
+      html << avatar(user, size: 22, title: user.name) if userimage
 
-      if user
-        name = if userlink
-                 user.is_a?(Group) ? link_to(user.name, group_path(user)) : link_to_user(user)
-               else
-                 user.name
-               end
-        html << content_tag(:div, name)
-      end
+      name = if userlink
+               user.is_a?(Group) ? link_to(user.name, group_path(user)) : link_to_user(user)
+             else
+               user.name
+             end
+      html << content_tag(:div, name)
 
       if status
-        html << content_tag(
-          :div,
-          label,
-          class: 'rwa-status',
-          title: if mouseover
-                   [step && "#{l(:label_wiki_approval_step)} #{step}",
-                    step_type && I18n.t("wiki_approval_#{step_type}", default: '').to_s,
-                    updated_at && "#{l(:label_ago)} #{time_ago_in_words(updated_at)}"].compact.join(' | ')
-                 else
-                   nil
-                 end
-        )
+        title = if mouseover
+                  [
+                    step && "#{l(:label_wiki_approval_step)} #{step}",
+                    step_type && I18n.t("wiki_approval_#{step_type}", default: ''),
+                    updated_at && "#{l(:label_ago)} #{time_ago_in_words(updated_at)}"
+                  ].compact.join(' | ')
+                end
+        html << content_tag(:div, label, class: 'rwa-status', title: title)
       end
 
       html
@@ -224,16 +205,18 @@ module WikiApprovalHelper
   def wiki_approval_column_value(record, waw, waw_approved, project, column)
     case column.name
     when :project
-      project ? link_to(project.name, project_wiki_index_path(project)) : '–'
+      project.name
     when :title
-      project ? link_to(record.title, project_wiki_page_path(project, record.title)) : record.title
+      path = project_wiki_page_path(project, record.title)
+      link_to(record.title, path)
     when :created_on
       format_time(record.created_on)
     when :protected
       record.protected? ? l(:general_text_yes) : l(:general_text_no)
     when :page_parent
       if record.parent
-        project ? link_to(record.parent.title, project_wiki_page_path(project, record.parent.title)) : record.parent.title
+        path = project_wiki_page_path(project, record.parent.title)
+        link_to(record.parent.title, path)
       else
         '–'
       end
@@ -242,25 +225,18 @@ module WikiApprovalHelper
     when :content_updated_on
       format_time(record.content&.updated_on)
     when :content_version
-      if project && record.content&.version
-        link_to(record.content.version, url_for(controller: 'wiki', action: 'show', project_id: project.identifier, id: record.title, version: record.content.version))
-      else
-        record.content&.version
-      end
+      path = project_wiki_page_path(project, record.title, version: record.content.version)
+      link_to(record.content.version, path)
     when :approved_revision
-      if project && waw_approved&.revision
-        link_to(waw_approved.revision, url_for(controller: 'wiki', action: 'show', project_id: project.identifier, id: record.title, version: waw_approved.version))
-      else
-        waw_approved&.revision
-      end
+      waw_approved&.revision
     when :workflow_status
       waw&.status
     when :workflow_updated_at
       format_time(waw&.updated_at)
     when :workflow_users
-      wiki_approval_users(waw, note: true, status: true, mouseover: true, userlink: true)
+      wiki_approval_users(waw, note: true, status: true)
     when :workflow_author
-      wiki_approval_users(waw, starter: true, note: true, step: 0, mouseover: true, userlink: true)
+      wiki_approval_users(waw, starter: true, note: true, step: 0)
     else
       column.value(record)
     end
@@ -269,17 +245,24 @@ module WikiApprovalHelper
   def grouped_wiki_approval_list(records, query, counts_by_group, &)
     previous_group = false
     records.each do |record|
+      project      = record.wiki&.project
+      waw          = record.current_wiki_aw
+      waw_approved = record.approved_wiki_aw
+
+      group_name  = nil
+      group_count = nil
+
       if query.grouped?
         group = begin
           case query.group_by_column.name
           when :project
-            record.wiki&.project&.name
+            project&.name
           when :page_parent
             record.parent&.title
           when :protected
             record.protected? ? l(:general_text_yes) : l(:general_text_no)
           when :workflow_status
-            record.current_wiki_aw&.status
+            waw&.status
           else
             query.group_by_column.value(record)
           end
@@ -289,22 +272,20 @@ module WikiApprovalHelper
 
         if group != previous_group
           group_name  = group.blank? ? l(:label_none) : group.to_s
-          group_count = case query.group_by_column.name
-                        when :protected
-                          counts_by_group&.dig(record.protected)
-                        when :workflow_status
-                          counts_by_group&.dig(record.current_wiki_aw&.status_before_type_cast)
-                        else
-                          counts_by_group&.dig(group)
-                        end
-          yield record, group_name, group_count
+          group_count =
+            case query.group_by_column.name
+            when :protected
+              counts_by_group&.dig(record.protected)
+            when :workflow_status
+              counts_by_group&.dig(waw&.status_before_type_cast)
+            else
+              counts_by_group&.dig(group)
+            end
+
           previous_group = group
-        else
-          yield record, nil, nil
         end
-      else
-        yield record, nil, nil
       end
+      yield record, project, waw, waw_approved, group_name, group_count
     end
   end
 
@@ -316,7 +297,9 @@ module WikiApprovalHelper
     project      = first_record.wiki&.project
 
     case column.name
-    when :project, :page_parent
+    when :project
+      link_to(project.name, project_wiki_index_path(project))
+    when :page_parent
       wiki_approval_column_value(first_record, waw, waw_approved, project, column)
     else
       group_name
