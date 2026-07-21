@@ -318,7 +318,7 @@ class WikiApprovalController < ApplicationController
         format.html do
           @entry_count = @query.wiki_page_count
           @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-          @records     = @query.wiki_pages(offset: @entry_pages.offset, limit: @entry_pages.per_page)
+          @records     = @query.wiki_pages(offset: @entry_pages.offset, limit: @entry_pages.per_page, order: sort_clause)
           @counts_by_group = @query.wiki_page_count_by_group
           render layout: !request.xhr?
         end

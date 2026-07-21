@@ -221,12 +221,12 @@ module WikiApprovalHelper
         '–'
       end
     when :content_comments
-      record.content&.comments
+      record.content_without_text&.comments
     when :content_updated_on
-      format_time(record.content&.updated_on)
+      format_time(record.content_without_text&.updated_on)
     when :content_version
-      path = project_wiki_page_path(project, record.title, version: record.content.version)
-      link_to(record.content.version, path)
+      path = project_wiki_page_path(project, record.title, version: record.content_without_text.version)
+      link_to(record.content_without_text.version, path)
     when :approved_revision
       waw_approved&.revision
     when :workflow_status
@@ -237,6 +237,10 @@ module WikiApprovalHelper
       wiki_approval_users(waw, note: true, status: true)
     when :workflow_author
       wiki_approval_users(waw, starter: true, note: true, step: 0)
+    when :watchers
+      record.watcher_users.map { |u| link_to_user(u) }.join(', ').html_safe
+    when :last_updated_by
+      link_to_user(record.content_without_text.author)
     else
       column.value(record)
     end
