@@ -3,5 +3,5 @@
 gem 'redmine_plugin_kit'
 
 group :test do
-  gem 'simplecov-cobertura', '~> 3.1', require: false
+  gem 'simplecov-cobertura', require: false
 end
