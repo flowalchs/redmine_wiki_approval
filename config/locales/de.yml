@@ -56,3 +56,14 @@ de:
   label_wiki_approval_template: Vorlage
   label_wiki_approval_settings_templates: Wiki-Vorlagen Geltungsbereich
   no_wiki_template_permission: Sie haben keine Berechtigung, Wiki-Vorlagenseiten zu bearbeiten
+  permission_wiki_template_edit: "Wiki-Vorlagen bearbeiten"
+  field_workflow_updated_at: "Workflow aktualisiert"
+  label_wiki_approval_status: "Workflow-Status"
+  label_wiki_approval_step_status: "Schritt-Status"
+  label_wiki_approval_step_principal: "Schritt-Benutzer"
+  label_wiki_approval_list: "Wiki-Liste anzeigen in"
+  label_wiki_approval_list_defaults: "Standardwerte der Wiki-Liste"
+  label_wiki_approval_settings_list_top_menu: "Obere Menüleiste"
+  label_wiki_approval_settings_list_application_menu: "Anwendungsmenü"
+  label_wiki_approval_settings_list_wiki_sidebar: "Projekt-Wiki-Sidebar"
+  label_wiki_approval_list_link: "Wiki-Liste"

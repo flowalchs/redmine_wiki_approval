@@ -56,3 +56,15 @@ fr:
   label_wiki_approval_template: Modèle
   label_wiki_approval_settings_templates: Portée des modèles Wiki
   no_wiki_template_permission: Vous n'avez pas la permission de modifier les pages de modèles Wiki
+  permission_wiki_template_edit: "Modifier les modèles wiki"
+  field_workflow_updated_at: "Flux mis à jour"
+  label_wiki_approval_status: "Statut du flux"
+  label_wiki_approval_step_status: "Statut de l’étape"
+  label_wiki_approval_step_principal: "Utilisateur de l’étape"
+  label_wiki_approval_list: "Afficher la liste wiki dans"
+  label_wiki_approval_list_defaults: "Valeurs par défaut de la liste wiki"
+  label_wiki_approval_settings_list_top_menu: "Menu supérieur"
+  label_wiki_approval_settings_list_application_menu: "Menu de l’application"
+  label_wiki_approval_settings_list_wiki_sidebar: "Barre latérale du wiki du projet"
+  label_wiki_approval_list_link: "Liste wiki"
+  label_wiki_approval_settings_content_draft: "Brouillons de contenu wiki activés"

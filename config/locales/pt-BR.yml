@@ -56,3 +56,15 @@ pt-BR:
   label_wiki_approval_template: Modelo
   label_wiki_approval_settings_templates: Escopo dos modelos Wiki
   no_wiki_template_permission: Você não tem permissão para editar páginas de modelos Wiki
+  permission_wiki_template_edit: "Editar modelos do wiki"
+  field_workflow_updated_at: "Fluxo atualizado"
+  label_wiki_approval_status: "Status do fluxo"
+  label_wiki_approval_step_status: "Status da etapa"
+  label_wiki_approval_step_principal: "Usuário da etapa"
+  label_wiki_approval_list: "Exibir lista do wiki em"
+  label_wiki_approval_list_defaults: "Padrões da lista do wiki"
+  label_wiki_approval_settings_list_top_menu: "Menu superior"
+  label_wiki_approval_settings_list_application_menu: "Menu do aplicativo"
+  label_wiki_approval_settings_list_wiki_sidebar: "Barra lateral do wiki do projeto"
+  label_wiki_approval_list_link: "Lista do wiki"
+  label_wiki_approval_settings_content_draft: "Rascunhos de conteúdo do wiki ativados"

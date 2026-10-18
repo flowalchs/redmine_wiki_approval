@@ -34,6 +34,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 - **My Page Blocks** – Manage your Wiki Approval Queue for pending reviews and track your own Wiki Drafts directly from your personal dashboard
 - **Wiki Approval Macros** – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
 - [**Wiki Templates**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Templates) – Define reusable wiki page templates stored as regular wiki pages, organized by global scope, project, or role.
+- [**Wiki List**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-List) – Table view of all wiki pages across projects with filters, columns, sorting, grouping and saved queries, like the Redmine issue list.
 
 ## 🔐 Permissions Overview
 

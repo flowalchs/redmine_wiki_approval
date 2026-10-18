@@ -56,3 +56,15 @@ sv:
   label_wiki_approval_template: Mall
   label_wiki_approval_settings_templates: Wiki-mallens omfattning
   no_wiki_template_permission: Du har inte behörighet att redigera Wiki-mallsidor
+  permission_wiki_template_edit: "Redigera wiki-mallar"
+  field_workflow_updated_at: "Flöde uppdaterat"
+  label_wiki_approval_status: "Flödesstatus"
+  label_wiki_approval_step_status: "Stegstatus"
+  label_wiki_approval_step_principal: "Stegsanvändare"
+  label_wiki_approval_list: "Visa wiki-listan i"
+  label_wiki_approval_list_defaults: "Standardvärden för wiki-listan"
+  label_wiki_approval_settings_list_top_menu: "Toppmeny"
+  label_wiki_approval_settings_list_application_menu: "Applikationsmeny"
+  label_wiki_approval_settings_list_wiki_sidebar: "Sidofält i projektets wiki"
+  label_wiki_approval_list_link: "Wiki-lista"
+  label_wiki_approval_settings_content_draft: "Utkast för wiki-innehåll aktiverade"

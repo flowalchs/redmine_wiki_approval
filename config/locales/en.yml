@@ -57,3 +57,13 @@ en:
   label_wiki_approval_template: Template
   label_wiki_approval_settings_templates: Wiki Template Scope
   no_wiki_template_permission: You do not have permission to edit wiki template pages
+  field_workflow_updated_at: Workflow updated
+  label_wiki_approval_status: Workflow status
+  label_wiki_approval_step_status: Step status
+  label_wiki_approval_step_principal: Step user
+  label_wiki_approval_list: Show wiki list in
+  label_wiki_approval_list_defaults: Wiki approval list defaults
+  label_wiki_approval_settings_list_top_menu: Top menu
+  label_wiki_approval_settings_list_application_menu: Application menu
+  label_wiki_approval_settings_list_wiki_sidebar: Project wiki sidebar
+  label_wiki_approval_list_link: Wiki list

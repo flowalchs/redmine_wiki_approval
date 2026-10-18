@@ -19,6 +19,34 @@
     <%= wiki_approval_select_field(:wiki_approval_settings_version) %>
   </div>
 </fieldset>
+<fieldset class="box"><legend><%= l(:label_wiki_approval_list) %></legend>
+  <%= wiki_approval_checkbox_field(:wiki_approval_settings_list_top_menu) %>
+  <%= wiki_approval_checkbox_field(:wiki_approval_settings_list_application_menu) %>
+  <%= wiki_approval_checkbox_field(:wiki_approval_settings_list_wiki_sidebar) %>
+</fieldset>
+<fieldset class="box wiki-approval-settings"><legend><%= l(:label_wiki_approval_list_defaults) %></legend>
+  <div id="list-definition">
+    <div>
+    <%= render_query_columns_selection(
+          WikiApprovalQuery.new(column_names: Setting.plugin_redmine_wiki_approval['wiki_approval_settings_default_wiki_columns']),
+          name: 'settings[wiki_approval_settings_default_wiki_columns]') %>
+    </div>
+  </div>
+  <p>
+    <%= label_tag('settings_wiki_approval_settings_default_wiki_query', l(:label_default_query)) %>
+    <%= select_tag('settings[wiki_approval_settings_default_wiki_query]', options_for_select(default_global_wiki_approval_query_options, @settings['wiki_approval_settings_default_wiki_query'])) %>
+  </p>
+</fieldset>
+
+<style>
+  .wiki-approval-settings .query-columns label {
+    float: none;
+    width: auto;
+    margin-left: 0;
+    text-align: left;
+    display: block;
+  }
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {

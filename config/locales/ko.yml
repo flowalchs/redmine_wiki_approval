@@ -55,3 +55,15 @@ ko:
   label_wiki_approval_template: 템플릿
   label_wiki_approval_settings_templates: Wiki 템플릿 범위
   no_wiki_template_permission: Wiki 템플릿 페이지를 편집할 권한이 없습니다
+  permission_wiki_template_edit: "위키 템플릿 편집"
+  field_workflow_updated_at: "워크플로 업데이트"
+  label_wiki_approval_status: "워크플로 상태"
+  label_wiki_approval_step_status: "단계 상태"
+  label_wiki_approval_step_principal: "단계 사용자"
+  label_wiki_approval_list: "위키 목록 표시 위치"
+  label_wiki_approval_list_defaults: "위키 목록 기본값"
+  label_wiki_approval_settings_list_top_menu: "상단 메뉴"
+  label_wiki_approval_settings_list_application_menu: "애플리케이션 메뉴"
+  label_wiki_approval_settings_list_wiki_sidebar: "프로젝트 위키 사이드바"
+  label_wiki_approval_list_link: "위키 목록"
+  label_wiki_approval_settings_content_draft: "위키 콘텐츠 초안 활성화"

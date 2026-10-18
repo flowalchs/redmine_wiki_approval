@@ -34,7 +34,7 @@ module WikiApprovalSettingsHelper
     options ||= wiki_approval_select_options if options.nil?
 
     content_tag(:p) do
-      label = content_tag(:label, l("label_#{setting_key}"))
+      label = label_tag(setting_key, l("label_#{setting_key}"))
       hidden = multiple ? hidden_field_tag(field_name, '') : ''.html_safe
 
       select = select_tag(
@@ -70,7 +70,7 @@ module WikiApprovalSettingsHelper
         html_options.reverse_merge(id: setting_key)
       )
 
-      label = label_tag(:label, l("label_#{setting_key}"))
+      label = label_tag(setting_key, l("label_#{setting_key}"))
 
       info_key = "text_#{setting_key}"
       info = if I18n.exists?(info_key)
@@ -97,5 +97,9 @@ module WikiApprovalSettingsHelper
 
   def setting_array_present?(value)
     Array(value).any?(&:present?)
+  end
+
+  def default_global_wiki_approval_query_options
+    [[l(:label_none), '']] + WikiApprovalQuery.where(visibility: Query::VISIBILITY_PUBLIC, project_id: nil).pluck(:name, :id)
   end
 end

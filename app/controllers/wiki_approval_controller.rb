@@ -5,6 +5,7 @@ class WikiApprovalController < ApplicationController
   accept_api_auth :status, :start, :grant, :forward, :publish, :permissions, :index, :history
 
   menu_item :wiki
+  menu_item :wiki_approval, only: [:index]
   before_action :find_project, :except => [:index]
   before_action :find_optional_project, :only => [:index]
   before_action :find_user
@@ -13,11 +14,9 @@ class WikiApprovalController < ApplicationController
   before_action :set_wiki_approval_data, :except => [:permissions, :index]
 
   include QueriesHelper
-  include SortHelper
   include RoutesHelper
 
   helper :queries
-  helper :sort
   helper :routes
   helper :wiki_approval_icon
   helper :wiki_approval
@@ -301,30 +300,32 @@ class WikiApprovalController < ApplicationController
     use_session = !request.format.csv?
     remove_empty_params
     if @project
-      deny_access unless User.current.allowed_to?(:view_wiki_pages, @project)
+      return deny_access unless User.current.allowed_to?(:view_wiki_pages, @project)
     end
 
     retrieve_default_query(use_session)
     retrieve_query(WikiApprovalQuery, use_session)
 
-    sort_init 'title', 'asc'
-    sort_update @query.sortable_columns
-
-    @query.project = @project if @project
-    statement = @query.statement
-    base = @query.base_scope.where(statement)
-
-    @entry_count = base.count
-    @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-
-    @records = base.
-      order(sort_clause).
-      limit(@entry_pages.per_page).
-      offset(@entry_pages.offset)
-
-    respond_to do |format|
-      format.html
-      format.json
+    if @query.valid?
+      respond_to do |format|
+        format.html do
+          @entry_count = @query.wiki_page_count
+          @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+          @records     = @query.wiki_pages(offset: @entry_pages.offset, limit: @entry_pages.per_page, order: @query.sort_clause)
+          @counts_by_group = @query.wiki_page_count_by_group
+          render layout: !request.xhr?
+        end
+        format.api do
+          @entry_count = @query.wiki_page_count
+          @offset, @limit = api_offset_and_limit
+          @records     = @query.wiki_pages(offset: @offset, limit: @limit, order: @query.sort_clause)
+        end
+      end
+    else
+      respond_to do |format|
+        format.html { render layout: !request.xhr? }
+        format.api  { render_validation_errors(@query) }
+      end
     end
   end
 
@@ -456,6 +457,9 @@ class WikiApprovalController < ApplicationController
                 project_id == @project&.id &&
                 WikiApprovalQuery.exists?(id: query_id)
     end
+
+    default_query = WikiApprovalQuery.default(project: @project)
+    params[:query_id] = default_query.id if default_query
   end
 
   def remove_empty_params

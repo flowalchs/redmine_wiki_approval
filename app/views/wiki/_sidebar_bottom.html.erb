@@ -1,8 +1,12 @@
-<% 
-  return if @wiki_approval_data.nil?
-
-  if wiki_approval_sidebar_status_visible?(@wiki_approval_data)
--%>
+<% return if @wiki_approval_data.nil? %>
+<% if RedmineWikiApproval.setting?(:wiki_approval_settings_list_wiki_sidebar) %>
+  <ul>
+    <li>
+      <%= link_to(l(:label_wiki_approval_list_link), wiki_approval_project_index_path(project_id: @project)) %>
+    </li>
+  </ul>
+<% end %>
+<% if wiki_approval_sidebar_status_visible?(@wiki_approval_data) %>
     <h3><%= l(:label_wiki_approval_workflow) %></h3>
     <div class="approval">
       <ul>
@@ -53,6 +57,3 @@
     <% end %>
 
   <% end %>
-
-
-

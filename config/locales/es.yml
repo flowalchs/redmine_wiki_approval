@@ -55,3 +55,15 @@ es:
   label_wiki_approval_template: Plantilla
   label_wiki_approval_settings_templates: Ámbito de plantillas Wiki
   no_wiki_template_permission: No tiene permiso para editar páginas de plantillas Wiki
+  permission_wiki_template_edit: "Editar plantillas del wiki"
+  field_workflow_updated_at: "Flujo actualizado"
+  label_wiki_approval_status: "Estado del flujo"
+  label_wiki_approval_step_status: "Estado del paso"
+  label_wiki_approval_step_principal: "Usuario del paso"
+  label_wiki_approval_list: "Mostrar lista del wiki en"
+  label_wiki_approval_list_defaults: "Valores predeterminados de la lista del wiki"
+  label_wiki_approval_settings_list_top_menu: "Menú superior"
+  label_wiki_approval_settings_list_application_menu: "Menú de la aplicación"
+  label_wiki_approval_settings_list_wiki_sidebar: "Barra lateral del wiki del proyecto"
+  label_wiki_approval_list_link: "Lista del wiki"
+  label_wiki_approval_settings_content_draft: "Borradores de contenido del wiki activados"

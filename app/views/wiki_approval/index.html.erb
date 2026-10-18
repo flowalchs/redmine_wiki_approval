@@ -1,53 +1,60 @@
-<h2><%= @query.new_record? ? l(:label_wiki_approval_workflow_plural) : @query.name %></h2>
+<h2><%= @query.new_record? ? l(:label_wiki) : @query.name %></h2>
 
-<%= @query.persisted? && @query.description.present? ?
+<%= @query.persisted? && @query.respond_to?(:description) && @query.description.present? ?
       content_tag('p', @query.description, class: 'subtitle') : '' %>
 
-<%= form_tag(wiki_approval_index_path(project_id: @project&.id), method: :get, id: "query_form") do %>
+<%= form_tag(@project ? wiki_approval_project_index_path(project_id: @project.id) : wiki_approval_index_path, method: :get, id: "query_form") do %>
   <%= render partial: "queries/query_form", locals: { query: @query } %>
 <% end %>
 
-<% if @records.empty? %>
-  <p class="nodata"><%= l(:label_no_data) %></p>
-<% else %>
-
-  <%= render_query_totals(@query) %>
-
-  <table class="list">
-    <thead>
-      <tr>
-        <%= sort_header_tag('project') %>
-        <%= sort_header_tag('title') %>
-        <%= sort_header_tag('version') %>
-        <%= sort_header_tag('revision') %>
-        <%= sort_header_tag('public version') %>
-        <%= sort_header_tag('workflow_status') %>
-        <%= sort_header_tag('workflow_author_id') %>
-        <%= sort_header_tag('workflow_updated_at') %>
-        <%= sort_header_tag('workflow_step_status') %>
-        <%= sort_header_tag('workflow_step_principal_id') %>
-      </tr>
-    </thead>
-    <tbody>
-      <% @records.each do |r| %>
-        <% waw = r.current_wiki_aw %>
+<% if @query.valid? %>
+  <% if @records.empty? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+    <%= render_query_totals(@query) %>
+    <table class="list odd-even">
+      <thead>
         <tr>
-          <td><%= r.project&.name %></td>
-          <td><%= r.title %></td>
-          <td><%= waw&.version %></td>
-          <td><%= waw&.revision %></td>
-          <td><%= waw&.latest_public_version&.version %></td>
-          <td><%= waw&.status %></td>
-          <td><%= waw&.author&.name %></td>
-          <td><%= format_time(waw&.updated_at) %></td>
-          <td><%= waw&.approval_steps&.first&.step_status %></td>
-          <td><%= waw&.approval_steps&.first&.principal_id %></td>
+          <% @query.columns.each do |column| %>
+            <%= column_header(@query, column) %>
+          <% end %>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <br>
-  <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-
+      </thead>
+      <tbody>
+        <% grouped_wiki_approval_list(@records, @query, @counts_by_group) do |r, project, waw, waw_approved, group_name, group_count| %>
+          <% if group_name %>
+            <% reset_cycle %>
+            <tr class="group open">
+              <td colspan="<%= @query.columns.size %>">
+                <span class="expander icon icon-expanded" onclick="toggleRowGroup(this);"><%= rma_icon("angle-down", legacy_text_only: true) %></span>
+                <span class="name"><%= wiki_approval_group_link(group_name, @query.group_by_column, r) %></span>
+                <% if group_count %>
+                  <span class="badge badge-count count"><%= group_count %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <% @query.columns.each do |column| %>
+              <td class="<%= column.css_classes %>">
+                <%= wiki_approval_column_value(r, waw, waw_approved, project, column) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <br>
+    <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+  <% end %>
 <% end %>
 
+<% content_for :sidebar do %>
+  <% queries = sidebar_queries(WikiApprovalQuery, @project) %>
+
+  <% if queries.any? %>
+    <%= render_sidebar_queries(WikiApprovalQuery, @project) %>
+  <% else %>
+    &nbsp;
+  <% end %>
+<% end %>

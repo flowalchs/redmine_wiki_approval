@@ -55,4 +55,15 @@ zh:
   label_wiki_approval_template: 模板
   label_wiki_approval_settings_templates: Wiki模板范围
   no_wiki_template_permission: 您没有权限编辑Wiki模板页面
-  
+  permission_wiki_template_edit: "编辑Wiki模板"
+  field_workflow_updated_at: "工作流更新时间"
+  label_wiki_approval_status: "工作流状态"
+  label_wiki_approval_step_status: "步骤状态"
+  label_wiki_approval_step_principal: "步骤用户"
+  label_wiki_approval_list: "Wiki列表显示位置"
+  label_wiki_approval_list_defaults: "Wiki列表默认设置"
+  label_wiki_approval_settings_list_top_menu: "顶部菜单"
+  label_wiki_approval_settings_list_application_menu: "应用菜单"
+  label_wiki_approval_settings_list_wiki_sidebar: "项目Wiki侧边栏"
+  label_wiki_approval_list_link: "Wiki列表"
+  label_wiki_approval_settings_content_draft: "启用Wiki内容草稿"

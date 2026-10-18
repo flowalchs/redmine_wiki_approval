@@ -239,4 +239,20 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     # no workflow forward icon
     assert_select 'div#content div.contextual a.icon.icon-forward', count: 0
   end
+
+  test 'wiki sidebar shows wiki list link when enabled' do
+    with_wiki_approval_settings(wiki_approval_settings_list_wiki_sidebar: '1') do
+      get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    end
+    assert_response :success
+    assert_select '#sidebar a[href=?]', '/projects/ecookbook/wiki_approval', text: 'Wiki list'
+  end
+
+  test 'wiki sidebar hides wiki list link when disabled' do
+    with_wiki_approval_settings(wiki_approval_settings_list_wiki_sidebar: '0') do
+      get :show, params: { project_id: @project.id, id: @page.title, version: 3 }
+    end
+    assert_response :success
+    assert_select '#sidebar a[href=?]', '/projects/ecookbook/wiki_approval', count: 0
+  end
 end

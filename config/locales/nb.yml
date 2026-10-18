@@ -55,3 +55,15 @@ nb:
   label_wiki_approval_template: Mal
   label_wiki_approval_settings_templates: Wiki-mal omfang
   no_wiki_template_permission: Du har ikke tillatelse til å redigere Wiki-malsider
+  permission_wiki_template_edit: "Rediger wiki-maler"
+  field_workflow_updated_at: "Arbeidsflyt oppdatert"
+  label_wiki_approval_status: "Arbeidsflytstatus"
+  label_wiki_approval_step_status: "Trinnstatus"
+  label_wiki_approval_step_principal: "Trinnbruker"
+  label_wiki_approval_list: "Vis wiki-listen i"
+  label_wiki_approval_list_defaults: "Standardverdier for wiki-listen"
+  label_wiki_approval_settings_list_top_menu: "Toppmeny"
+  label_wiki_approval_settings_list_application_menu: "Applikasjonsmeny"
+  label_wiki_approval_settings_list_wiki_sidebar: "Sidefelt i prosjektets wiki"
+  label_wiki_approval_list_link: "Wiki-liste"
+  label_wiki_approval_settings_content_draft: "Utkast for wiki-innhold aktivert"

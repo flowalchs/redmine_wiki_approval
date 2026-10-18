@@ -56,3 +56,15 @@ ru:
   label_wiki_approval_template: Шаблон
   label_wiki_approval_settings_templates: Область применения шаблонов Wiki
   no_wiki_template_permission: У вас нет прав на редактирование страниц шаблонов Wiki
+  permission_wiki_template_edit: "Редактировать шаблоны вики"
+  field_workflow_updated_at: "Процесс обновлён"
+  label_wiki_approval_status: "Статус процесса"
+  label_wiki_approval_step_status: "Статус шага"
+  label_wiki_approval_step_principal: "Пользователь шага"
+  label_wiki_approval_list: "Показывать список вики в"
+  label_wiki_approval_list_defaults: "Настройки списка вики по умолчанию"
+  label_wiki_approval_settings_list_top_menu: "Верхнее меню"
+  label_wiki_approval_settings_list_application_menu: "Меню приложения"
+  label_wiki_approval_settings_list_wiki_sidebar: "Боковая панель вики проекта"
+  label_wiki_approval_list_link: "Список вики"
+  label_wiki_approval_settings_content_draft: "Черновики содержимого вики включены"

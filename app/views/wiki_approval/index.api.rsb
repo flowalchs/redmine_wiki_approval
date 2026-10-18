@@ -1,4 +1,4 @@
-api.array :wiki_pages, api_meta(:total_count => @entry_count, :offset => @entry_pages.offset, :limit => @entry_pages.per_page) do
+api.array :wiki_pages, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
   @records.each do |p|
     api.page do
         render_page_fields(api, p)
