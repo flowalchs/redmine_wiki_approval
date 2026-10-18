@@ -4,7 +4,7 @@ info:
   description: >
     API for managing multi-step approval workflows for Redmine Wiki pages. 
     Allows starting approvals, granting/rejecting steps, and tracking history.
-  version: 1.0.1
+  version: 1.1.0
   contact:
       name: flowalchs
       url: https://github.com/flowalchs/redmine_wiki_approval
@@ -143,7 +143,7 @@ components:
           enum: [or, and]
         step_status:
           type: string
-          enum: [pending, approved, canceled, rejected]
+          enum: [unstarted, pending, approved, canceled, rejected]
         principal:
           $ref: '#/components/schemas/Principal'
         created_at:
@@ -270,11 +270,18 @@ components:
               - project_id
               - subproject_id
               - title
+              - parent_title
               - status
-              - author_id
+              - workflow_author_id
               - step_status
               - principal_id
-          example: ["subproject_id", "status", "author_id", "title"]
+              - author_id
+              - updated_by
+              - watcher_id
+              - created_on
+              - updated_on
+              - locked
+          example: ["subproject_id", "status", "workflow_author_id", "title"]
         
         # op: Operators for each field
         op:
@@ -282,17 +289,24 @@ components:
           properties:
             project_id: { type: string, example: "=" }
             subproject_id: { type: string, example: "!*" } # !* means "none"
-            status: { type: string, example: "=" }
-            author_id: { type: string, example: "!=" }
             title: { type: string, example: "~" } # ~ means "contains"
+            parent_title: { type: string, example: "~" }
+            status: { type: string, example: "=" }
+            workflow_author_id: { type: string, example: "!" }
             step_status: { type: string, example: "=" }
             principal_id: { type: string, example: "=" }
+            author_id: { type: string, example: "=" }
+            updated_by: { type: string, example: "=" }
+            watcher_id: { type: string, example: "=" }
+            created_on: { type: string, example: ">t-" } # less than n days ago
+            updated_on: { type: string, example: "><" } # between two dates
+            locked: { type: string, example: "=" }
           additionalProperties:
             type: string
           example:
             subproject_id: "!*"
             status: "="
-            author_id: "!"
+            workflow_author_id: "!"
             title: "~"
 
         # v: Actual values as arrays
@@ -306,7 +320,7 @@ components:
               type: array
               items: { type: string }
               example: ["draft", "pending"]
-            author_id: 
+            workflow_author_id: 
               type: array
               items: { type: string }
               example: ["me"]
@@ -314,20 +328,55 @@ components:
               type: array
               items: { type: string }
               example: ["wik"]
+            parent_title:
+              type: array
+              items: { type: string }
             step_status:
               type: array
               items: { type: string }
             principal_id:
               type: array
               items: { type: string }
+            author_id:
+              type: array
+              items: { type: string }
+              example: ["me"]
+            updated_by:
+              type: array
+              items: { type: string }
+            watcher_id:
+              type: array
+              items: { type: string }
+            created_on:
+              type: array
+              items: { type: string }
+              example: ["7"]
+            updated_on:
+              type: array
+              items: { type: string }
+              example: ["2026-01-01", "2026-03-31"]
+            locked:
+              type: array
+              items: { type: string, enum: ["0", "1"] }
           additionalProperties:
             type: array
             items:
               type: string
           example:
             status: ["draft", "pending"]
-            author_id: ["me"]
+            workflow_author_id: ["me"]
             title: ["Travel Expenses"]
+
+        sort:
+          type: string
+          description: >
+            Comma separated sort criteria, a column name optionally followed by ":desc".
+            Same columns as the query parameter `sort`.
+          example: "workflow_status,title:desc"
+
+        query_id:
+          type: integer
+          description: "ID of a saved wiki approval query. Its filters and sort criteria are used."
 
 security:
   - basicAuth: []
@@ -400,10 +449,10 @@ paths:
               summary: "Only published content"
               value: [published, released]
       
-        - &param_author
-          name: author_id
+        - &param_workflow_author
+          name: workflow_author_id
           in: query
-          description: "Filter by the user who started the approval. Supports multiple values."
+          description: "Filter by the user who started the current approval workflow. Supports multiple values."
           style: pipeDelimited
           explode: false
           allowEmptyValue: false
@@ -412,6 +461,86 @@ paths:
             items:
               type: string # String because of 'me'
             example: ["5", "me"]
+
+        # --- Wiki Page Filters ---
+        - &param_author
+          name: author_id
+          in: query
+          description: >
+            Filter by the author of the wiki page (author of the first content version).
+            Up to version 0.14 this parameter filtered the workflow starter,
+            use `workflow_author_id` for that.
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string # String because of 'me'
+            example: ["5", "me"]
+
+        - &param_updated_by
+          name: updated_by
+          in: query
+          description: "Filter by the author of the latest wiki content version."
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string # String because of 'me'
+            example: ["me"]
+
+        - &param_watcher_id
+          name: watcher_id
+          in: query
+          description: "Filter by a watcher of the wiki page."
+          style: pipeDelimited
+          explode: false
+          allowEmptyValue: false
+          schema:
+            type: array
+            items:
+              type: string # String because of 'me'
+            example: ["me"]
+
+        - &param_parent_title
+          name: parent_title
+          in: query
+          description: >
+            Filter by the title of the parent page. Supports the Redmine short filter syntax,
+            e.g. `~Manual` (contains) or `!*` (no parent page).
+          schema:
+            type: string
+            example: "~Manual"
+
+        - &param_locked
+          name: locked
+          in: query
+          description: "Filter locked (protected) wiki pages: 1 = locked, 0 = not locked."
+          schema:
+            type: string
+            enum: ["0", "1"]
+
+        - &param_created_on
+          name: created_on
+          in: query
+          description: >
+            Filter by the creation date of the wiki page. Supports the Redmine short filter
+            syntax, e.g. `>=2026-01-01`, `><2026-01-01|2026-03-31` or `>t-7` (less than 7 days ago).
+          schema:
+            type: string
+            example: ">t-7"
+
+        - &param_updated_on
+          name: updated_on
+          in: query
+          description: >
+            Filter by the date of the latest wiki content version. Same syntax as `created_on`.
+          schema:
+            type: string
+            example: ">=2026-01-01"
           
         # --- Step Specific Filters ---
         - &param_step_status
@@ -448,24 +577,58 @@ paths:
               type: string # String because of 'me'
             example: ["5", "me"]
 
-        # --- Pagination (Standard Redmine) ---
-        - &param_page
-          name: page
+        # --- Saved Query / Sorting ---
+        - &param_query_id
+          name: query_id
           in: query
-          description: "The page number to retrieve. Used for paginating the results."
+          description: >
+            ID of a saved wiki approval query (global or of the project).
+            Its filters and sort criteria are used.
           schema:
             type: integer
-            default: 1
-            example: 1
+            example: 12
 
-        - &param_per_page
-          name: per_page
+        - &param_sort
+          name: sort
           in: query
-          description: "Number of items to return per page. Default and maximum values are defined in Redmine settings (Settings -> General)."
+          description: >
+            Comma separated sort criteria, a column name optionally followed by `:desc`.
+            Sortable columns: project, title, created_on, protected, page_parent, content_comments,
+            content_updated_on, content_version, approved_revision, workflow_status,
+            workflow_updated_at, workflow_author, updated_by, author.
+            Default: `project,page_parent,title`.
+          schema:
+            type: string
+            example: "workflow_status,content_updated_on:desc"
+
+        # --- Pagination (Standard Redmine API) ---
+        - &param_offset
+          name: offset
+          in: query
+          description: "Number of items to skip."
+          schema:
+            type: integer
+            default: 0
+            example: 25
+
+        - &param_limit
+          name: limit
+          in: query
+          description: "Number of items to return (maximum 100)."
           schema:
             type: integer
             default: 25
+            maximum: 100
             example: 50
+
+        - &param_page
+          name: page
+          in: query
+          description: "Page number. In the wiki list it is used to calculate the offset when `offset` is not given (offset = (page - 1) * limit)."
+          schema:
+            type: integer
+            default: 1
+            example: 2
       responses:
         '200':
           description: "A list of workflows matching the filters."
@@ -473,7 +636,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WikiPageApprovalListResponse'
-                
+        '422':
+          description: Invalid filter, e.g. a wrong date value.
+
     post:
       summary: Search Approvals (Complex JSON Filter)
       description: >
@@ -494,13 +659,13 @@ paths:
                 summary: "My wiki drafts, current open workflow wiki pages where I was the author"
                 value:
                   set_filter: 1
-                  f: ["status", "author_id"]
+                  f: ["status", "workflow_author_id"]
                   op:
                     status: "="
-                    author_id: "="
+                    workflow_author_id: "="
                   v:
                     status: ["draft","pending","rejected"]
-                    author_id: ["me"]
+                    workflow_author_id: ["me"]
               my_approval_queue:
                 summary: "My approval queue, all open workflows in step status pending for me or my groups"
                 value:
@@ -512,9 +677,25 @@ paths:
                   v:
                     step_status: ["pending"]
                     principal_id: ["me"]
+              my_watched_pages_sorted:
+                summary: "Wiki pages I watch, last updated first"
+                value:
+                  set_filter: 1
+                  f: ["watcher_id"]
+                  op:
+                    watcher_id: "="
+                  v:
+                    watcher_id: ["me"]
+                  sort: "content_updated_on:desc"
       responses:
         '200':
           description: A list of approval entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiPageApprovalListResponse'
+        '422':
+          description: Invalid filter, e.g. a wrong date value.
 
   # Project-specific Index
   /projects/{project_id}/wiki_approval.json:
@@ -544,15 +725,33 @@ paths:
               type: string
             example: ["none", "1", "5"]
         - *param_title
+        - *param_parent_title
         - *param_status
-        - *param_author
+        - *param_workflow_author
         - *param_step_status
         - *param_principal_id
+        - *param_author
+        - *param_updated_by
+        - *param_watcher_id
+        - *param_locked
+        - *param_created_on
+        - *param_updated_on
+        - *param_query_id
+        - *param_sort
+        - *param_offset
+        - *param_limit
         - *param_page
-        - *param_per_page
       responses:
         '200':
           description: A list of approval entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiPageApprovalListResponse'
+        '403':
+          description: No permission to view the wiki pages of the project.
+        '422':
+          description: Invalid filter, e.g. a wrong date value.
     post:
       summary: Search Approvals (Complex JSON Filter)
       description: >
@@ -579,6 +778,14 @@ paths:
       responses:
         '200':
           description: List of approvals for the specific project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiPageApprovalListResponse'
+        '403':
+          description: No permission to view the wiki pages of the project.
+        '422':
+          description: Invalid filter, e.g. a wrong date value.
 
   # Wiki Page Status
   /projects/{project_id}/wiki_approval/{title}/status.json:
@@ -650,7 +857,13 @@ paths:
           schema:
             type: string
         - *param_page
-        - *param_per_page
+        - name: per_page
+          in: query
+          description: "Number of items to return per page. Default and maximum values are defined in Redmine settings (Settings -> General)."
+          schema:
+            type: integer
+            default: 25
+            example: 50
       responses:
         '200':
           description: "A list of workflow revisions was successfully retrieved."

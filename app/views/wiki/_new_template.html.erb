@@ -1,0 +1,6 @@
+<% if @wiki_templates.present? %>
+  <p>
+    <label><%= l(:label_wiki_approval_template) %></label>
+    <%= select_tag 'rwa_template_id', options_for_select(@wiki_templates), include_blank: '', style: 'min-width: 95%;' %>
+  </p>
+<% end %>

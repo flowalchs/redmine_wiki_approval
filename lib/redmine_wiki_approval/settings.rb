@@ -78,6 +78,24 @@ module RedmineWikiApproval
         Array(s.wiki_templates).select(&:present?)
       end
 
+      # project setting, loaded once per request
+      def project_setting(project)
+        return nil unless project
+
+        cache = RedmineWikiApproval::Current.project_settings ||= {}
+        # the global plugin settings hash is replaced when they change,
+        # so cached project settings with old resolved values are not reused
+        key = [project.id, Setting.plugin_redmine_wiki_approval.object_id]
+        cache[key] ||= WikiApprovalSetting.find_or_create(project.id)
+      end
+
+      def clear_project_setting_cache(project_id = nil)
+        cache = RedmineWikiApproval::Current.project_settings
+        return unless cache
+
+        project_id ? cache.delete_if { |key, _| key.first == project_id } : cache.clear
+      end
+
       private
 
       def resolve_setting(project, setting)
@@ -85,7 +103,7 @@ module RedmineWikiApproval
         return setting if setting.present?
         return nil unless is_enabled?(project)
 
-        WikiApprovalSetting.find_or_create(project.id)
+        project_setting(project)
       end
 
       def current_user

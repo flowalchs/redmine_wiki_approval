@@ -56,3 +56,15 @@ it:
   label_wiki_approval_template: Modello
   label_wiki_approval_settings_templates: Ambito dei modelli Wiki
   no_wiki_template_permission: Non hai il permesso di modificare le pagine dei modelli Wiki
+  permission_wiki_template_edit: "Modificare i modelli wiki"
+  field_workflow_updated_at: "Flusso aggiornato"
+  label_wiki_approval_status: "Stato del flusso"
+  label_wiki_approval_step_status: "Stato del passaggio"
+  label_wiki_approval_step_principal: "Utente del passaggio"
+  label_wiki_approval_list: "Mostrare l’elenco wiki in"
+  label_wiki_approval_list_defaults: "Valori predefiniti dell’elenco wiki"
+  label_wiki_approval_settings_list_top_menu: "Menu superiore"
+  label_wiki_approval_settings_list_application_menu: "Menu dell’applicazione"
+  label_wiki_approval_settings_list_wiki_sidebar: "Barra laterale del wiki del progetto"
+  label_wiki_approval_list_link: "Elenco wiki"
+  label_wiki_approval_settings_content_draft: "Bozze del contenuto wiki abilitate"

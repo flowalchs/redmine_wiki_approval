@@ -55,3 +55,15 @@ ja:
   label_wiki_approval_template: テンプレート
   label_wiki_approval_settings_templates: Wikiテンプレートの範囲
   no_wiki_template_permission: Wikiテンプレートページを編集する権限がありません
+  permission_wiki_template_edit: "Wikiテンプレートの編集"
+  field_workflow_updated_at: "ワークフロー更新日時"
+  label_wiki_approval_status: "ワークフローのステータス"
+  label_wiki_approval_step_status: "ステップのステータス"
+  label_wiki_approval_step_principal: "ステップのユーザー"
+  label_wiki_approval_list: "Wiki一覧の表示場所"
+  label_wiki_approval_list_defaults: "Wiki一覧のデフォルト設定"
+  label_wiki_approval_settings_list_top_menu: "トップメニュー"
+  label_wiki_approval_settings_list_application_menu: "アプリケーションメニュー"
+  label_wiki_approval_settings_list_wiki_sidebar: "プロジェクトWikiのサイドバー"
+  label_wiki_approval_list_link: "Wiki一覧"
+  label_wiki_approval_settings_content_draft: "Wikiコンテンツの下書きを有効にする"

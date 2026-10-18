@@ -17,3 +17,18 @@ wiki_approval_settings_templates:
   - global
   - projects
   - roles
+wiki_approval_settings_list_application_menu: 1
+wiki_approval_settings_list_top_menu: 0
+wiki_approval_settings_list_wiki_sidebar: 1
+wiki_approval_settings_default_wiki_query: ''
+wiki_approval_settings_default_wiki_columns:
+  - project
+  - title
+  - page_parent
+  - content_version
+  - approved_revision
+  - content_updated_on
+  - workflow_status
+  - workflow_author
+  - workflow_users
+

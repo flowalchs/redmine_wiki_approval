@@ -737,7 +737,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
   end
 
   def test_get_index_my_drafts
-    get "/wiki_approval.json", :params => { status: "draft|pending", author_id: "me" }, :headers => @jsmith_header
+    get "/wiki_approval.json", :params => { status: "draft|pending", workflow_author_id: "me" }, :headers => @jsmith_header
     assert_response :success
 
     json = JSON.parse(response.body)
@@ -759,7 +759,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
   end
 
   def test_get_index_my_drafts_notfound
-    get "/wiki_approval.json?", :params => { status: "draft|pending", author_id: "me" }, :headers => @dlopper_header
+    get "/wiki_approval.json?", :params => { status: "draft|pending", workflow_author_id: "me" }, :headers => @dlopper_header
     assert_response :success
 
     json = JSON.parse(response.body)
@@ -769,7 +769,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
   end
 
   def test_get_index_my_drafts_onlydraft_notfound
-    get "/wiki_approval.json?status=draft&author_id=me", :headers => @jsmith_header
+    get "/wiki_approval.json?status=draft&workflow_author_id=me", :headers => @jsmith_header
     assert_response :success
 
     json = JSON.parse(response.body)
@@ -779,7 +779,7 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
   end
 
   def test_get_index_drafts_otherusers
-    get "/wiki_approval.json", :params => { status: "draft|pending", author_id: "2|4" }, :headers => @dlopper_header
+    get "/wiki_approval.json", :params => { status: "draft|pending", workflow_author_id: "2|4" }, :headers => @dlopper_header
     assert_response :success
 
     json = JSON.parse(response.body)
@@ -1023,18 +1023,18 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
         set_filter: 1,
         f: [
           "status",
-          "author_id"
+          "workflow_author_id"
         ],
         op: {
           status: "=",
-          author_id: "!"
+          workflow_author_id: "!"
         },
         v: {
           status: [
             "draft",
             "pending"
           ],
-          author_id: [
+          workflow_author_id: [
             "me"
           ],
         }

@@ -56,3 +56,15 @@ pl:
   label_wiki_approval_template: Szablon
   label_wiki_approval_settings_templates: Zakres szablonów Wiki
   no_wiki_template_permission: Nie masz uprawnień do edycji stron szablonów Wiki
+  permission_wiki_template_edit: "Edytuj szablony wiki"
+  field_workflow_updated_at: "Przepływ zaktualizowany"
+  label_wiki_approval_status: "Status przepływu"
+  label_wiki_approval_step_status: "Status kroku"
+  label_wiki_approval_step_principal: "Użytkownik kroku"
+  label_wiki_approval_list: "Pokaż listę wiki w"
+  label_wiki_approval_list_defaults: "Domyślne ustawienia listy wiki"
+  label_wiki_approval_settings_list_top_menu: "Górne menu"
+  label_wiki_approval_settings_list_application_menu: "Menu aplikacji"
+  label_wiki_approval_settings_list_wiki_sidebar: "Pasek boczny wiki projektu"
+  label_wiki_approval_list_link: "Lista wiki"
+  label_wiki_approval_settings_content_draft: "Wersje robocze treści wiki włączone"

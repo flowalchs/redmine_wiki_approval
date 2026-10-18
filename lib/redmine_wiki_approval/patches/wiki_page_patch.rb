@@ -22,6 +22,10 @@ module RedmineWikiApproval
                 class_name: 'WikiApprovalDraft',
                 foreign_key: :page_id,
                 dependent: :destroy
+        has_one :initial_content_version,
+                -> { order(version: :asc) },
+                class_name: 'WikiContentVersion',
+                foreign_key: :page_id
         after_save :delete_draft_after_publish
         attr_accessor :use_draft_content
         attr_accessor :draft_comments
@@ -73,6 +77,10 @@ module RedmineWikiApproval
 
         def delete_draft_after_publish
           WikiApprovalDraft.where(page_id: id).delete_all
+        end
+
+        def author
+          initial_content_version&.author
         end
       end
     end

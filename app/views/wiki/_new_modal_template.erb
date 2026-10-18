@@ -12,13 +12,8 @@
       <%= f.text_field :title, :name => 'title', :size => 60, :required => true %>
       <em class="info"><%= l(:text_unallowed_characters) %>: , . / ? ; : |</em>
     </p>
+    <%= render partial: 'wiki/new_template' %>
     <p>
-    <% if @wiki_templates %>
-      <label><%= l(:label_wiki_approval_template) %></label>
-      <%= select_tag 'rwa_template_id', options_for_select(@wiki_templates), include_blank: '', style: 'min-width: 95%;' %>
-    </p>
-    <p>
-    <% end %>
     <% if params[:parent].present? %>
       <label class="inline">
         <%= check_box_tag 'parent', params[:parent], true %>
