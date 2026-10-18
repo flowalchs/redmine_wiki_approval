@@ -76,6 +76,7 @@ module WikiApproval
       end
 
       def teardown_method!
+        RedmineWikiApproval::Current.reset
         User.current = nil
         Setting.clear_cache
         Rails.cache.clear

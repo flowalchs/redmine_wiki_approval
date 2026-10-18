@@ -145,5 +145,6 @@ class WikiApprovalSetting < ApplicationRecord
   def clear_setting_cache
     @resolved_settings = nil
     @data_hash = nil
+    RedmineWikiApproval::Settings.clear_project_setting_cache(project_id)
   end
 end

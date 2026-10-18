@@ -25,7 +25,7 @@ module RedmineWikiApproval
           return unless @project && RedmineWikiApproval::Settings.is_enabled?(@project)
 
           # draft, approval or contentDraft must be enabled in project or plugin
-          setting = WikiApprovalSetting.find_or_create(@project.id)
+          setting = RedmineWikiApproval::Settings.project_setting(@project)
           return unless RedmineWikiApproval::Settings.approval_or_draft_enabled?(@project, setting) || RedmineWikiApproval::Settings.content_draft?(@project, setting)
 
           # @page nil from :update controller comment_required
