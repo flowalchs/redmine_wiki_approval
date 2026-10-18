@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0 (2026-10-18)
+* feat: add template selection to Wiki "New Page" HTML view #31
+* feat: wiki list with Redmine query (filter, sort, group, save) #20
+* fix: select plugin entry in admin menu on plugin settings page #33
+* perf: load project wiki approval setting once per request #32
+
 ## v0.13.2 (2026-07-01)
 * feat: persist and restore draft comments in wiki approval #29
 * refactor: add approved_page_id marker to WikiApprovalWorkflow #30
