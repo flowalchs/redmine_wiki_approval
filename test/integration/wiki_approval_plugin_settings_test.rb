@@ -7,6 +7,22 @@ class WikiApprovalPluginSettingsTest < WikiApproval::Test::IntegrationCase
     log_user('admin', 'admin')
   end
 
+  def test_settings_page_selects_plugin_admin_menu_item
+    get '/settings/plugin/redmine_wiki_approval'
+    assert_response :success
+
+    assert_select '#admin-menu a.redmine-wiki-approval.selected[href=?]', '/settings/plugin/redmine_wiki_approval'
+    assert_select '#admin-menu a.plugins.selected', 0
+  end
+
+  def test_plugins_list_keeps_plugins_admin_menu_item
+    get '/admin/plugins'
+    assert_response :success
+
+    assert_select '#admin-menu a.plugins.selected'
+    assert_select '#admin-menu a.redmine-wiki-approval.selected', 0
+  end
+
   def test_settings_page_loads
     get '/settings/plugin/redmine_wiki_approval'
     assert_response :success

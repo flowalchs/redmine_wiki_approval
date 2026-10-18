@@ -3,7 +3,7 @@
 require 'redmine_plugin_kit'
 
 module RedmineWikiApproval
-  VERSION = '0.14.1'
+  VERSION = '1.0.0'
 
   include RedminePluginKit::PluginBase
 
@@ -20,10 +20,11 @@ module RedmineWikiApproval
                           WikiContentVersion
                           WikiPage
                           WikiContent
-                          QueriesController]
+                          QueriesController
+                          SettingsController]
 
-      loader.add_helper [{ controller: 'Settings', helper: 'WikiApprovalSettings' },
-                         { controller: 'Projects', helper: 'WikiApprovalSettings' }]
+      # Settings helper is added in SettingsControllerPatch
+      loader.add_helper [{ controller: 'Projects', helper: 'WikiApprovalSettings' }]
 
       Redmine::Notifiable.singleton_class.prepend RedmineWikiApproval::Patches::NotifiablePatch
 
