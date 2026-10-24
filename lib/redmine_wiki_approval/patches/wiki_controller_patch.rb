@@ -16,7 +16,6 @@ module RedmineWikiApproval
         append_before_action :handle_update_flow, only: [:update]
         append_before_action :handle_show_flow, only: [:show]
 
-        helper :wiki_approval_icon
         helper :wiki_approval
         helper :wiki_approval_comments
       end

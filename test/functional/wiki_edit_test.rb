@@ -293,7 +293,7 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
   end
 
   test 'should render wiki edit with version of content draft section' do
-    # because of redmint 4.2
+    # the fixture content is textile
     Setting.text_formatting = 'textile'
 
     # save multiple sections

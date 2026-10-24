@@ -18,7 +18,6 @@ class WikiApprovalController < ApplicationController
 
   helper :queries
   helper :routes
-  helper :wiki_approval_icon
   helper :wiki_approval
 
   def status

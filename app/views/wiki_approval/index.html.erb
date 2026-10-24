@@ -26,7 +26,7 @@
             <% reset_cycle %>
             <tr class="group open">
               <td colspan="<%= @query.columns.size %>">
-                <span class="expander icon icon-expanded" onclick="toggleRowGroup(this);"><%= rma_icon("angle-down", legacy_text_only: true) %></span>
+                <span class="expander icon icon-expanded" onclick="toggleRowGroup(this);"><%= sprite_icon("angle-down") %></span>
                 <span class="name"><%= wiki_approval_group_link(group_name, @query.group_by_column, r) %></span>
                 <% if group_count %>
                   <span class="badge badge-count count"><%= group_count %></span>

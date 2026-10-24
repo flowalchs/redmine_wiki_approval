@@ -9,7 +9,6 @@ class WikiApprovalCommentsController < ApplicationController
   before_action :find_page
   before_action :find_comment, only: [:update, :destroy, :resolve]
 
-  helper :wiki_approval_icon
   helper :wiki_approval
   helper :wiki_approval_comments
 
