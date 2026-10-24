@@ -94,6 +94,24 @@ class WikiApprovalApiTest < WikiApproval::Test::IntegrationCase
     assert_equal 2, last_workflow.approval_steps.count
   end
 
+  def test_start_approval_with_documented_step_type
+    put(
+      "/projects/#{@project.id}/wiki_approval/#{@page.title}/start.json",
+      :params => {
+        :note => "AND step via API",
+        :steps => [
+          { step: 1, step_type: "and", principal_id: 3 }, # Dave Lopper
+          { step: 1, step_type: "and", principal_id: 1 }  # Admin
+        ]
+      }.to_json,
+      :headers => @jsmith_header.merge('CONTENT_TYPE' => 'application/json')
+    )
+
+    assert_response :success
+    steps = JSON.parse(response.body)['wiki_approval_workflow']['wiki_approval_workflow_steps']
+    assert_equal %w[and and], steps.map { |s| s['step_type'] }
+  end
+
   def test_start_approval_duplicat_user
     put(
       "/projects/#{@project.id}/wiki_approval/#{@page.title}/start.json",

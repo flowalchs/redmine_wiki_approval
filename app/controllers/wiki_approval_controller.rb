@@ -111,7 +111,8 @@ class WikiApprovalController < ApplicationController
         approval.update(note: params[:note], author_id: User.current.id)
 
         # step_type from the first
-        step_type = users.dig(0, :step_typ).presence || 'or'
+        # form: step_typ, api (documented): step_type
+        step_type = users.dig(0, :step_typ).presence || users.dig(0, :step_type).presence || 'or'
 
         # create new users for this step
         users.each do |user_data|
