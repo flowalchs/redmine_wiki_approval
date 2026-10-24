@@ -23,16 +23,16 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 
 ## 🌟 Features
 
-- **Draft-Based Editing** – Work on changes without publishing them
-- **Multi-Step Approval Workflow** – Configurable approval steps before publishing
+- [**Draft-Based Editing**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Page-Edit) – Work on changes without publishing them
+- [**Multi-Step Approval Workflow**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Approval-Workflow) – Configurable approval steps before publishing
 - **Approval Activity View** – Track approval status by redmine activity feed
 - **Role-Based Permissions** – Control who can draft, approve, or publish
 - **REST API & OpenAPI Support** – Fully automate workflows with a modern REST API, including an interactive [OpenAPI Documentation](https://flowalchs.github.io/redmine_wiki_approval/)
 - **Email Notifications** – Notifications for status and step changes
-- **Per‑Project or Global Settings** – Configure behavior globally or individually per project, such as enabling approval requirements, drafts, or mandatory comments.
-- **Mandatory Save Comment** – Requires users to enter a comment when saving Wiki content (configurable on/off)
-- **My Page Blocks** – Manage your Wiki Approval Queue for pending reviews and track your own Wiki Drafts directly from your personal dashboard
-- **Wiki Approval Macros** – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
+- [**Per‑Project or Global Settings**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Settings) – Configure behavior globally or individually per project, such as enabling approval requirements, drafts, or mandatory comments.
+- [**Mandatory Save Comment**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Page-Edit) – Requires users to enter a comment when saving Wiki content (configurable on/off)
+- [**My Page Blocks**](https://github.com/flowalchs/redmine_wiki_approval/wiki/My-Page) – Manage your Wiki Approval Queue for pending reviews and track your own Wiki Drafts directly from your personal dashboard
+- [**Wiki Approval Macros**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Macros) – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
 - [**Wiki Templates**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Templates) – Define reusable wiki page templates stored as regular wiki pages, organized by global scope, project, or role.
 - [**Wiki List**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-List) – Table view of all wiki pages across projects with filters, columns, sorting, grouping and saved queries, like the Redmine issue list.
 - [**Wiki Comments**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Comments) – Inline comments on selected text and page comments, with replies, resolve/reopen per page version, activity and mail notifications.
@@ -69,7 +69,8 @@ The plugin supports 14+ languages, including English, German, Japanese, French, 
 ## 📋 Requirements
 
 - **Redmine**: 6.0 or higher
-- **Ruby**: 2.7 or higher
+- **Ruby**: as required by your Redmine version (tested with 3.2 – 4.0)
+- **Database**: MySQL or PostgreSQL
 - **Rails**: Compatible with Redmine's Rails version
 
 ## 🚀 Installation
@@ -86,23 +87,11 @@ Enable the Module "Wiki approval" per project
 
 ## ⚙️ Plugin/Project Configuration
 
-1. Navigate to **Administation → Wiki approval**
-   - Settings can be configured per project or system-wide
-2. Navigate to **Project Settings → Wiki approval**
-   - enable the modul per project
-3. Available options: [Wiki Plugin Settings](https://github.com/flowalchs/redmine_wiki_approval/wiki/Settings)
-   - Settings 
-     - Wiki comment required 
-     - Wiki Content Drafts enabled
-     - Wiki comments enabled
-     - Enable per-project sidebar approval settings
-       - Default sidebar approval statuses (multiselect)
-     - Wiki Templates (multiselect: global, projects, roles) — feature disabled if nothing selected
-   - Approval workflow
-     - Wiki draft enabled
-     - Wiki approval enabled
-       - Approval required
-       - Approval workflow for next version (required)
+1. Configure the plugin under **Administration → Wiki approval** — each option can be enabled system-wide or made configurable per project
+2. Enable the module **Wiki approval** in the project under **Project → Settings → Project → Modules**
+3. Adjust the project-specific options under **Project → Settings → Wiki approval**
+
+All options are described in the Wiki: [Settings](https://github.com/flowalchs/redmine_wiki_approval/wiki/Settings)
 
 ## 🖼️ Screenshots
 
@@ -157,35 +146,6 @@ graph TD
     style REJ fill:#ffebee,stroke:#c62828
     style CAN fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
 ```   
-
-## 🧩 Macros
-
-The following macros can be used inside wiki pages to render approval-related information directly within the content:
-
-```textile
-{{rwa_status}}                # Display the current approval status as a badge
-{{rwa_status(text)}}          # Display the approval status as plain text
-
-{{rwa_revision}}              # Display the approved revision number
-
-{{rwa_updated_at}}            # Display last workflow update timestamp
-{{rwa_updated_at(relative)}}  # Display relative update time (e.g. "about 1 minute ago")
-
-{{rwa_diff}}   # Display a diff link between the current wiki version and the last approved version
-
-{{rwa_users}}                  # Display all users involved in the approval workflow
-{{rwa_users(step=1)}}          # Display only the users assigned to approval step 1
-{{rwa_users(step=1,approved)}} # Display only the users assigned to approval step 1 that are already approved
-
-#Display the workflow starter with avatar, profile link, and additional details via mouse‑over
-{{rwa_users(starter,userimage,mouseover,userlink)}} 
-
-# Display only the user who initiated the approval workflow
-{{rwa_users(starter,step=0)}} 
-
-# Display approvers of step 2 including approval notes and current step status
-{{rwa_users(step=2,note,status)}} 
-```
 
 ## ❌ Uninstall
 
