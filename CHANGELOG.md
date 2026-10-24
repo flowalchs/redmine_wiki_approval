@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.0 (2026-10-24)
+* docs: update README for Redmine 6 and link wiki pages #40
+* feat: Wiki Comments – inline and page comments with replies, resolve/reopen, activity and mail notifications #37
+* fix: JavaScript error in project settings when approval options are not configurable per project #36
+* fix: OpenAPI documents step_status granted instead of approved for grant #35
+* fix: approval workflow avatars same size as the watchers #39
+* fix: start approval via REST API ignores documented step_type #34
+* refactor: remove compatibility code for Redmine 4.2 and 5.1 #38
+
 ## v1.0.0 (2026-10-18)
 * feat: add template selection to Wiki "New Page" HTML view #31
 * feat: wiki list with Redmine query (filter, sort, group, save) #20
