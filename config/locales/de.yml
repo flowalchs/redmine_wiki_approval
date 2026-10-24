@@ -67,3 +67,54 @@ de:
   label_wiki_approval_settings_list_application_menu: "Anwendungsmenü"
   label_wiki_approval_settings_list_wiki_sidebar: "Projekt-Wiki-Sidebar"
   label_wiki_approval_list_link: "Wiki-Liste"
+  permission_wiki_comments_view: Wiki-Kommentare anzeigen
+  permission_wiki_comments_add: Wiki-Kommentare hinzufügen
+  permission_wiki_comments_manage: Wiki-Kommentare verwalten
+  label_wiki_approval_settings_comments: Wiki-Kommentare aktiviert
+  text_wiki_approval_settings_comments: 'Kommentare zu markiertem Text oder zur ganzen Seite, mit Antworten und Status offen/gelöst.'
+  label_wiki_comments: Kommentare
+  label_wiki_comments_filter_open: Offen
+  label_wiki_comments_filter_resolved: Gelöst
+  label_wiki_comments_filter_all: Alle
+  label_wiki_comments_show_inline: Inline-Kommentare anzeigen
+  label_wiki_comments_none_open: Keine offenen Kommentare
+  label_wiki_comments_none_resolved: Keine gelösten Kommentare
+  label_wiki_comments_add_page: Diese Seite kommentieren…
+  label_wiki_comments_add_inline: Markierten Text kommentieren…
+  label_wiki_comments_reply: Antworten…
+  label_wiki_comments_goto_text: Zum kommentierten Text springen
+  label_wiki_comments_x_open:
+    one: 1 offener Kommentar
+    other: "%{count} offene Kommentare"
+  label_wiki_comments_x_resolved:
+    one: 1 gelöster Kommentar
+    other: "%{count} gelöste Kommentare"
+  label_wiki_comment_status_open: Offen
+  label_wiki_comment_status_resolved: Gelöst
+  label_wiki_comment_resolved_by: "gelöst von %{user}"
+  button_wiki_comment_add: Kommentieren
+  button_wiki_comment_resolve: Lösen
+  button_wiki_comment_reopen: Wieder öffnen
+  text_wiki_comments_select_hint: Text auf der Seite markieren, um einen Inline-Kommentar hinzuzufügen.
+  text_wiki_comments_orphan: Der kommentierte Text wurde in dieser Version nicht gefunden.
+  text_wiki_comment_delete_thread: Diesen Kommentar mit allen Antworten löschen?
+  label_wiki_comments_add_page_link: Diese Seite kommentieren
+  label_wiki_comments_show_in_version: "In Revision %{version} ansehen"
+  text_wiki_comments_newer:
+    one: 1 Kommentar aus einer späteren Revision wird nicht angezeigt.
+    other: "%{count} Kommentare aus späteren Revisionen werden nicht angezeigt."
+  label_wiki_comments_show_current: Aktuelle Revision anzeigen
+  label_wiki_comments_resolved_current: In dieser Revision gelöst
+  label_wiki_comments_resolved_earlier: In früheren Revisionen gelöst
+  label_wiki_comments_x_resolved_current:
+    one: 1 in dieser Revision gelöst
+    other: "%{count} in dieser Revision gelöst"
+  label_wiki_comments_x_resolved_earlier:
+    one: 1 in früheren Revisionen gelöst
+    other: "%{count} in früheren Revisionen gelöst"
+  label_wiki_comment: Wiki-Kommentar
+  label_wiki_approval_comment_plural: Wiki-Kommentare
+  label_wiki_comment_added: Wiki-Kommentar hinzugefügt
+  label_wiki_comment_resolved: Wiki-Kommentar gelöst
+  label_wiki_comment_reopened: Wiki-Kommentar wieder geöffnet
+  label_wiki_comment_status_changed: Wiki-Kommentar gelöst oder wieder geöffnet

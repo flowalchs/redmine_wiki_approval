@@ -14,35 +14,18 @@ class WikiApprovalWorkflowStep < ApplicationRecord
 
   after_save :check_next_step
 
-  if ActiveRecord::VERSION::MAJOR >= 7
-    # Rails 7.x und 8.x → positional arguments
-    enum :step_status, {
-      unstarted: 15,  # planed for
-      pending: 20,    # in approval mode
-      rejected: 40,   # no approved
-      approved: 70,   # released
-      canceled: 90,   # one is rejected, all other canceled
-    }, prefix: :step_status
+  enum :step_status, {
+    unstarted: 15,  # planed for
+    pending: 20,    # in approval mode
+    rejected: 40,   # no approved
+    approved: 70,   # released
+    canceled: 90,   # one is rejected, all other canceled
+  }, prefix: :step_status
 
-    enum :step_type, {
-      or: 0,
-      and: 1
-    }, prefix: true
-  else
-    # redmine 5.1
-    enum step_status: { # rubocop:disable Rails/EnumSyntax
-      unstarted: 15,  # planed for
-      pending: 20,    # in approval mode
-      rejected: 40,   # no approved
-      approved: 70,   # released
-      canceled: 90,   # one is rejected, all other canceled
-    }, _prefix: true
-
-    enum step_type: { # rubocop:disable Rails/EnumSyntax
-      or: 0,
-      and: 1
-    }, _prefix: true
-  end
+  enum :step_type, {
+    or: 0,
+    and: 1
+  }, prefix: true
 
   scope :for_principal, ->(principal) {
     where(principal_id: principal.id, principal_type: principal.class.name)

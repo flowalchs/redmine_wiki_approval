@@ -118,7 +118,8 @@ module WikiApprovalHelper
     content_tag(:div, class: 'rwa-user') do
       html = ''.html_safe
 
-      html << avatar(user, size: 22, title: user.name) if userimage
+      # same size as the watchers
+      html << avatar(user, size: 16, title: user.name) if userimage
 
       name = if userlink
                user.is_a?(Group) ? link_to(user.name, group_path(user)) : link_to_user(user)

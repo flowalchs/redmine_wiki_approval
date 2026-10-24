@@ -2,7 +2,7 @@
     <%= submit_tag l(:button_wiki_approval_content_draft), :name => 'draft' %>
 
     <% if WikiApprovalDraft.exists?( page_id: @page.id ) %>
-        <%= link_to rma_icon('reload', l(:button_wiki_approval_content_draft_prev), legacy_text_only: true), 
+        <%= link_to sprite_icon('reload', l(:button_wiki_approval_content_draft_prev)), 
                     edit_project_wiki_page_path(@page.project, @page.title, version: @page.content.version),
                     style: "margin-right: 12px; margin-left: 12px"%>
     <% end %>

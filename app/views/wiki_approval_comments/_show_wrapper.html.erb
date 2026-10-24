@@ -1,0 +1,19 @@
+<% if (comments = wiki_comments_context) %>
+  <% heads_for_wiki_formatter if wiki_comments_can_add?(@project) %>
+  <div class="rwa-comments-wrapper" data-controller="wiki-comments"
+       data-wiki-comments-filter-value="open"
+       data-wiki-comments-can-add-value="<%= wiki_comments_can_add?(@project) %>"
+       data-wiki-comments-help-url-value="<%= help_wiki_syntax_path %>"
+       data-wiki-comments-preview-url-value="<%= preview_text_path(project_id: @project.id) %>"
+       data-wiki-comments-previous-label-value="<%= l(:label_previous) %>"
+       data-wiki-comments-next-label-value="<%= l(:label_next) %>"
+       data-wiki-comments-comment-label-value="<%= l(:button_wiki_comment_add) %>">
+    <div class="rwa-comments-content" data-wiki-comments-target="content"
+         data-action="click->wiki-comments#openThread mouseover->wiki-comments#hoverMark mouseout->wiki-comments#hoverMark"><%= render_original %></div>
+    <div id="wiki-comments" class="rwa-comments" data-wiki-comments-target="panel">
+      <%= render partial: 'wiki_approval_comments/panel', locals: comments %>
+    </div>
+  </div>
+<% else %>
+  <%= render_original %>
+<% end %>

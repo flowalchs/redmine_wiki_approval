@@ -25,26 +25,14 @@ class WikiApprovalWorkflow < ApplicationRecord
 
   APPROVED_STATUSES = [:published, :released].freeze
 
-  if ActiveRecord::VERSION::MAJOR >= 7
-    # Rails 7.x und 8.x → positional arguments
-    enum :status, {
-      canceled: 5,
-      draft: 10,
-      pending: 20,
-      rejected: 40,
-      published: 60,
-      released: 70,
-    }
-  else
-    enum status: { # rubocop:disable Rails/EnumSyntax
-      canceled: 5,
-      draft: 10,
-      pending: 20,
-      rejected: 40,
-      published: 60,
-      released: 70,
-    }
-  end
+  enum :status, {
+    canceled: 5,
+    draft: 10,
+    pending: 20,
+    rejected: 40,
+    published: 60,
+    released: 70,
+  }
 
   scope :by_author, ->(user_id) { where(author_id: user_id) }
   scope :for_wiki, ->(page_id, version_id) {

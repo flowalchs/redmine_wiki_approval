@@ -71,6 +71,24 @@ module RedmineWikiApproval
         s.content_draft_for?(current_user)
       end
 
+      def comments_enabled?(project, setting = nil)
+        s = resolve_setting(project, setting)
+        s&.wiki_comments || false
+      end
+
+      def view_comments?(project, setting = nil)
+        return false unless comments_enabled?(project, setting)
+
+        current_user.allowed_to?(:wiki_comments_view, project)
+      end
+
+      def add_comments?(project, setting = nil)
+        return false unless comments_enabled?(project, setting)
+        return false unless current_user.logged?
+
+        current_user.allowed_to?(:wiki_comments_add, project)
+      end
+
       def wiki_templates(project, setting = nil)
         s = resolve_setting(project, setting)
         return [] unless s

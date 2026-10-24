@@ -1,0 +1,12 @@
+api.array :comments do
+  @comments.each do |thread|
+    api.comment do
+      render_api_wiki_comment(api, thread)
+      api.array :replies do
+        thread.replies.each do |reply|
+          api.reply { render_api_wiki_comment(api, reply) }
+        end
+      end
+    end
+  end
+end

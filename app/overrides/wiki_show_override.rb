@@ -16,4 +16,11 @@ module WikiShowOverride
     partial: 'wiki/show_actions_dropdown',
     original: 'fc27fab81025c90f072d63af36b0cc1ee32833ee'
   )
+
+  Deface::Override.new(
+    virtual_path: 'wiki/show',
+    name: 'surround-wiki-show-content-comments',
+    surround: "erb[loud]:contains('wiki/content')",
+    partial: 'wiki_approval_comments/show_wrapper'
+  )
 end

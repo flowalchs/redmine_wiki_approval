@@ -23,7 +23,7 @@
                     options_for_select([[l(:wiki_approval_or), 'or'], [l(:wiki_approval_and), 'and']], selected: step.step_type),
                     class: "step-typ" %>
                   <span class="add-user" data-step="<%= step_nr %>">
-                    <%= rma_icon('add', l(:wiki_approval_add_user)) %>
+                    <%= sprite_icon('add', l(:wiki_approval_add_user)) %>
                   </span><br>
                 <% end %>
             <% end %>
@@ -34,7 +34,7 @@
     <div>
       <p>
       <span id="add-step">
-        <%= rma_icon('add', l(:wiki_approval_add_step)) %>
+        <%= sprite_icon('add', l(:wiki_approval_add_step)) %>
       </span>
       </p>
     </div>
@@ -49,22 +49,11 @@
 
   // get icon with label
   function buildIconWithLabel(name, labelText) {
-    // 1) SVG-Version (Redmine 6.1+): serach a SVG in DOM
-    //    a) under #add-step,
-    //    b) or other <svg.icon-svg>  #icon--{name} 
+    // SVG icon from the DOM: under #add-step or any other <svg.icon-svg> #icon--{name}
     const localSvg = document.querySelector(`#add-step svg.icon-svg use[href*="#icon--${name}"]`);
     const globalSvg = document.querySelector(`svg.icon-svg use[href*="#icon--${name}"]`);
-    let iconNode;
-
-    if (localSvg || globalSvg) {
-      // Deep clone des <svg>
-      const svg = (localSvg || globalSvg).closest('svg');
-      iconNode = svg.cloneNode(true);
-    } else {
-      // fallback für Redmine 5.1: CSS-Icon
-      iconNode = document.createElement('span');
-      iconNode.className = `icon icon-${name}`;
-    }
+    // Deep clone des <svg>
+    const iconNode = (localSvg || globalSvg).closest('svg').cloneNode(true);
 
     // Label-Spanne
     const label = document.createElement('span');

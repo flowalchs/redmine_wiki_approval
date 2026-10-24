@@ -15,26 +15,6 @@ jobs:
         redmine: ['6.1-stable', '7.0-stable']
         db: ['postgres', 'mysql']
         include:
-          # Redmine 4.2 mit Ruby 2.7
-          - redmine: '4.2-stable'
-            ruby: '2.7'
-            db: 'postgres'
-          - redmine: '4.2-stable'
-            ruby: '2.7'
-            db: 'mysql'
-          # Redmine 5.1 mit Ruby 2.7/3.2
-          - redmine: '5.1-stable'
-            ruby: '2.7'
-            db: 'postgres'
-          - redmine: '5.1-stable'
-            ruby: '2.7'
-            db: 'mysql'
-          - redmine: '5.1-stable'
-            ruby: '3.2'
-            db: 'postgres'
-          - redmine: '5.1-stable'
-            ruby: '3.2'
-            db: 'mysql'
           # Redmine 7.0 mit Ruby 4.0
           - redmine: '7.0-stable'
             ruby: '4.0'
@@ -119,14 +99,6 @@ jobs:
         run: |
           cp plugins/redmine_wiki_approval/test/support/database-${{ matrix.db }}.yml config/database.yml
           cp plugins/redmine_wiki_approval/test/support/configuration.yml config/configuration.yml
-
-      - name: Patch Gemfile for Redmine 4.2 (blankslate, simplecov)
-        if: matrix.redmine == '4.2-stable'
-        shell: bash
-        working-directory: redmine
-        run: |
-          grep -q "gem 'blankslate'" Gemfile || echo "gem 'blankslate', '~> 3.1.3'" >> Gemfile
-          sed -i "s/gem 'simplecov', '~> 0.18.5', :require => false/gem 'simplecov', '~> 0.19', :require => false/" Gemfile
 
       - name: Install Ruby dependencies
         working-directory: redmine

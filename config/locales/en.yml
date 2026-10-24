@@ -67,3 +67,54 @@ en:
   label_wiki_approval_settings_list_application_menu: Application menu
   label_wiki_approval_settings_list_wiki_sidebar: Project wiki sidebar
   label_wiki_approval_list_link: Wiki list
+  permission_wiki_comments_view: View wiki comments
+  permission_wiki_comments_add: Add wiki comments
+  permission_wiki_comments_manage: Manage wiki comments
+  label_wiki_approval_settings_comments: Wiki comments enabled
+  text_wiki_approval_settings_comments: 'Comments on selected text or on the whole page, with replies and open/resolved status.'
+  label_wiki_comments: Comments
+  label_wiki_comments_filter_open: Open
+  label_wiki_comments_filter_resolved: Resolved
+  label_wiki_comments_filter_all: All
+  label_wiki_comments_show_inline: Show inline comments
+  label_wiki_comments_none_open: No open comments
+  label_wiki_comments_none_resolved: No resolved comments
+  label_wiki_comments_add_page: Comment on this page…
+  label_wiki_comments_add_inline: Comment on the selected text…
+  label_wiki_comments_reply: Reply…
+  label_wiki_comments_goto_text: Go to the commented text
+  label_wiki_comments_x_open:
+    one: 1 open comment
+    other: "%{count} open comments"
+  label_wiki_comments_x_resolved:
+    one: 1 resolved comment
+    other: "%{count} resolved comments"
+  label_wiki_comment_status_open: Open
+  label_wiki_comment_status_resolved: Resolved
+  label_wiki_comment_resolved_by: "resolved by %{user}"
+  button_wiki_comment_add: Comment
+  button_wiki_comment_resolve: Resolve
+  button_wiki_comment_reopen: Reopen
+  text_wiki_comments_select_hint: Select text in the page to add an inline comment.
+  text_wiki_comments_orphan: The commented text was not found in this version.
+  text_wiki_comment_delete_thread: Delete this comment with all replies?
+  label_wiki_comments_add_page_link: Comment on this page
+  label_wiki_comments_show_in_version: "Show in revision %{version}"
+  text_wiki_comments_newer:
+    one: 1 comment from a later revision is not shown.
+    other: "%{count} comments from later revisions are not shown."
+  label_wiki_comments_show_current: Show current revision
+  label_wiki_comments_resolved_current: Resolved in this revision
+  label_wiki_comments_resolved_earlier: Resolved in earlier revisions
+  label_wiki_comments_x_resolved_current:
+    one: 1 resolved in this revision
+    other: "%{count} resolved in this revision"
+  label_wiki_comments_x_resolved_earlier:
+    one: 1 resolved in earlier revisions
+    other: "%{count} resolved in earlier revisions"
+  label_wiki_comment: Wiki comment
+  label_wiki_approval_comment_plural: Wiki comments
+  label_wiki_comment_added: Wiki comment added
+  label_wiki_comment_resolved: Wiki comment resolved
+  label_wiki_comment_reopened: Wiki comment reopened
+  label_wiki_comment_status_changed: Wiki comment resolved or reopened

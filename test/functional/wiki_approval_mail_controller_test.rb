@@ -18,7 +18,6 @@ class WikiApprovalMailControllerTest < WikiApproval::Test::ControllerCase
     ActionMailer::Base.deliveries.clear
 
     Setting.notified_events = Redmine::Notifiable.all.collect(&:name)
-    Setting.bcc_recipients = '0' if Rails::VERSION::MAJOR == 5 # redmine 4
     User.current = nil
 
     @jsmith.mail_notification = 'only_my_events'

@@ -11,17 +11,38 @@ class WikiApprovalMailer < Mailer
   def self.deliver_wiki_approval_state(approval, status, wiki_page, actor)
     return unless Setting.notified_events.include?('wiki_approval_notifications')
 
+    approval_principal_ids = (approval_principal_ids(approval) | [approval&.author_id]).compact
+
+    wiki_page_recipients(wiki_page, actor, approval_principal_ids).each do |user|
+      wiki_approval(user, approval, status, wiki_page, actor, I18n.t("field_status", default: "status")).deliver_later
+    end
+  end
+
+  # comment added (:added), resolved (:resolved) or reopened (:reopened),
+  # to the same users as the approval mails plus the users of the thread
+  def self.deliver_wiki_comment(comment, event, actor)
+    notifiable = event == :added ? 'wiki_comment_added' : 'wiki_comment_status_changed'
+    return unless Setting.notified_events.include?(notifiable)
+
+    wiki_page = comment.wiki_page
     project = wiki_page.project
+    thread = comment.parent || comment
+    involved_ids = [thread.author_id] + thread.replies.pluck(:author_id)
+    approval = WikiApprovalWorkflow.where(page_id: wiki_page.id).order(:id).last
+    involved_ids |= (approval_principal_ids(approval) | [approval.author_id]) if approval
 
-    # project members & watchers
-    membership_by_user_id = project.members.active.includes(:user).index_by { |m| m.user_id }
-    watcher_user_ids = wiki_page.watchers.pluck(:user_id).to_set
+    wiki_page_recipients(wiki_page, actor, involved_ids.compact.uniq).each do |user|
+      next unless user.allowed_to?(:wiki_comments_view, project)
 
-    # author current version
-    current_author_id  = wiki_page.content&.author_id
+      wiki_comment(user, comment, event, actor).deliver_later
+    end
+  end
 
-    # Approval Principals in Steps, groups to userids
-    approval_principal_ids = approval.approval_steps
+  # users of the approval steps (groups as their users), unstarted steps excluded
+  def self.approval_principal_ids(approval)
+    return [] unless approval
+
+    approval.approval_steps
       .where.not(step_status: WikiApprovalWorkflowStep.step_statuses[:unstarted])
       .each_with_object([]) do |step, acc|
         principal = step.principal
@@ -33,8 +54,18 @@ class WikiApprovalMailer < Mailer
         end
       end
       .uniq
+  end
 
-    approval_principal_ids   = (approval_principal_ids | [approval&.author_id]).compact
+  # project members, watchers and involved users, filtered by their mail notification settings
+  def self.wiki_page_recipients(wiki_page, actor, involved_ids)
+    project = wiki_page.project
+
+    # project members & watchers
+    membership_by_user_id = project.members.active.includes(:user).index_by { |m| m.user_id }
+    watcher_user_ids = wiki_page.watchers.pluck(:user_id).to_set
+
+    # author current version
+    current_author_id  = wiki_page.content&.author_id
 
     # Candidates: Project members + Watcher + Content.notified_users (if available)
     member_users = membership_by_user_id.values.map(&:user).compact
@@ -56,7 +87,7 @@ class WikiApprovalMailer < Mailer
       when 'selected'
         if ((m = membership_by_user_id[u.id]) && m.mail_notification?) ||
           watcher_user_ids.include?(u.id) ||
-          approval_principal_ids.include?(u.id) ||
+          involved_ids.include?(u.id) ||
           current_author_id == u.id
           acc << u
         end
@@ -66,17 +97,13 @@ class WikiApprovalMailer < Mailer
 
       else
         acc << u if watcher_user_ids.include?(u.id) ||
-          approval_principal_ids.include?(u.id) ||
+          involved_ids.include?(u.id) ||
           current_author_id == u.id
 
       end
     end
 
     recipients.uniq
-
-    recipients.each do |user|
-      wiki_approval(user, approval, status, wiki_page, actor, I18n.t("field_status", default: "status")).deliver_later
-    end
   end
 
   def self.deliver_wiki_approval_step(approval, wiki_page, actor, step)
@@ -129,5 +156,25 @@ class WikiApprovalMailer < Mailer
 
     mail :to => user.mail,
          :subject => subject
+  end
+
+  def wiki_comment(user, comment, event, actor)
+    wiki_page = comment.wiki_page
+    project = wiki_page.project
+
+    redmine_headers 'Project' => project,
+                    'Wiki-Page-Id' => wiki_page.id,
+                    'Wiki-Comment' => comment.number
+
+    @event = event
+    @actor = actor
+    @comment = comment
+    @thread = comment.parent || comment
+    @wiki_page = wiki_page
+    @comment_url = url_for(controller: 'wiki', action: 'show', project_id: project, id: wiki_page.title,
+                           anchor: "comment-#{comment.number}")
+
+    subject = "[#{project.name} - #{wiki_page.title}] #{I18n.t("label_wiki_comment_#{event}")} ##{comment.number}"
+    mail to: user.mail, subject: subject
   end
 end

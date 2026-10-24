@@ -9,7 +9,7 @@ Redmine::Plugin.register :redmine_wiki_approval do
   description 'A Redmine plugin that adds an approval workflow to the wiki, including drafts to ensure content quality before publication.'
   url 'https://github.com/flowalchs/redmine_wiki_approval/'
   version RedmineWikiApproval::VERSION
-  requires_redmine :version_or_higher => '4.0.0'
+  requires_redmine :version_or_higher => '6.0.0'
 
   settings default: loader.default_settings,
            partial: 'settings/wiki_approval'
@@ -23,6 +23,9 @@ Redmine::Plugin.register :redmine_wiki_approval do
     permission :wiki_draft_view, { :wiki_approval => [:status, :history, :index] }, require: :member
     permission :wiki_approval_publish, { :wiki_approval => [:publish] }, require: :member
     permission :wiki_template_edit, {}, require: :member
+    permission :wiki_comments_view, { :wiki_approval_comments => [:index] }, read: true
+    permission :wiki_comments_add, { :wiki_approval_comments => [:index, :create, :update, :destroy, :resolve] }, require: :loggedin
+    permission :wiki_comments_manage, { :wiki_approval_comments => [:index, :create, :update, :destroy, :resolve] }, require: :member
   end
 
   menu :admin_menu,
@@ -33,6 +36,7 @@ Redmine::Plugin.register :redmine_wiki_approval do
       html: { class: 'icon icon-wiki-page' }
 
   activity_provider :wiki_approval_workflow, :class_name => 'WikiApprovalWorkflowStatus', :default => false
+  activity_provider :wiki_approval_comments, :class_name => ['WikiApprovalComment', 'WikiApprovalCommentStatus'], :default => false
 end
 
 RedminePluginKit::Loader.persisting do

@@ -39,7 +39,8 @@
 
             let current = start.nextElementSibling;
 
-            while (current && current !== end) {
+            // the content may be wrapped (inline comments)
+            while (current && current !== end && !current.contains(end)) {
                 const next = current.nextElementSibling;
 
                 if ((current.tagName === 'P' && current.classList == '') ||
