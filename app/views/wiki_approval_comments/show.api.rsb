@@ -1,0 +1,3 @@
+api.comment do
+  render_api_wiki_comment(api, @comment)
+end

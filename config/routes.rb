@@ -8,6 +8,11 @@ RedmineApp::Application.routes.draw do
   match 'projects/:project_id/wiki_approval/:title/grant',    to: 'wiki_approval#grant',           as: 'wiki_approval_grant',     via: [:get, :put]
   match 'projects/:project_id/wiki_approval/:title/forward',  to: 'wiki_approval#forward',         as: 'wiki_approval_forward',   via: [:get, :put]
   put   'projects/:project_id/wiki_approval/:title/publish',  to: 'wiki_approval#publish',         as: 'wiki_approval_publish'
+  get   'projects/:project_id/wiki_approval/:title/comments',             to: 'wiki_approval_comments#index',   as: 'wiki_approval_comments'
+  post  'projects/:project_id/wiki_approval/:title/comments',             to: 'wiki_approval_comments#create'
+  patch 'projects/:project_id/wiki_approval/:title/comments/:id',         to: 'wiki_approval_comments#update',  as: 'wiki_approval_comment'
+  delete 'projects/:project_id/wiki_approval/:title/comments/:id',        to: 'wiki_approval_comments#destroy'
+  put   'projects/:project_id/wiki_approval/:title/comments/:id/resolve', to: 'wiki_approval_comments#resolve', as: 'wiki_approval_comment_resolve'
   get   'projects/:project_id/wiki_approval/permissions',     to: 'wiki_approval#permissions',     as: 'wiki_approval_permissions'
   match 'projects/:project_id/wiki_approval',                 to: 'wiki_approval#index',           as: 'wiki_approval_project_index', via: [:get, :post]
   match 'wiki_approval',                                      to: 'wiki_approval#index',           as: 'wiki_approval_index',         via: [:get, :post]

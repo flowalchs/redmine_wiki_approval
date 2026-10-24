@@ -22,6 +22,10 @@ module RedmineWikiApproval
                 class_name: 'WikiApprovalDraft',
                 foreign_key: :page_id,
                 dependent: :destroy
+        has_many :wiki_approval_comments,
+                class_name: 'WikiApprovalComment',
+                foreign_key: :page_id,
+                dependent: :destroy
         has_one :initial_content_version,
                 -> { order(version: :asc) },
                 class_name: 'WikiContentVersion',

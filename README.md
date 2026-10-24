@@ -3,7 +3,7 @@
 [![build](https://github.com/flowalchs/redmine_wiki_approval/actions/workflows/build.yml/badge.svg)](https://github.com/flowalchs/redmine_wiki_approval/actions/workflows/build.yml)
 [![Last release](https://img.shields.io/github/v/release/flowalchs/redmine_wiki_approval?label=latest%20release&logo=github&style=flat-square)](https://github.com/flowalchs/redmine_wiki_approval/releases/latest)
 [![Rate at redmine.org](http://img.shields.io/badge/rate%20at-redmine.org-blue.svg?style=flat-square)](https://www.redmine.org/plugins/redmine_wiki_approval)
-[![Redmine](https://img.shields.io/badge/redmine->=4.2-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0)](https://www.redmine.org)
+[![Redmine](https://img.shields.io/badge/redmine->=6.0-blue?logo=redmine&logoColor=%23B32024&labelColor=f0f0f0)](https://www.redmine.org)
 [![codecov](https://codecov.io/gh/flowalchs/redmine_wiki_approval/graph/badge.svg?token=17Z5COBFM1)](https://codecov.io/gh/flowalchs/redmine_wiki_approval)
 [![Wiki](https://img.shields.io/badge/wiki-home-lightgrey)](https://github.com/flowalchs/redmine_wiki_approval/wiki)
 [![API Docs](https://img.shields.io/badge/API_Docs-Online-blue?style=flat-square&logo=swagger)](https://flowalchs.github.io/redmine_wiki_approval/)
@@ -35,6 +35,7 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 - **Wiki Approval Macros** – Customizable wiki macros to display approval workflow information (status, users, steps, timestamps, diffs) directly inside wiki pages.
 - [**Wiki Templates**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Templates) – Define reusable wiki page templates stored as regular wiki pages, organized by global scope, project, or role.
 - [**Wiki List**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-List) – Table view of all wiki pages across projects with filters, columns, sorting, grouping and saved queries, like the Redmine issue list.
+- [**Wiki Comments**](https://github.com/flowalchs/redmine_wiki_approval/wiki/Wiki-Comments) – Inline comments on selected text and page comments, with replies, resolve/reopen per page version, activity and mail notifications.
 
 ## 🔐 Permissions Overview
 
@@ -47,6 +48,9 @@ This plugin does **not** replace Redmine's wiki versioning, but optimizes it:
 | View draft           | View unpublished versions                         |
 | Publish wiki drafts  | Release an approved draft as the official version |
 | Edit wiki templates  | Create and modify wiki template pages             |
+| View wiki comments   | View inline and page comments                     |
+| Add wiki comments    | Comment, reply, resolve; edit/delete own comments |
+| Manage wiki comments | Edit and delete comments of other users           |
 
 ## 💡 Typical Use Case
 
@@ -64,7 +68,7 @@ The plugin supports 14+ languages, including English, German, Japanese, French, 
 
 ## 📋 Requirements
 
-- **Redmine**: 4.2 or higher
+- **Redmine**: 6.0 or higher
 - **Ruby**: 2.7 or higher
 - **Rails**: Compatible with Redmine's Rails version
 
@@ -86,10 +90,11 @@ Enable the Module "Wiki approval" per project
    - Settings can be configured per project or system-wide
 2. Navigate to **Project Settings → Wiki approval**
    - enable the modul per project
-3. Available options: [Wiki Plugin Settings](https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots#plugin-settings)
+3. Available options: [Wiki Plugin Settings](https://github.com/flowalchs/redmine_wiki_approval/wiki/Settings)
    - Settings 
      - Wiki comment required 
      - Wiki Content Drafts enabled
+     - Wiki comments enabled
      - Enable per-project sidebar approval settings
        - Default sidebar approval statuses (multiselect)
      - Wiki Templates (multiselect: global, projects, roles) — feature disabled if nothing selected
@@ -102,12 +107,12 @@ Enable the Module "Wiki approval" per project
 ## 🖼️ Screenshots
 
 Additional and up‑to‑date screenshots can be found in the Wiki:  
-👉 **https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots**
+👉 **https://github.com/flowalchs/redmine_wiki_approval/wiki**
 
 <p>
-  <a href="https://github.com/flowalchs/redmine_wiki_approval/wiki/Screenshots">
+  <a href="https://github.com/flowalchs/redmine_wiki_approval/wiki/Approval-Workflow">
     <img
-      src="https://github.com/user-attachments/assets/bd26ea3b-a358-4c3e-98fc-3dc497b39037"
+      src="https://github.com/flowalchs/redmine_wiki_approval/wiki/images/approval-workflow/grant-approval.png"
       alt="Wiki Screenshots Preview"
       width="100%"
     />

@@ -18,6 +18,7 @@ module RedmineWikiApproval
 
         helper :wiki_approval_icon
         helper :wiki_approval
+        helper :wiki_approval_comments
       end
 
       module InstanceOverwriteMethods

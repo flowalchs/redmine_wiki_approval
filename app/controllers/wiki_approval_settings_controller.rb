@@ -16,6 +16,7 @@ class WikiApprovalSettingsController < ApplicationController
           wiki_approval_required: params[:wiki_approval_required],
           wiki_approval_version: params[:wiki_approval_version],
           wiki_content_draft: params[:wiki_content_draft],
+          wiki_comments: params[:wiki_comments],
           wiki_sidebar_status: params[:wiki_sidebar_status],
           wiki_templates: params[:wiki_templates]
         )

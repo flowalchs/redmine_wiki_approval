@@ -1,0 +1,31 @@
+<div id="rwa-comments-sidebar">
+  <h3><%= l(:label_wiki_comments) %></h3>
+  <ul class="rwa-comments-summary">
+    <li>
+      <a href="#wiki-comments" class="icon icon-comment" data-rwa-filter="open"><%= sprite_icon('comment', l(:label_wiki_comments_x_open, count: summary[:open])) %></a>
+    </li>
+    <% if summary[:resolved].zero? %>
+      <li>
+        <a href="#wiki-comments" class="icon icon-checked" data-rwa-filter="resolved"><%= sprite_icon('checked', l(:label_wiki_comments_x_resolved, count: 0)) %></a>
+      </li>
+    <% end %>
+    <% %w[current earlier].each do |group| %>
+      <% count = summary[:"resolved_#{group}"].to_i %>
+      <% next if count.zero? %>
+      <li>
+        <a href="#wiki-comments" class="icon icon-checked" data-rwa-filter="resolved" data-rwa-group="<%= group %>">
+          <%= sprite_icon('checked', l("label_wiki_comments_x_resolved_#{group}", count: count)) %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+  <% if summary[:authors].any? %>
+    <ul class="rwa-comments-authors">
+      <% summary[:authors].first(10).each do |user, count| %>
+        <li title="<%= l(:label_wiki_comments_x_open, count: count) %>">
+          <%= avatar(user, size: 16) %> <%= link_to_user user %> <span class="badge badge-count"><%= count %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

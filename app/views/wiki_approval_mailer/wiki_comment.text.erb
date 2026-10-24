@@ -1,0 +1,13 @@
+<%= t('wiki_approval_notifications_typ', typ: "#{l("label_wiki_comment_#{@event}")} ##{@comment.number}", author: @actor&.name) %>
+
+============================================================
+
+<%= @wiki_page.title %> #<%= @comment.number %>
+<%= @comment_url %>
+
+<% if @thread.inline? %>
+> <%= truncate(@thread.quote, length: 500).gsub("\n", "\n> ") %>
+
+<% end %>
+<%= @comment.author&.name %>:
+<%= @comment.text %>

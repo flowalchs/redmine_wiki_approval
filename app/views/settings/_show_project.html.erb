@@ -13,6 +13,7 @@
       <legend><%= l(:label_settings) %></legend>
       <%= wiki_approval_checkbox_field(:wiki_approval_settings_comment, value: @wiki_approval_setting.wiki_comment_required, field_name: :wiki_comment_required) %>
       <%= wiki_approval_checkbox_field(:wiki_approval_settings_content_draft, value: @wiki_approval_setting.wiki_content_draft, field_name: :wiki_content_draft) %>
+      <%= wiki_approval_checkbox_field(:wiki_approval_settings_comments, value: @wiki_approval_setting.wiki_comments, field_name: :wiki_comments) %>
       <% if ActiveModel::Type::Boolean.new.cast(RedmineWikiApproval.safe_setting(:wiki_approval_settings_sidebar_project)) == true %>
         <%= wiki_approval_select_field(:wiki_approval_settings_sidebar_status, 
                                   value: @wiki_approval_setting.wiki_sidebar_status,

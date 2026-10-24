@@ -47,3 +47,338 @@ div.wiki .approval ul li {
 .approval .rwa-avatar-note {
     margin-left: 30px;
 }
+
+/**
+ * Inline comments
+ * colors can be overwritten by a theme, e.g. :root { --rwa-mark-bg: #e0f0ff; }
+ */
+:root {
+    --rwa-border: #ddd;
+    --rwa-bg: #fff;
+    --rwa-muted: #959595;
+    --rwa-link: #169;
+    --rwa-open: #f0ad4e;
+    --rwa-resolved: #6fb36f;
+    --rwa-mark-bg: #fff1c2;
+    --rwa-mark-active-bg: #fdd987;
+    --rwa-resolved-bg: #e3f4e3;
+    --rwa-shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* redmine styles forms and divs with display, hidden must win */
+.rwa-comments-wrapper [hidden] {
+    display: none !important;
+}
+
+.rwa-comments {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.rwa-comments-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 16px;
+    margin-bottom: 0.8em;
+}
+
+.rwa-comments-header h3 {
+    margin: 0;
+}
+
+/* tabs like the issue history */
+.rwa-comments-tabs {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+#content .rwa-comments-tabs .badge {
+    bottom: 0;
+    vertical-align: middle;
+}
+
+.rwa-comments-tabs .rwa-comments-toggle {
+    position: absolute;
+    right: 0;
+    top: 0.4em;
+    z-index: 1;
+}
+
+.rwa-comments-toggle {
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+/* filter */
+[data-wiki-comments-filter-value="open"] .rwa-threads .rwa-thread-resolved,
+[data-wiki-comments-filter-value="resolved"] .rwa-threads .rwa-thread-open {
+    display: none;
+}
+
+.rwa-newer-info {
+    font-size: 0.9em;
+    color: var(--rwa-muted);
+}
+
+.rwa-empty {
+    display: none;
+    margin: 0 0 10px;
+    color: var(--rwa-muted);
+    font-style: italic;
+}
+
+[data-wiki-comments-filter-value="open"] .rwa-comments:not(.rwa-has-threads) .rwa-empty-open,
+[data-wiki-comments-filter-value="resolved"] .rwa-comments:not(.rwa-has-threads) .rwa-empty-resolved,
+[data-wiki-comments-filter-value="all"] .rwa-comments:not(.rwa-has-threads) .rwa-empty-all {
+    display: block;
+}
+
+/* resolved threads: in this revision / in earlier revisions */
+.rwa-group {
+    margin: 1.5em 0 0.8em;
+}
+
+[data-wiki-comments-filter-value="open"] .rwa-group,
+[data-wiki-comments-filter-value="all"] .rwa-group {
+    display: none;
+}
+
+/* resolved tab: grouped by revision, by creation time within a group (dom order) */
+.rwa-threads {
+    display: flex;
+    flex-direction: column;
+}
+
+[data-wiki-comments-filter-value="resolved"] .rwa-group-current { order: 1; }
+[data-wiki-comments-filter-value="resolved"] .rwa-thread[data-group="current"] { order: 2; }
+[data-wiki-comments-filter-value="resolved"] .rwa-group-earlier { order: 3; }
+[data-wiki-comments-filter-value="resolved"] .rwa-thread[data-group="earlier"] { order: 4; }
+[data-wiki-comments-filter-value="resolved"] .rwa-empty,
+[data-wiki-comments-filter-value="resolved"] .rwa-newer-info { order: 5; }
+
+/* threads, comments use the markup of redmine issue journals */
+.rwa-thread {
+    margin-bottom: 1.5em;
+}
+
+.rwa-thread .rwa-reply {
+    margin-left: 24px;
+}
+
+.rwa-thread-active .journal-header {
+    background-color: var(--rwa-mark-bg) !important;
+}
+
+.rwa-thread .badge {
+    margin-left: 4px;
+}
+
+.rwa-quote {
+    cursor: pointer;
+}
+
+.rwa-orphan-info {
+    display: none;
+    margin: 0 0 6px;
+    font-size: 0.85em;
+    color: var(--rwa-muted);
+}
+
+.rwa-orphan .rwa-orphan-info {
+    display: block;
+}
+
+.rwa-orphan .rwa-quote {
+    cursor: default;
+}
+
+.rwa-orphan .rwa-quote blockquote {
+    text-decoration: line-through;
+    text-decoration-color: var(--rwa-muted);
+}
+
+/* forms */
+.rwa-comment-form {
+    display: block;
+}
+
+.rwa-comment-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* the formatting toolbar wraps in the narrow comment forms */
+#content .rwa-comment-form .jstTabs.tabs {
+    height: auto;
+    overflow: visible;
+}
+
+#content .rwa-comment-form .jstTabs.tabs ul {
+    position: static;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+#content .rwa-comment-form .jstTabs.tabs li.tab-elements {
+    flex: 1 1 0;
+    min-width: 0;
+    height: auto;
+}
+
+#content .rwa-comment-form .jstElements {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 2px;
+}
+
+.rwa-comment-form .rwa-form-buttons {
+    margin: 4px 0 0;
+}
+
+.rwa-reply-form {
+    margin: 0 0 0 8px;
+}
+
+.rwa-page-comment-toggle {
+    margin: 1em 0 0;
+}
+
+.rwa-page-comment-toggle .info {
+    margin-left: 1em;
+}
+
+.rwa-page-comment-form {
+    margin-top: 1em;
+}
+
+/* marks in the wiki content */
+mark.rwa-mark {
+    background: var(--rwa-mark-bg);
+    border-bottom: 2px solid var(--rwa-open);
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+}
+
+mark.rwa-mark-active {
+    background: var(--rwa-mark-active-bg);
+}
+
+[data-wiki-comments-filter-value="open"] mark.rwa-mark-resolved,
+[data-wiki-comments-highlights-value="false"] mark.rwa-mark {
+    background: none;
+    border-bottom: none;
+    cursor: inherit;
+}
+
+[data-wiki-comments-filter-value="resolved"] mark.rwa-mark-resolved,
+[data-wiki-comments-filter-value="all"] mark.rwa-mark-resolved {
+    background: var(--rwa-resolved-bg);
+    border-bottom-color: var(--rwa-resolved);
+}
+
+.rwa-flash {
+    animation: rwa-flash 1.5s ease-out;
+}
+
+@keyframes rwa-flash {
+    0% { background-color: var(--rwa-mark-active-bg); }
+    100% { background-color: inherit; }
+}
+
+/* popover */
+.rwa-popover {
+    position: absolute;
+    z-index: 50;
+    background: var(--rwa-bg);
+    border: 1px solid var(--rwa-border);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px var(--rwa-shadow);
+}
+
+.rwa-popover-button {
+    padding: 0;
+}
+
+.rwa-add-button {
+    margin: 0;
+    cursor: pointer;
+}
+
+.rwa-popover-form,
+.rwa-popover-thread {
+    width: 700px;
+    max-width: calc(100vw - 32px);
+    padding: 8px;
+}
+
+.rwa-popover-nav {
+    display: inline-flex;
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-items: center;
+    gap: 4px;
+    margin-right: 6px;
+    font-size: 0.85em;
+    color: var(--rwa-muted);
+}
+
+.rwa-popover-nav:empty {
+    display: none;
+}
+
+.rwa-popover-nav button {
+    background: none;
+    border: 1px solid var(--rwa-border);
+    border-radius: 3px;
+    padding: 0 8px;
+    font-size: 1.2em;
+    line-height: 1.3;
+    cursor: pointer;
+    color: var(--rwa-link);
+}
+
+.rwa-popover-thread .rwa-thread {
+    margin: 0;
+}
+
+/* sidebar */
+#rwa-comments-sidebar {
+    margin-top: 1.5em;
+}
+
+#rwa-comments-sidebar ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#rwa-comments-sidebar .rwa-comments-authors li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0;
+}
+
+#rwa-comments-sidebar .rwa-comments-authors .avatar {
+    margin: 0;
+}
+
+#rwa-comments-sidebar .rwa-comments-authors .badge {
+    bottom: 0;
+}
+
+@media print {
+    .rwa-comments,
+    .rwa-popover {
+        display: none;
+    }
+
+    mark.rwa-mark {
+        background: none;
+        border: none;
+    }
+}

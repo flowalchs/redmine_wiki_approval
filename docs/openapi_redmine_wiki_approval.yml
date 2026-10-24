@@ -4,7 +4,9 @@ info:
   description: >
     API for managing multi-step approval workflows for Redmine Wiki pages. 
     Allows starting approvals, granting/rejecting steps, and tracking history.
-  version: 1.1.0
+    Wiki comments (inline comments on selected text and page comments) with
+    replies and resolve/reopen.
+  version: 1.2.0
   contact:
       name: flowalchs
       url: https://github.com/flowalchs/redmine_wiki_approval
@@ -253,6 +255,122 @@ components:
           items:
             $ref: '#/components/schemas/ApprovalStepInput'
             
+    # Wiki comments
+    WikiComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Database id, used in the comment URLs."
+          example: 52
+        number:
+          type: integer
+          description: "Running number per wiki page (shown as #1, #2, ... and used as anchor #comment-<number>)."
+          example: 1
+        parent_id:
+          type: integer
+          description: "Only for replies: id of the thread."
+          example: 51
+        author:
+          $ref: '#/components/schemas/Principal'
+        text:
+          type: string
+          description: "Comment text in the text formatting of Redmine."
+          example: "Who exactly are the reviewers?"
+        status:
+          type: string
+          enum: ["open", "resolved"]
+          description: "Only for threads."
+        version:
+          type: integer
+          description: "Only for threads: wiki page version the thread was started in."
+          example: 140
+        quote:
+          type: string
+          description: "Only for inline comments: the commented text."
+          example: "selects the reviewers"
+        prefix:
+          type: string
+          description: "Only for inline comments: up to 64 characters of text before the quote (anchoring in newer versions)."
+          example: "The author starts the approval and "
+        suffix:
+          type: string
+          description: "Only for inline comments: up to 64 characters of text after the quote."
+          example: ". Then each reviewer"
+        resolved_by:
+          $ref: '#/components/schemas/Principal'
+        resolved_version:
+          type: integer
+          description: "Only for resolved threads: wiki page version the thread was resolved in."
+          example: 141
+        resolved_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-23T20:32:16Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-10-23T20:32:16Z"
+
+    WikiCommentThread:
+      allOf:
+        - $ref: '#/components/schemas/WikiComment'
+        - type: object
+          properties:
+            replies:
+              type: array
+              items:
+                $ref: '#/components/schemas/WikiComment'
+
+    WikiCommentListResponse:
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WikiCommentThread'
+
+    WikiCommentResponse:
+      type: object
+      properties:
+        comment:
+          $ref: '#/components/schemas/WikiComment'
+
+    WikiCommentRequest:
+      type: object
+      required: ["text"]
+      properties:
+        text:
+          type: string
+          example: "Who exactly are the reviewers?"
+        parent_id:
+          type: integer
+          description: "Reply to this thread (id). Replies have no quote and no status."
+        quote:
+          type: string
+          description: "Inline comment: the commented text (max. 2000 characters). Without quote it is a page comment."
+        prefix:
+          type: string
+          description: "Inline comment: text before the quote."
+        suffix:
+          type: string
+          description: "Inline comment: text after the quote."
+        version:
+          type: integer
+          description: "Wiki page version the thread is started in, default the current version."
+
+    WikiCommentErrors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          example: ["Text cannot be blank"]
+
     SearchFilter:
       type: object
       description: "Standard Redmine Query Filter Object"
@@ -390,6 +508,8 @@ tags:
     description: "List Wiki pages with the current approval workflow" 
   - name: "Wiki Controller"
     description: "Redmine Core Wiki Controller"
+  - name: "Wiki Comments"
+    description: "Inline and page comments of a wiki page with replies and resolve/reopen. The setting 'Wiki comments' must be enabled."
 
 paths:
   # Global or User-specific Index
@@ -1207,4 +1327,242 @@ paths:
                     items:
                       type: string
                     example: ["Comments cannot be blank", "Invalid Page", "Already released", "Invalid status", "Approval Required"]
-          
+
+  # Wiki comments
+  /projects/{project_id}/wiki_approval/{title}/comments.json:
+    get:
+      summary: "List Comments"
+      description: >
+        Returns the comment threads of a wiki page with their replies, open threads first.
+        permission required: wiki_comments_view (or wiki_comments_add / wiki_comments_manage)
+      operationId: wiki_comments_index
+      tags:
+        - "Wiki Comments"
+      parameters:
+        - &comment_project_id
+          name: project_id
+          in: path
+          required: true
+          description: Project ID or project_identifier
+          schema:
+            type: string
+        - &comment_title
+          name: title
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          description: "Only threads with this status."
+          schema:
+            type: string
+            enum: ["open", "resolved"]
+      responses:
+        '200':
+          description: "Comment threads of the wiki page."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentListResponse'
+              example:
+                comments:
+                  - id: 51
+                    number: 1
+                    author: { id: 1, name: "Redmine Admin" }
+                    text: "Who exactly are the reviewers?"
+                    status: "open"
+                    version: 140
+                    quote: "selects the reviewers"
+                    prefix: "The author starts the approval and "
+                    suffix: ". Then each reviewer"
+                    created_at: "2026-10-23T20:32:16Z"
+                    updated_at: "2026-10-23T20:32:16Z"
+                    replies:
+                      - id: 52
+                        number: 2
+                        parent_id: 51
+                        author: { id: 5, name: "John Smith" }
+                        text: "The users of the role Manager."
+                        created_at: "2026-10-23T20:40:02Z"
+                        updated_at: "2026-10-23T20:40:02Z"
+        '403':
+          description: "Forbidden. Comments disabled or no permission."
+        '404':
+          description: "Project or wiki page not found."
+    post:
+      summary: "Add Comment"
+      description: >
+        Adds an inline comment (with quote), a page comment (without quote) or
+        a reply (with parent_id). Notifies by mail if 'Wiki comment added' is enabled
+        in the email notification settings.
+        permission required: wiki_comments_add or wiki_comments_manage
+      operationId: wiki_comments_create
+      tags:
+        - "Wiki Comments"
+      parameters:
+        - *comment_project_id
+        - *comment_title
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WikiCommentRequest'
+            examples:
+              inline:
+                summary: "Inline comment"
+                value:
+                  text: "Who exactly are the reviewers?"
+                  quote: "selects the reviewers"
+                  prefix: "The author starts the approval and "
+                  suffix: ". Then each reviewer"
+              page:
+                summary: "Page comment"
+                value:
+                  text: "Please add an example."
+              reply:
+                summary: "Reply"
+                value:
+                  text: "The users of the role Manager."
+                  parent_id: 51
+      responses:
+        '201':
+          description: "Comment created."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentResponse'
+        '403':
+          description: "Forbidden. Comments disabled or no permission."
+        '404':
+          description: "Project, wiki page or parent thread not found."
+        '422':
+          description: "Validation errors."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentErrors'
+
+  /projects/{project_id}/wiki_approval/{title}/comments/{id}.json:
+    patch:
+      summary: "Update Comment"
+      description: >
+        Changes the text of a comment. Own comments with wiki_comments_add,
+        comments of other users with wiki_comments_manage.
+      operationId: wiki_comments_update
+      tags:
+        - "Wiki Comments"
+      parameters:
+        - *comment_project_id
+        - *comment_title
+        - &comment_id
+          name: id
+          in: path
+          required: true
+          description: "Comment id (not the number)."
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["text"]
+              properties:
+                text:
+                  type: string
+                  example: "Who exactly are the reviewers of step 2?"
+      responses:
+        '200':
+          description: "Comment updated."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentResponse'
+        '403':
+          description: "Forbidden. Not the author and no wiki_comments_manage."
+        '404':
+          description: "Comment not found on this wiki page."
+        '422':
+          description: "Validation errors."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentErrors'
+    delete:
+      summary: "Delete Comment"
+      description: >
+        Deletes a comment, a thread with all replies. Own comments with
+        wiki_comments_add, comments of other users with wiki_comments_manage.
+      operationId: wiki_comments_destroy
+      tags:
+        - "Wiki Comments"
+      parameters:
+        - *comment_project_id
+        - *comment_title
+        - *comment_id
+      responses:
+        '204':
+          description: "Comment deleted."
+        '403':
+          description: "Forbidden. Not the author and no wiki_comments_manage."
+        '404':
+          description: "Comment not found on this wiki page."
+
+  /projects/{project_id}/wiki_approval/{title}/comments/{id}/resolve.json:
+    put:
+      summary: "Resolve or Reopen Thread"
+      description: >
+        Resolves a thread (resolved=true, default) or reopens it (resolved=false).
+        The version is stored as resolved version, default the current version of the page.
+        Notifies by mail if 'Wiki comment resolved or reopened' is enabled.
+        Replies cannot be resolved.
+        permission required: wiki_comments_add or wiki_comments_manage
+      operationId: wiki_comments_resolve
+      tags:
+        - "Wiki Comments"
+      parameters:
+        - *comment_project_id
+        - *comment_title
+        - *comment_id
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resolved:
+                  type: boolean
+                  default: true
+                version:
+                  type: integer
+                  description: "Wiki page version the thread is resolved in."
+                  example: 141
+      responses:
+        '200':
+          description: "Thread resolved or reopened."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiCommentResponse'
+              example:
+                comment:
+                  id: 51
+                  number: 1
+                  author: { id: 1, name: "Redmine Admin" }
+                  text: "Who exactly are the reviewers?"
+                  status: "resolved"
+                  version: 140
+                  resolved_by: { id: 5, name: "John Smith" }
+                  resolved_version: 141
+                  resolved_at: "2026-10-24T08:12:00Z"
+                  created_at: "2026-10-23T20:32:16Z"
+                  updated_at: "2026-10-24T08:12:00Z"
+        '403':
+          description: "Forbidden. No permission or the comment is a reply."
+        '404':
+          description: "Comment not found on this wiki page."

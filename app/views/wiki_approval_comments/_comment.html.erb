@@ -1,0 +1,82 @@
+<%# same markup as redmine issue journals %>
+<% editable = comment.editable_by?(User.current, project) %>
+<div class="journal rwa-comment<%= ' rwa-reply' unless comment.thread? %>" id="comment-<%= comment.number %>" data-id="<%= comment.id %>">
+  <h4 class="journal-header">
+    <span class="journal-info">
+      <%= avatar(comment.author) %>
+      <%= authoring comment.created_at, comment.author, label: :label_added_time_by %>
+      <% if comment.thread? %>
+        <% if status == 'resolved' %>
+          <span class="badge badge-status-closed"><%= l(:label_wiki_comment_status_resolved) %></span>
+        <% else %>
+          <span class="badge badge-status-open"><%= l(:label_wiki_comment_status_open) %></span>
+        <% end %>
+        <span class="update-info">
+          <% if comment.version %>· <%= wiki_comment_version_link(page, project, comment.version) %><% end %>
+          <% if comment.resolved? %>· <%= wiki_comment_resolved_info(comment, page, project) %><% end %>
+        </span>
+      <% end %>
+    </span>
+    <span class="journal-meta">
+      <span class="journal-actions">
+        <% if comment.thread? && comment.resolvable_by?(User.current, project) %>
+          <% resolved = comment.resolved? %>
+          <%= link_to sprite_icon(resolved ? 'reload' : 'checked', l(resolved ? :button_wiki_comment_reopen : :button_wiki_comment_resolve), icon_only: true),
+                      '#', class: "icon-only #{resolved ? 'icon-reload' : 'icon-checked'}",
+                      title: l(resolved ? :button_wiki_comment_reopen : :button_wiki_comment_resolve),
+                      data: { action: 'wiki-comments#resolve:prevent',
+                              wiki_comments_url_param: wiki_comment_resolve_url(comment, page, project, version),
+                              wiki_comments_resolved_param: !resolved } %>
+        <% end %>
+        <% if can_add && comment.thread? %>
+          <%= link_to sprite_icon('reply', l(:button_reply), icon_only: true), '#',
+                      class: 'icon-only icon-reply', title: l(:button_reply),
+                      data: { action: 'wiki-comments#reply:prevent' } %>
+        <% end %>
+        <%= actions_dropdown do %>
+          <% if can_add %>
+            <%# same icon as the quote button of redmine issue journals %>
+            <%= link_to sprite_icon('quote-filled', l(:button_quote), style: :filled), '#', class: 'icon icon-quote',
+                        data: { action: 'wiki-comments#reply:prevent', wiki_comments_text_param: comment.text } %>
+          <% end %>
+          <%= copy_object_url_link(project_wiki_page_url(project, page.title, anchor: "comment-#{comment.number}")) %>
+          <% if editable %>
+            <%= link_to sprite_icon('edit', l(:button_edit)), '#', class: 'icon icon-edit',
+                        data: { action: 'wiki-comments#edit:prevent' } %>
+            <%= link_to sprite_icon('del', l(:button_delete)), '#', class: 'icon icon-del',
+                        data: { action: 'wiki-comments#destroy:prevent',
+                                wiki_comments_url_param: wiki_comment_url(comment, page, project, version),
+                                wiki_comments_confirm_param: comment.thread? ? l(:text_wiki_comment_delete_thread) : l(:text_are_you_sure) } %>
+          <% end %>
+        <% end %>
+      </span>
+      <a href="#comment-<%= comment.number %>" class="journal-link" title="<%= l(:label_wiki_comments_goto_text) %>">#<%= comment.number %></a>
+    </span>
+  </h4>
+  <div class="journal-content">
+    <% if comment.thread? && comment.inline? %>
+      <div class="wiki rwa-quote" data-action="click->wiki-comments#scrollToMark" data-wiki-comments-id-param="<%= comment.id %>"
+           title="<%= l(:label_wiki_comments_goto_text) %>">
+        <blockquote><%= simple_format(h(truncate(comment.quote, length: 500))) %></blockquote>
+      </div>
+      <p class="rwa-orphan-info">
+        <%= sprite_icon('warning', l(:text_wiki_comments_orphan)) %>
+        <% if comment.version && comment.version != version %>
+          · <%= link_to l(:label_wiki_comments_show_in_version, version: comment.version),
+                        project_wiki_page_path(project, page.title, version: comment.version, anchor: "comment-#{comment.number}") %>
+        <% end %>
+      </p>
+    <% end %>
+    <div class="wiki rwa-comment-body"><%= wiki_comment_text(comment, project) %></div>
+    <% if editable %>
+      <%= form_tag(wiki_comment_url(comment, page, project, version), method: :patch, class: 'rwa-comment-form rwa-edit-form',
+                   hidden: true, data: { action: 'submit->wiki-comments#submit' }) do %>
+        <%= text_area_tag 'text', comment.text, id: nil, rows: 5, class: 'wiki-edit', data: wiki_comment_textarea_data, required: true %>
+        <p class="rwa-form-buttons">
+          <%= submit_tag l(:button_save), name: nil %>
+          <button type="button" data-action="wiki-comments#cancelForm"><%= l(:button_cancel) %></button>
+        </p>
+      <% end %>
+    <% end %>
+  </div>
+</div>

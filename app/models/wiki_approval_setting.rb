@@ -64,6 +64,7 @@ class WikiApprovalSetting < ApplicationRecord
   setting_bool :wiki_approval_settings_content_draft,   field_name: :wiki_content_draft
   setting_bool :wiki_approval_settings_comment,         field_name: :wiki_comment_required
   setting_bool :wiki_approval_settings_draft_enabled,   field_name: :wiki_draft_enabled
+  setting_bool :wiki_approval_settings_comments, field_name: :wiki_comments
 
   setting_array(:wiki_approval_settings_sidebar_project, :wiki_approval_settings_sidebar_status, field_name: :wiki_sidebar_status)
   setting_array(:wiki_approval_settings_templates, :wiki_approval_settings_templates, field_name: :wiki_templates)

@@ -1,0 +1,12 @@
+<%= t('wiki_approval_notifications_typ', typ: "#{l("label_wiki_comment_#{@event}")} ##{@comment.number}", author: @actor&.name) %>
+<hr />
+<h1><%= link_to("#{@wiki_page.title} ##{@comment.number}", @comment_url) %></h1>
+<% if @thread.inline? %>
+  <blockquote style="font-style: italic; border-left: 3px solid #e0e0e0; padding-left: 0.6em; margin-left: 0;">
+    <%= simple_format(h(truncate(@thread.quote, length: 500))) %>
+  </blockquote>
+<% end %>
+<p><strong><%= @comment.author&.name %></strong></p>
+<%= textilizable(@comment, :text, only_path: false, project: @wiki_page.project) %>
+<hr />
+<%= link_to(@comment_url, @comment_url) %>

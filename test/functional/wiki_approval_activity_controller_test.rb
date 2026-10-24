@@ -14,6 +14,22 @@ class WikiApprovalActivityControllerTest < WikiApproval::Test::ControllerCase
     assert_includes providers, 'wiki_approval_workflow'
   end
 
+  test 'comment activity lists added, resolved and reopened' do
+    @manager_role.add_permission! :wiki_comments_view
+    page = WikiPage.find(11)
+    thread = WikiApprovalComment.create!(page_id: page.id, author: @jsmith, text: 'Activity thread', version: 2)
+    thread.resolve!(@jsmith, 2)
+    thread.reopen!(@jsmith, 2)
+
+    assert_includes Redmine::Activity.available_event_types, 'wiki_approval_comments'
+    get :index, params: { id: @project.identifier, show_wiki_approval_comments: 1, with_subprojects: 0 }
+    assert_response :success
+    assert_select '#activity dt.comment a[href$="#comment-1"]', 1
+    assert_select '#activity dt.checked', 1
+    assert_select '#activity dt.reload', 1
+    assert_select '#activity dt.comment svg use[href*="#icon--comment"]', 1
+  end
+
   test 'activity provider 2 entry' do
     get(
       :index,
