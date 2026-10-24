@@ -34,7 +34,7 @@ div.wiki .approval ul li {
 .approval .rwa-user {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
 .approval .rwa-status,
@@ -45,7 +45,8 @@ div.wiki .approval ul li {
 }
 
 .approval .rwa-avatar-note {
-    margin-left: 30px;
+    /* avatar 16px + gap 4px */
+    margin-left: 20px;
 }
 
 /**
