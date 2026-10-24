@@ -1128,9 +1128,9 @@ paths:
               properties:
                 step_status:
                   type: string
-                  enum: [granted, rejected]
-                  default: granted
-                  description: "The decision for the current step. 'granted' allows the process to continue, 'rejected' stops it."
+                  enum: [approved, rejected]
+                  default: approved
+                  description: "The decision for the current step. 'approved' allows the process to continue, 'rejected' stops it."
                 note:
                   type: string
                   description: "An optional comment. **Required** when step_status is 'rejected'."
