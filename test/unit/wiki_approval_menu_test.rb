@@ -29,11 +29,11 @@ class WikiApprovalMenuTest < WikiApproval::Test::UnitCase
     end
   end
 
-  def test_hidden_without_wiki_approval_module
+  def test_visible_without_wiki_approval_module
     User.current = @jsmith
     EnabledModule.where(name: 'wiki_approval').delete_all
     with_wiki_approval_settings(wiki_approval_settings_list_application_menu: '1') do
-      assert_not MENU.wiki_list_visible?(:wiki_approval_settings_list_application_menu)
+      assert MENU.wiki_list_visible?(:wiki_approval_settings_list_application_menu)
     end
   end
 
@@ -50,10 +50,12 @@ class WikiApprovalMenuTest < WikiApproval::Test::UnitCase
     with_wiki_approval_settings(wiki_approval_settings_list_application_menu: '1',
                                 wiki_approval_settings_list_top_menu: '1') do
       assert MENU.wiki_list_visible?(:wiki_approval_settings_list_application_menu)
-      EnabledModule.where(name: 'wiki_approval').delete_all
+      Role.all.each { |role| role.remove_permission!(:view_wiki_pages) }
       assert MENU.wiki_list_visible?(:wiki_approval_settings_list_top_menu)
 
       RedmineWikiApproval::Current.reset
+      # the user keeps its roles in memory
+      User.current = User.find(@jsmith.id)
       assert_not MENU.wiki_list_visible?(:wiki_approval_settings_list_top_menu)
     end
   end

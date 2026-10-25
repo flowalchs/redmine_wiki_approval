@@ -93,11 +93,11 @@ class WikiApprovalQueryTest < WikiApproval::Test::UnitCase
     assert_not_includes leaf.available_filters.keys, 'subproject_id'
   end
 
-  def test_project_filter_values_only_contain_projects_with_module_and_wiki
+  def test_project_filter_values_contain_projects_with_wiki_independent_of_module
     values = WikiApprovalQuery.new.available_filters['project_id'][:values].map(&:last).map(&:to_s)
     assert_includes values, @project.id.to_s
     # project 2 has a wiki, but no wiki_approval module
-    assert_not_includes values, @project2.id.to_s
+    assert_includes values, @project2.id.to_s
   end
 
   def test_available_columns

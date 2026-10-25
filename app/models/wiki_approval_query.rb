@@ -149,7 +149,8 @@ class WikiApprovalQuery < Query
       add_available_filter(
         "project_id",
         :type => :list, :values => lambda {
-          valid_project_ids = Project.active.has_module(:wiki_approval)
+          # projects with view wiki pages permission and a wiki, the module is not required
+          valid_project_ids = Project.where(id: allowed_project_ids)
                                     .joins(:wiki).pluck(:id).map(&:to_s)
           project_values.select { |name, id| valid_project_ids.include?(id.to_s) }
         }

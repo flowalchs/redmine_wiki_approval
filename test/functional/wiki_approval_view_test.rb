@@ -255,4 +255,13 @@ class WikiApprovalViewTest < WikiApproval::Test::ControllerCase
     assert_response :success
     assert_select '#sidebar a[href=?]', '/projects/ecookbook/wiki_approval', count: 0
   end
+
+  test 'wiki sidebar shows wiki list link without the wiki approval module' do
+    @project.disable_module!(:wiki_approval)
+    with_wiki_approval_settings(wiki_approval_settings_list_wiki_sidebar: '1') do
+      get :show, params: { project_id: @project.id, id: @page.title }
+    end
+    assert_response :success
+    assert_select '#sidebar a[href=?]', '/projects/ecookbook/wiki_approval', text: 'Wiki list'
+  end
 end

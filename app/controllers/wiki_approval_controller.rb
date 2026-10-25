@@ -7,7 +7,7 @@ class WikiApprovalController < ApplicationController
   menu_item :wiki
   menu_item :wiki_approval, only: [:index]
   before_action :find_project, :except => [:index]
-  before_action :find_optional_project, :only => [:index]
+  before_action :find_list_project, :only => [:index]
   before_action :find_user
   before_action :check_module_enabled, :authorize, :except => [:index]
   before_action :find_page, :except => [:permissions, :index]
@@ -299,9 +299,8 @@ class WikiApprovalController < ApplicationController
   def index
     use_session = !request.format.csv?
     remove_empty_params
-    if @project
-      return deny_access unless User.current.allowed_to?(:view_wiki_pages, @project)
-    end
+    # the wiki list needs view wiki pages only, the wiki approval module is not required
+    return deny_access unless User.current.allowed_to?(:view_wiki_pages, @project, global: @project.nil?)
 
     retrieve_default_query(use_session)
     retrieve_query(WikiApprovalQuery, use_session)
@@ -356,6 +355,13 @@ class WikiApprovalController < ApplicationController
 
   def find_user
     @user = User.current
+  end
+
+  # project of the wiki list, permission check in index (view wiki pages)
+  def find_list_project
+    @project = Project.find(params[:project_id]) if params[:project_id].present?
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def find_page
