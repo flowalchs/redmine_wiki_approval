@@ -65,7 +65,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add CHANGELOG.md
           git commit -m "docs: update CHANGELOG.md for ${{ env.version }}" || echo "No changes to commit"
-          git push origin HEAD:main # Ersetze main durch deinen Default-Branch
+          git push origin HEAD:1.x # Wartungszweig fuer v1
 
       - name: Archive
         run: |
