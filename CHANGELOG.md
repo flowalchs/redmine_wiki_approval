@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.2 (2026-11-02)
+* feat: wiki list for all projects with view wiki pages permission, independent of the module #41
+* fix: 500 error on wiki edit in projects without the wiki approval module #42
+
 ## v2.0.0 (2026-10-24)
 * docs: update README for Redmine 6 and link wiki pages #40
 * feat: Wiki Comments – inline and page comments with replies, resolve/reopen, activity and mail notifications #37
