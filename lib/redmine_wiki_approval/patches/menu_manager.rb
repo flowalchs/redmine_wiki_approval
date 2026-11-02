@@ -25,8 +25,7 @@ module RedmineWikiApproval
         # permission check is cached per request, both menus share it
         if RedmineWikiApproval::Current.wiki_list_visible.nil?
           RedmineWikiApproval::Current.wiki_list_visible =
-            User.current.allowed_to?(:view_wiki_pages, nil, global: true) &&
-            EnabledModule.exists?(project: Project.visible, name: :wiki_approval)
+            User.current.allowed_to?(:view_wiki_pages, nil, global: true)
         end
         RedmineWikiApproval::Current.wiki_list_visible
       end

@@ -18,6 +18,19 @@ class WikiApprovalQueryControllerTest < WikiApproval::Test::ControllerCase
     assert_response :forbidden
   end
 
+  test 'index lists wiki pages of projects without the wiki approval module' do
+    assert_not @project2.module_enabled?(:wiki_approval)
+    page = WikiPage.joins(:wiki).where(wikis: { project_id: @project2.id }).first
+
+    get :index, params: { set_filter: 1, f: ['project_id'], op: { project_id: '=' }, v: { project_id: [@project2.id.to_s] } }
+    assert_response :success
+    assert_select 'table.list tbody td.title', text: page.title
+
+    get :index, params: { project_id: @project2.id }
+    assert_response :success
+    assert_select 'table.list tbody td.title', text: page.title
+  end
+
   test 'index with filter' do
     get :index, params: {
       project_id: @project.id, set_filter: 1,
