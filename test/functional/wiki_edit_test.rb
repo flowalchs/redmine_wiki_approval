@@ -494,4 +494,16 @@ class WikiEditTest < WikiApproval::Test::ControllerCase
                        .where.not(approved_page_id: nil)
     assert_empty other_approved, "Nur Version 2 sollte approved_page_id gesetzt haben"
   end
+
+  test "should edit and update wiki page without the module enabled" do
+    @project.disable_module! :wiki_approval
+
+    get :edit, params: { project_id: @project.id, id: @page.title }
+    assert_response :success
+
+    put :update, params: { project_id: @project.id, id: @page.title,
+      content: { text: 'without module', version: @page.content.version } }
+    assert_response :redirect
+    assert_equal 'without module', @page.content.reload.text
+  end
 end

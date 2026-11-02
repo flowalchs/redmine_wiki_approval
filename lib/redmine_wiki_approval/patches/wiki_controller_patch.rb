@@ -63,6 +63,7 @@ module RedmineWikiApproval
         end
 
         def mark_edit_context
+          return unless @wiki_approval_data # project not anaibled
           return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting])
           return unless @page && params[:version].blank?
 
@@ -70,6 +71,7 @@ module RedmineWikiApproval
         end
 
         def apply_content_draft_update
+          return unless @wiki_approval_data # project not anaibled
           return unless @project && RedmineWikiApproval::Settings.content_draft?(@project, @wiki_approval_data[:setting])
 
           page = @wiki.find_page(params[:id])
