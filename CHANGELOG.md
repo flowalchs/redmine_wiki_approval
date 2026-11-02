@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.1 (2026-11-02)
+* fix: 500 error on wiki edit in projects without the wiki approval module #42
+
 ## v0.13.2 (2026-07-01)
 * feat: persist and restore draft comments in wiki approval #29
 * refactor: add approved_page_id marker to WikiApprovalWorkflow #30
